@@ -1,0 +1,18 @@
+dependencies {
+    // HikariCP — the connection pool library
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+
+    // MySQL driver
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
+}
+
+// Bundle HikariCP and MySQL driver inside the jar
+// since the server won't have them otherwise
+jar {
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

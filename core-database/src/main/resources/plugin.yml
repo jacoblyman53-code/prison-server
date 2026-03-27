@@ -1,0 +1,9 @@
+name: PrisonDatabase
+version: 1.0.0
+main: com.prison.database.DatabasePlugin
+api-version: '1.21'
+description: Shared database connection pool for all Prison plugins
+authors: [prison-server]
+
+# This plugin loads before everything else
+load: STARTUP

@@ -1,0 +1,25 @@
+# ================================================================
+# Prison Server — Database Configuration
+# ================================================================
+# Fill in your MySQL connection details below.
+# These match the database SparkHost created for you.
+# ================================================================
+
+database:
+  host: "db-ash-04.apollopanel.com"
+  port: 3306
+  name: "s227586_databaseUNO"
+  username: "u227586_5fmGr3W6Mw"
+  password: "^@vW5IhlmCh@seIk^9H.o4TI"   # <-- paste your actual password here
+
+  pool:
+    # Minimum number of database connections to keep open at all times
+    minimum: 10
+    # Maximum number of connections allowed at peak load
+    # Set this to match your server's player cap (200 players = 20 connections is fine)
+    maximum: 20
+
+  batch:
+    # How often (in milliseconds) queued writes are flushed to the database
+    # Lower = more real-time but more DB pressure. 500ms is a good balance.
+    flush-interval: 500
