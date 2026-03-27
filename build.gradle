@@ -1,0 +1,41 @@
+// Root build file — settings that apply to every module
+plugins {
+    id 'java'
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    group = 'com.prison'
+    version = '1.0.0'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+    }
+
+    dependencies {
+        // Paper API — available in every module
+        compileOnly 'io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT'
+    }
+
+    // Every module that isn't a core library depends on the core modules
+    if (!project.name.startsWith('core-')) {
+        dependencies {
+            compileOnly project(':core-database')
+            compileOnly project(':core-permissions')
+        }
+    }
+
+    // Put the final jar in a shared output folder for easy deploy
+    jar {
+        destinationDirectory = file("${rootProject.projectDir}/output")
+        archiveFileName = "${project.name}.jar"
+    }
+}

@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+build/
+output/
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compiled
+*.class
+*.jar
