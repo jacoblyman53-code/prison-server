@@ -9,6 +9,9 @@ depend:
   - PrisonDatabase
   - PrisonPermissions
 
+softdepend:
+  - PrisonMines
+
 commands:
   rankup:
     description: Rank up to the next mine rank

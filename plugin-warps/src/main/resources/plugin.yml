@@ -1,0 +1,25 @@
+name: PrisonWarps
+version: 1.0.0
+main: com.prison.warps.WarpsPlugin
+api-version: '1.21'
+description: Warp and navigation system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+softdepend:
+  - PrisonMines
+
+commands:
+  spawn:
+    description: Teleport to spawn (or set spawn location)
+    usage: /spawn [set]
+  warp:
+    description: Teleport to a warp point
+    usage: /warp <name> | /warp create <name> | /warp delete <name> | /warp list
+  warps:
+    description: Browse available warps in a GUI
+  mines:
+    description: Browse all mines in a GUI and teleport

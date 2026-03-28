@@ -1,0 +1,627 @@
+# ================================================================
+# Prison Server — Mines Configuration
+# ================================================================
+
+# Blocks processed per tick during a mine reset.
+# 1000 = ~25 ticks (1.25s) for a 50x50x10 mine. Raise for faster resets,
+# lower if you notice TPS drops during resets.
+reset-batch-size: 1000
+
+# Message broadcast to players inside a mine when it begins resetting.
+reset-warning-message: "<gold>[Mine {mine}]</gold> <gray>Mine is resetting — stand clear!"
+reset-done-message: "<gold>[Mine {mine}]</gold> <green>Reset complete."
+
+# ---- Mine Definitions ----
+# Set up each mine with /mine setcorner1 <id>, /mine setcorner2 <id>,
+# /mine setspawn <id>, then /mine enable <id> to activate it.
+#
+# Fields:
+#   enabled         — false until you've set corners and spawn
+#   display         — MiniMessage name shown in GUIs
+#   world           — world name (usually "world")
+#   corner1/corner2 — [x, y, z] bounding box corners (any two opposite corners)
+#   spawn-x/y/z     — where players are teleported during resets and on /mine tp
+#   spawn-yaw/pitch — look direction at spawn
+#   composition     — block type to % weight (must sum to 100)
+#   sell-prices     — IGC per block (leave empty {} to use economy plugin defaults)
+#   reset-timer-mins — auto-reset every N minutes (0 = disabled)
+#   reset-threshold  — auto-reset when this fraction of blocks mined (0 = disabled)
+#   permission-node  — required permission to mine here
+#   mine-type        — STANDARD | DONOR | PRESTIGE
+#   prestige-required — minimum prestige level (PRESTIGE type only)
+
+mines:
+  A:
+    enabled: false
+    display: "<gray>[<white>A</white>]</gray>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 90
+      COAL_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.a"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  B:
+    enabled: false
+    display: "<gray>[<white>B</white>]</gray>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 80
+      COAL_ORE: 15
+      IRON_ORE: 5
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.b"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  C:
+    enabled: false
+    display: "<gray>[<white>C</white>]</gray>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 70
+      COAL_ORE: 20
+      IRON_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.c"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  D:
+    enabled: false
+    display: "<gray>[<white>D</white>]</gray>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 60
+      COAL_ORE: 20
+      IRON_ORE: 15
+      GOLD_ORE: 5
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.d"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  E:
+    enabled: false
+    display: "<gray>[<white>E</white>]</gray>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 50
+      COAL_ORE: 20
+      IRON_ORE: 20
+      GOLD_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.e"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  F:
+    enabled: false
+    display: "<yellow>[<white>F</white>]</yellow>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 45
+      IRON_ORE: 25
+      GOLD_ORE: 20
+      LAPIS_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.f"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  G:
+    enabled: false
+    display: "<yellow>[<white>G</white>]</yellow>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 40
+      IRON_ORE: 25
+      GOLD_ORE: 20
+      LAPIS_ORE: 15
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.g"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  H:
+    enabled: false
+    display: "<yellow>[<white>H</white>]</yellow>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 35
+      IRON_ORE: 25
+      GOLD_ORE: 20
+      LAPIS_ORE: 15
+      REDSTONE_ORE: 5
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.h"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  I:
+    enabled: false
+    display: "<yellow>[<white>I</white>]</yellow>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 30
+      IRON_ORE: 25
+      GOLD_ORE: 20
+      LAPIS_ORE: 15
+      REDSTONE_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.i"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  J:
+    enabled: false
+    display: "<yellow>[<white>J</white>]</yellow>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 25
+      IRON_ORE: 25
+      GOLD_ORE: 20
+      LAPIS_ORE: 15
+      REDSTONE_ORE: 15
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.j"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  K:
+    enabled: false
+    display: "<gold>[<white>K</white>]</gold>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 20
+      IRON_ORE: 25
+      GOLD_ORE: 20
+      LAPIS_ORE: 15
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 5
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.k"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  L:
+    enabled: false
+    display: "<gold>[<white>L</white>]</gold>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 15
+      IRON_ORE: 25
+      GOLD_ORE: 20
+      LAPIS_ORE: 15
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.l"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  M:
+    enabled: false
+    display: "<gold>[<white>M</white>]</gold>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 10
+      IRON_ORE: 20
+      GOLD_ORE: 20
+      LAPIS_ORE: 15
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 15
+      EMERALD_ORE: 5
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.m"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  N:
+    enabled: false
+    display: "<gold>[<white>N</white>]</gold>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 10
+      IRON_ORE: 20
+      GOLD_ORE: 15
+      LAPIS_ORE: 10
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 20
+      EMERALD_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.n"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  O:
+    enabled: false
+    display: "<gold>[<white>O</white>]</gold>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      STONE: 5
+      IRON_ORE: 20
+      GOLD_ORE: 15
+      LAPIS_ORE: 10
+      REDSTONE_ORE: 10
+      DIAMOND_ORE: 25
+      EMERALD_ORE: 15
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.o"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  P:
+    enabled: false
+    display: "<aqua>[<white>P</white>]</aqua>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      IRON_ORE: 20
+      GOLD_ORE: 15
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 25
+      EMERALD_ORE: 15
+      NETHER_QUARTZ_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.p"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  Q:
+    enabled: false
+    display: "<aqua>[<white>Q</white>]</aqua>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      IRON_ORE: 15
+      GOLD_ORE: 15
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 30
+      EMERALD_ORE: 15
+      NETHER_QUARTZ_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.q"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  R:
+    enabled: false
+    display: "<aqua>[<white>R</white>]</aqua>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      IRON_ORE: 10
+      GOLD_ORE: 15
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 30
+      EMERALD_ORE: 20
+      NETHER_QUARTZ_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.r"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  S:
+    enabled: false
+    display: "<aqua>[<white>S</white>]</aqua>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      IRON_ORE: 10
+      GOLD_ORE: 10
+      REDSTONE_ORE: 15
+      DIAMOND_ORE: 35
+      EMERALD_ORE: 20
+      NETHER_QUARTZ_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.s"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  T:
+    enabled: false
+    display: "<aqua>[<white>T</white>]</aqua>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      IRON_ORE: 10
+      GOLD_ORE: 10
+      REDSTONE_ORE: 10
+      DIAMOND_ORE: 35
+      EMERALD_ORE: 25
+      NETHER_QUARTZ_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.t"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  U:
+    enabled: false
+    display: "<light_purple>[<white>U</white>]</light_purple>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      GOLD_ORE: 10
+      REDSTONE_ORE: 10
+      DIAMOND_ORE: 40
+      EMERALD_ORE: 30
+      NETHER_GOLD_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.u"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  V:
+    enabled: false
+    display: "<light_purple>[<white>V</white>]</light_purple>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      GOLD_ORE: 10
+      REDSTONE_ORE: 10
+      DIAMOND_ORE: 40
+      EMERALD_ORE: 30
+      NETHER_GOLD_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.v"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  W:
+    enabled: false
+    display: "<light_purple>[<white>W</white>]</light_purple>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      GOLD_ORE: 10
+      REDSTONE_ORE: 10
+      DIAMOND_ORE: 45
+      EMERALD_ORE: 25
+      NETHER_GOLD_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.w"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  X:
+    enabled: false
+    display: "<dark_purple>[<white>X</white>]</dark_purple>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      GOLD_ORE: 10
+      DIAMOND_ORE: 50
+      EMERALD_ORE: 30
+      NETHER_GOLD_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.x"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  Y:
+    enabled: false
+    display: "<dark_purple>[<white>Y</white>]</dark_purple>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      DIAMOND_ORE: 60
+      EMERALD_ORE: 30
+      NETHER_GOLD_ORE: 10
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.y"
+    mine-type: "STANDARD"
+    prestige-required: 0
+  Z:
+    enabled: false
+    display: "<dark_purple>[<white>Z</white>]</dark_purple>"
+    world: "world"
+    corner1: [0, 64, 0]
+    corner2: [0, 64, 0]
+    spawn-x: 0.5
+    spawn-y: 66.0
+    spawn-z: 0.5
+    spawn-yaw: 0.0
+    spawn-pitch: 0.0
+    composition:
+      DIAMOND_ORE: 60
+      EMERALD_ORE: 40
+    sell-prices: {}
+    reset-timer-mins: 15
+    reset-threshold: 0.80
+    permission-node: "prison.mine.z"
+    mine-type: "STANDARD"
+    prestige-required: 0

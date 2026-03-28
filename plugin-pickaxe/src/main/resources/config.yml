@@ -1,0 +1,172 @@
+# ================================================================
+# Prison Server — Pickaxe System Configuration
+# ================================================================
+
+# Token cost multiplier applied per prestige level above 0.
+# e.g. prestige 2 = costs * (1 + 2 * 0.10) = costs * 1.20
+prestige-cost-multiplier: 0.10
+
+# Base tokens earned per block broken (before any multipliers).
+base-tokens-per-block: 1
+
+# GUI title strings (used to identify open GUIs)
+gui:
+  upgrade-title: "<dark_gray>[ <gold>Pickaxe Upgrades</gold> ]"
+  confirm-title: "<dark_gray>[ <red>Confirm Purchase</red> ]"
+
+# Custom enchants tab configuration.
+# Each enchant: id, display, max-level, per-level token costs, per-level descriptions.
+custom-enchants:
+
+  explosive:
+    display: "Explosive"
+    max-level: 5
+    icon: TNT
+    token-costs:
+      1: 500
+      2: 1500
+      3: 4000
+      4: 10000
+      5: 25000
+    descriptions:
+      1: "Breaks a 3x3 area"
+      2: "Breaks a 5x5 area"
+      3: "Breaks a 7x7 area"
+      4: "Breaks a 9x9 area"
+      5: "Breaks an 11x11 area"
+    # Area size = (2 * level + 1) x (2 * level + 1)
+
+  laser:
+    display: "Laser"
+    max-level: 5
+    icon: BLAZE_ROD
+    token-costs:
+      1: 750
+      2: 2000
+      3: 5000
+      4: 12000
+      5: 30000
+    descriptions:
+      1: "Breaks 3 blocks in a row"
+      2: "Breaks 5 blocks in a row"
+      3: "Breaks 7 blocks in a row"
+      4: "Breaks 9 blocks in a row"
+      5: "Breaks 11 blocks in a row"
+    # Extends forward from broken block; row-length = 2 * level + 1
+
+  sellall:
+    display: "Auto Sell"
+    max-level: 3
+    icon: EMERALD
+    token-costs:
+      1: 1000
+      2: 3000
+      3: 8000
+    descriptions:
+      1: "Auto-sells when inventory is 75% full"
+      2: "Auto-sells when inventory is 60% full"
+      3: "Auto-sells when inventory is 45% full"
+    # Threshold %: 75 / 60 / 45
+    thresholds:
+      1: 75
+      2: 60
+      3: 45
+
+  tokenator:
+    display: "Tokenator"
+    max-level: 5
+    icon: NETHER_STAR
+    token-costs:
+      1: 500
+      2: 1500
+      3: 4000
+      4: 10000
+      5: 25000
+    descriptions:
+      1: "+20% token earn rate"
+      2: "+50% token earn rate"
+      3: "+100% token earn rate"
+      4: "+175% token earn rate"
+      5: "+300% token earn rate"
+    # Multiplier on tokens: level 1 = 1.2x, 2 = 1.5x, 3 = 2.0x, 4 = 2.75x, 5 = 4.0x
+    multipliers:
+      1: 1.2
+      2: 1.5
+      3: 2.0
+      4: 2.75
+      5: 4.0
+
+  speed:
+    display: "Speed Mine"
+    max-level: 3
+    icon: SUGAR
+    token-costs:
+      1: 750
+      2: 2500
+      3: 7000
+    descriptions:
+      1: "Haste I while holding pickaxe"
+      2: "Haste II while holding pickaxe"
+      3: "Haste III while holding pickaxe"
+
+  jackpot:
+    display: "Jackpot"
+    max-level: 3
+    icon: GOLD_INGOT
+    token-costs:
+      1: 2000
+      2: 6000
+      3: 15000
+    descriptions:
+      1: "0.5% chance to fill inventory with mine blocks"
+      2: "1.0% chance to fill inventory with mine blocks"
+      3: "2.0% chance to fill inventory with mine blocks"
+    # Chance %: 0.5 / 1.0 / 2.0
+    chances:
+      1: 0.5
+      2: 1.0
+      3: 2.0
+
+# Vanilla enchants tab configuration.
+vanilla-enchants:
+
+  efficiency:
+    display: "Efficiency"
+    max-level: 5
+    icon: IRON_PICKAXE
+    token-costs:
+      1: 250
+      2: 750
+      3: 2000
+      4: 5000
+      5: 12000
+    descriptions:
+      1: "Efficiency I — mine faster"
+      2: "Efficiency II"
+      3: "Efficiency III"
+      4: "Efficiency IV"
+      5: "Efficiency V — maximum speed"
+
+  fortune:
+    display: "Fortune"
+    max-level: 3
+    icon: DIAMOND
+    token-costs:
+      1: 1000
+      2: 4000
+      3: 12000
+    descriptions:
+      1: "Fortune I — chance for extra drops"
+      2: "Fortune II"
+      3: "Fortune III — maximum drops"
+    # Conflicts with Silk Touch
+
+  silk_touch:
+    display: "Silk Touch"
+    max-level: 1
+    icon: FEATHER
+    token-costs:
+      1: 5000
+    descriptions:
+      1: "Silk Touch — pick up blocks intact"
+    # Conflicts with Fortune

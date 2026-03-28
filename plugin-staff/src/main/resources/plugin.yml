@@ -1,0 +1,57 @@
+name: PrisonStaff
+version: 1.0.0
+main: com.prison.staff.StaffPlugin
+api-version: '1.21'
+description: Staff management, punishments, and reports for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+commands:
+  staff:
+    description: List online staff members
+    usage: /staff
+  sc:
+    description: Send a message in staff chat
+    usage: /sc <message>
+  mute:
+    description: Mute a player permanently
+    usage: /mute <player> <reason>
+  tempmute:
+    description: Temporarily mute a player
+    usage: /tempmute <player> <duration> <reason>
+  unmute:
+    description: Remove a player's mute
+    usage: /unmute <player>
+  kick:
+    description: Kick a player from the server
+    usage: /kick <player> <reason>
+  ban:
+    description: Permanently ban a player
+    usage: /ban <player> <reason>
+  tempban:
+    description: Temporarily ban a player
+    usage: /tempban <player> <duration> <reason>
+  ipban:
+    description: IP ban a player
+    usage: /ipban <player> <reason>
+  unban:
+    description: Unban a player
+    usage: /unban <player>
+  freeze:
+    description: Freeze or unfreeze a player in place
+    usage: /freeze <player>
+  invsee:
+    description: View a player's inventory
+    usage: /invsee <player>
+  stafftp:
+    description: Teleport to a player (staff use)
+    usage: /stafftp <player>
+  report:
+    description: Report a player for breaking the rules
+    usage: /report <player> <reason>
+  reports:
+    description: View and manage the report queue
+    usage: /reports [page] | /reports close <id> <resolution>

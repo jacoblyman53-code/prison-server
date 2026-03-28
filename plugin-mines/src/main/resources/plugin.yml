@@ -1,0 +1,19 @@
+name: PrisonMines
+version: 1.0.0
+main: com.prison.mines.MinesPlugin
+api-version: '1.21'
+description: Mine system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+softdepend:
+  - PrisonEconomy
+
+commands:
+  mine:
+    description: Mine management commands
+    usage: /mine <subcommand>
+    permission: prison.admin.*

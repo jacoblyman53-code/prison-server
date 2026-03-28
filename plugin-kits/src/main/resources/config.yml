@@ -1,0 +1,237 @@
+# ================================================================
+# Prison Server — Kit System Configuration
+# ================================================================
+#
+# Kit types:
+#   FREE   — available to all players, timer cooldown
+#   RANK   — requires a minimum mine rank, timer cooldown
+#   DONOR  — requires a donor rank, cooldown resets on server restart
+#            (min-cooldown-hours prevents abuse if server restarts often)
+#
+# Contents format per item:
+#   material: MATERIAL_NAME
+#   amount:   1
+#   enchants: (optional map of enchant name → level)
+#     EFFICIENCY: 3
+#   display: "Custom Name"   (optional MiniMessage string)
+
+kits:
+
+  # ------------------------------------------------------------------
+  # FREE kits
+  # ------------------------------------------------------------------
+
+  starter:
+    display: "<green>Starter Kit"
+    type: FREE
+    cooldown-hours: 0       # 0 = one-time only (can never re-claim once used)
+    contents:
+      - material: STONE_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 1
+      - material: BREAD
+        amount: 32
+      - material: TORCH
+        amount: 64
+
+  daily:
+    display: "<yellow>Daily Kit"
+    type: FREE
+    cooldown-hours: 24
+    contents:
+      - material: BREAD
+        amount: 16
+      - material: COOKED_BEEF
+        amount: 8
+      - material: EXPERIENCE_BOTTLE
+        amount: 4
+
+  # ------------------------------------------------------------------
+  # RANK kits — unlocked at the listed mine rank (or higher)
+  # ------------------------------------------------------------------
+
+  rank_e:
+    display: "<aqua>Rank E Kit"
+    type: RANK
+    required-rank: E
+    cooldown-hours: 24
+    contents:
+      - material: IRON_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 2
+          UNBREAKING: 2
+      - material: IRON_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 2
+      - material: COOKED_BEEF
+        amount: 32
+
+  rank_m:
+    display: "<gold>Rank M Kit"
+    type: RANK
+    required-rank: M
+    cooldown-hours: 24
+    contents:
+      - material: GOLD_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 3
+          UNBREAKING: 2
+          FORTUNE: 1
+      - material: GOLD_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 3
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 8
+
+  rank_z:
+    display: "<light_purple>Rank Z Kit"
+    type: RANK
+    required-rank: Z
+    cooldown-hours: 12
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 4
+          UNBREAKING: 3
+          FORTUNE: 2
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 16
+
+  # ------------------------------------------------------------------
+  # DONOR kits — cooldown resets on server restart
+  # ------------------------------------------------------------------
+
+  donor:
+    display: "<blue>Donor Kit"
+    type: DONOR
+    required-donor-rank: donor
+    min-cooldown-hours: 1   # must be at least 1h since last claim even after restart
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 3
+          UNBREAKING: 3
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 2
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 16
+
+  donorplus:
+    display: "<blue>Donor<dark_blue>+</dark_blue> Kit"
+    type: DONOR
+    required-donor-rank: donorplus
+    min-cooldown-hours: 1
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 4
+          UNBREAKING: 3
+          FORTUNE: 1
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 2
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 32
+
+  elite:
+    display: "<gold>Elite Kit"
+    type: DONOR
+    required-donor-rank: elite
+    min-cooldown-hours: 1
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 5
+          UNBREAKING: 3
+          FORTUNE: 2
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          THORNS: 2
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+      - material: DIAMOND_BOOTS
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 3
+          FEATHER_FALLING: 4
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 32
+
+  eliteplus:
+    display: "<gold>Elite<yellow>+</yellow> Kit"
+    type: DONOR
+    required-donor-rank: eliteplus
+    min-cooldown-hours: 1
+    contents:
+      - material: NETHERITE_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 5
+          UNBREAKING: 3
+          FORTUNE: 3
+          MENDING: 1
+      - material: NETHERITE_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          THORNS: 3
+          MENDING: 1
+      - material: NETHERITE_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          MENDING: 1
+      - material: NETHERITE_BOOTS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          FEATHER_FALLING: 4
+          MENDING: 1
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 64

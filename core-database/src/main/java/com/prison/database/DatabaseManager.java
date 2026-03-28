@@ -147,6 +147,22 @@ public class DatabaseManager {
     }
 
     /**
+     * Run an INSERT and return the auto-generated primary key.
+     * Returns -1 if no key was generated (e.g. table has no auto-increment).
+     */
+    public long executeAndGetId(String sql, Object... params) throws SQLException {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+
+            setParams(stmt, params);
+            stmt.executeUpdate();
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                return keys.next() ? keys.getLong(1) : -1L;
+            }
+        }
+    }
+
+    /**
      * Queue a write to be flushed in the next batch (every 500ms).
      * Use this for high-frequency writes like block break events or token drops
      * where a slight delay is acceptable and you want to minimize DB pressure.

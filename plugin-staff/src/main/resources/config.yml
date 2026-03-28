@@ -1,0 +1,22 @@
+# ================================================================
+# Prison Server — Staff Management Configuration
+# ================================================================
+
+# How often (seconds) a player must wait before reporting the same player again
+report-cooldown-seconds: 300
+
+# Staff mode settings — applied automatically on join for staff ranks
+staff-mode:
+  vanish: true       # hide staff from non-staff players
+  god-mode: true     # invulnerability
+  flight: true       # allow flight
+
+# Ban screen message — supports {reason}, {expires}, {id}
+ban-message: |
+  <red><bold>You are banned from this server.</bold>
+  <gray>Reason: <white>{reason}
+  <gray>Expires: <white>{expires}
+  <gray>Appeal at: <aqua>discord.gg/prison
+
+# Mute notification shown when a muted player tries to chat — {expires}
+mute-message: "<red>You are muted. <gray>Expires: <white>{expires}"

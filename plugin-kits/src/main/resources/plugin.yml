@@ -1,0 +1,19 @@
+name: PrisonKits
+version: 1.0.0
+main: com.prison.kits.KitsPlugin
+api-version: '1.21'
+description: Kit system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+  - PrisonEconomy
+
+softdepend:
+  - PrisonDonor
+
+commands:
+  kit:
+    description: Claim a kit or view available kits
+    usage: /kit [<name> [preview]] | /kit list

@@ -1,6 +1,7 @@
 package com.prison.ranks;
 
 import com.prison.database.DatabaseManager;
+import com.prison.mines.MinesAPI;
 import com.prison.permissions.PermissionEngine;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -109,12 +110,15 @@ public class RankPlugin extends JavaPlugin implements Listener {
                     Bukkit.broadcast(mm.deserialize(bMsg));
                 }
 
-                // Auto-teleport to new mine warp (handled by warp system when built)
-                // For now just log intent
+                // Auto-teleport to new mine spawn
                 if (manager.getAutoteleport(player.getUniqueId())) {
-                    // Will call WarpAPI.teleport(player, "mine_" + newRank.toLowerCase()) once warp system is live
-                    getLogger().fine("[Ranks] Auto-teleport to mine_" + newRank.toLowerCase()
-                        + " for " + player.getName() + " (warp system not yet built)");
+                    MinesAPI minesApi = MinesAPI.getInstance();
+                    if (minesApi != null) {
+                        org.bukkit.Location spawn = minesApi.getSpawnLocation(newRank);
+                        if (spawn != null) {
+                            player.teleport(spawn);
+                        }
+                    }
                 }
             }
             case CANNOT_AFFORD -> {

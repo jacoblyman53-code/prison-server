@@ -1,0 +1,21 @@
+name: PrisonPickaxe
+version: 1.0.0
+main: com.prison.pickaxe.PickaxePlugin
+api-version: '1.21'
+description: Custom pickaxe system with enchants and upgrade GUI for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+  - PrisonEconomy
+
+softdepend:
+  - PrisonDonor
+  - PrisonPrestige
+  - PrisonMines
+
+commands:
+  pickaxe:
+    description: Manage your prison pickaxe
+    usage: /pickaxe [give|reload]
