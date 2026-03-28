@@ -1,0 +1,17 @@
+name: PrisonRegions
+version: 1.0.0
+main: com.prison.regions.RegionPlugin
+api-version: '1.21'
+description: Custom region protection engine for the Prison server
+authors: [prison-server]
+
+load: STARTUP
+
+depend:
+  - PrisonDatabase
+
+commands:
+  rg:
+    description: Region management
+    usage: /rg <tool|list|delete|reload>
+    permission: prison.admintoolkit.regions

@@ -1,0 +1,32 @@
+name: PrisonEconomy
+version: 1.0.0
+main: com.prison.economy.EconomyPlugin
+api-version: '1.21'
+description: Economy system (IGC + Tokens) for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+commands:
+  balance:
+    description: View your IGC balance
+    aliases: [bal, money]
+  tokens:
+    description: View your token balance
+    aliases: [tok]
+  pay:
+    description: Pay another player IGC
+    usage: /pay <player> <amount>
+  baltop:
+    description: View the richest players leaderboard
+  sell:
+    description: Sell the item you are holding
+  sellall:
+    description: Sell all sellable items in your inventory
+  autosell:
+    description: Toggle automatic selling on block break (donor perk)
+  tokenlog:
+    description: View your recent token transactions
+    aliases: [tlog]

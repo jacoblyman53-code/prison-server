@@ -1,0 +1,20 @@
+name: PrisonPrestige
+version: 1.0.0
+main: com.prison.prestige.PrestigePlugin
+api-version: '1.21'
+description: Prestige system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+commands:
+  prestige:
+    description: Open the prestige confirmation GUI
+    usage: /prestige
+    permission: prison.prestige.access
+  prestigeinfo:
+    description: View prestige levels and rewards
+    usage: /prestigeinfo [level]
+    permission: prison.sell

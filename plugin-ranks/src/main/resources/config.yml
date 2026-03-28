@@ -1,0 +1,155 @@
+# ================================================================
+# Prison Server — Mine Rank Configuration
+# ================================================================
+# Define the cost, display name, and chat prefix for each rank.
+# All values are configurable — no hardcoded costs anywhere.
+#
+# cost:        IGC balance required to rank up FROM this rank
+# display:     Name shown in GUIs and chat
+# prefix:      MiniMessage format string used in chat
+# ================================================================
+
+# Default autoteleport setting for new players (can be toggled per-player with /rankup autoteleport toggle)
+autoteleport-default: true
+
+# Message sent on successful rankup. Supports MiniMessage.
+# {rank} = the new rank letter, {display} = the rank display name
+rankup-message: "<green>You ranked up to <gold><bold>{display}</bold></gold>! Keep mining."
+rankup-broadcast: ""   # Leave blank to not broadcast rankups to the server
+
+# Message when player can't afford rankup
+cannot-afford-message: "<red>You need <gold>{cost} IGC</gold> to rank up. You have <gold>{balance} IGC</gold>."
+
+# Message when player is already max rank (Z) and prestige isn't available
+max-rank-message: "<gold>You are rank Z — the highest mine rank! Prestige coming soon."
+
+ranks:
+  A:
+    cost: 0
+    display: "Rank A"
+    prefix: "<dark_gray>[<gray>A</gray>]</dark_gray>"
+
+  B:
+    cost: 5000
+    display: "Rank B"
+    prefix: "<dark_gray>[<gray>B</gray>]</dark_gray>"
+
+  C:
+    cost: 15000
+    display: "Rank C"
+    prefix: "<dark_gray>[<gray>C</gray>]</dark_gray>"
+
+  D:
+    cost: 35000
+    display: "Rank D"
+    prefix: "<dark_gray>[<white>D</white>]</dark_gray>"
+
+  E:
+    cost: 75000
+    display: "Rank E"
+    prefix: "<dark_gray>[<white>E</white>]</dark_gray>"
+
+  F:
+    cost: 150000
+    display: "Rank F"
+    prefix: "<dark_gray>[<white>F</white>]</dark_gray>"
+
+  G:
+    cost: 275000
+    display: "Rank G"
+    prefix: "<dark_gray>[<yellow>G</yellow>]</dark_gray>"
+
+  H:
+    cost: 450000
+    display: "Rank H"
+    prefix: "<dark_gray>[<yellow>H</yellow>]</dark_gray>"
+
+  I:
+    cost: 700000
+    display: "Rank I"
+    prefix: "<dark_gray>[<yellow>I</yellow>]</dark_gray>"
+
+  J:
+    cost: 1000000
+    display: "Rank J"
+    prefix: "<dark_gray>[<gold>J</gold>]</dark_gray>"
+
+  K:
+    cost: 1500000
+    display: "Rank K"
+    prefix: "<dark_gray>[<gold>K</gold>]</dark_gray>"
+
+  L:
+    cost: 2250000
+    display: "Rank L"
+    prefix: "<dark_gray>[<gold>L</gold>]</dark_gray>"
+
+  M:
+    cost: 3500000
+    display: "Rank M"
+    prefix: "<dark_gray>[<green>M</green>]</dark_gray>"
+
+  N:
+    cost: 5000000
+    display: "Rank N"
+    prefix: "<dark_gray>[<green>N</green>]</dark_gray>"
+
+  O:
+    cost: 7500000
+    display: "Rank O"
+    prefix: "<dark_gray>[<green>O</green>]</dark_gray>"
+
+  P:
+    cost: 11000000
+    display: "Rank P"
+    prefix: "<dark_gray>[<aqua>P</aqua>]</dark_gray>"
+
+  Q:
+    cost: 16000000
+    display: "Rank Q"
+    prefix: "<dark_gray>[<aqua>Q</aqua>]</dark_gray>"
+
+  R:
+    cost: 23000000
+    display: "Rank R"
+    prefix: "<dark_gray>[<aqua>R</aqua>]</dark_gray>"
+
+  S:
+    cost: 33000000
+    display: "Rank S"
+    prefix: "<dark_gray>[<light_purple>S</light_purple>]</dark_gray>"
+
+  T:
+    cost: 48000000
+    display: "Rank T"
+    prefix: "<dark_gray>[<light_purple>T</light_purple>]</dark_gray>"
+
+  U:
+    cost: 70000000
+    display: "Rank U"
+    prefix: "<dark_gray>[<light_purple>U</light_purple>]</dark_gray>"
+
+  V:
+    cost: 100000000
+    display: "Rank V"
+    prefix: "<dark_gray>[<red>V</red>]</dark_gray>"
+
+  W:
+    cost: 150000000
+    display: "Rank W"
+    prefix: "<dark_gray>[<red>W</red>]</dark_gray>"
+
+  X:
+    cost: 225000000
+    display: "Rank X"
+    prefix: "<dark_gray>[<red>X</red>]</dark_gray>"
+
+  Y:
+    cost: 350000000
+    display: "Rank Y"
+    prefix: "<dark_gray>[<dark_red>Y</dark_red>]</dark_gray>"
+
+  Z:
+    cost: 500000000
+    display: "Rank Z"
+    prefix: "<dark_gray>[<dark_red><bold>Z</bold></dark_red>]</dark_gray>"

@@ -1,0 +1,20 @@
+name: PrisonRanks
+version: 1.0.0
+main: com.prison.ranks.RankPlugin
+api-version: '1.21'
+description: Mine rank progression system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+commands:
+  rankup:
+    description: Rank up to the next mine rank
+    usage: /rankup [autoteleport toggle]
+    permission: prison.sell
+  ranks:
+    description: View rank progression GUI
+    usage: /ranks
+    permission: prison.sell

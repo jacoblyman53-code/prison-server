@@ -1,0 +1,39 @@
+# ================================================================
+# Prison Server — Prestige System Configuration
+# ================================================================
+
+# Token multiplier bonus added per prestige level (additive).
+# Example: 0.02 = +2% per prestige. At P5 this adds +10%.
+token-multiplier-per-prestige: 0.02
+
+# Broadcast message when a player prestiges. Supports MiniMessage.
+# {player} = player name, {prestige} = new prestige level
+broadcast-message: "<gold><bold>{player}</bold></gold> <yellow>has prestiged to <gold><bold>[P{prestige}]</bold></gold><yellow>!"
+
+# Prefix format for prestige display in chat. Supports MiniMessage.
+# {level} = prestige number
+prefix-format: "<dark_purple>[<light_purple>P{level}</light_purple>]</dark_purple>"
+
+# ---- Per-tier rewards ----
+# Rewards given when reaching a specific prestige level.
+# Each entry runs a command as console (use {player} for the player name).
+# You can stack multiple commands per tier.
+#
+# reward-type options:
+#   command: runs the listed commands as console
+#
+# Leave rewards empty ({}) for no special reward at that tier.
+rewards:
+  1:
+    commands:
+      - "say {player} reached Prestige 1!"
+  5:
+    commands:
+      - "say {player} reached Prestige 5 — milestone!"
+  10:
+    commands:
+      - "say {player} reached Prestige 10 — legendary!"
+
+# Max tracked prestige (permission nodes go up to this number).
+# Players can prestige beyond this — they just won't get new perm nodes.
+max-prestige-perms: 50

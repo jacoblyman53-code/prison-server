@@ -1,0 +1,48 @@
+# ================================================================
+# Prison Server — Economy Configuration
+# ================================================================
+
+# Currency display symbols
+currency-symbol: "$"
+token-symbol: "T"
+
+# Sell rate limiting — minimum milliseconds between /sell or /sellall
+# Prevents macro/script abuse. Does NOT apply to auto-sell on block break.
+min-sell-interval-ms: 500
+
+# How often to refresh the /baltop leaderboard (seconds)
+baltop-refresh-seconds: 60
+
+# Auto-save all wallets to DB on this interval (seconds) as a safety net.
+# Wallets are also saved immediately on every balance change and on quit.
+auto-save-seconds: 300
+
+# ---- Default sell prices ----
+# Material name (Bukkit enum, UPPERCASE) → IGC per item sold.
+# These defaults apply when the mines plugin is not providing per-mine prices.
+# The admin toolkit will let you set these in-game once it's built.
+sell-prices:
+  STONE:          5
+  COBBLESTONE:    3
+  COAL_ORE:       50
+  DEEPSLATE_COAL_ORE: 55
+  IRON_ORE:       100
+  DEEPSLATE_IRON_ORE: 110
+  GOLD_ORE:       200
+  DEEPSLATE_GOLD_ORE: 220
+  LAPIS_ORE:      60
+  DEEPSLATE_LAPIS_ORE: 65
+  REDSTONE_ORE:   40
+  DEEPSLATE_REDSTONE_ORE: 45
+  DIAMOND_ORE:    500
+  DEEPSLATE_DIAMOND_ORE: 550
+  EMERALD_ORE:    750
+  DEEPSLATE_EMERALD_ORE: 825
+  NETHER_QUARTZ_ORE: 80
+  NETHER_GOLD_ORE: 150
+  SAND:           2
+  GRAVEL:         2
+  CLAY:           10
+  NETHERRACK:     8
+  GLOWSTONE:      120
+  QUARTZ_BLOCK:   90

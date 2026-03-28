@@ -1,0 +1,261 @@
+# ================================================================
+# Prison Server — Permission Engine Configuration
+# ================================================================
+# Define what permissions each rank group grants.
+# Changes here require a server restart to take effect.
+#
+# Format:
+#   groups:
+#     <group-node>:
+#       - permission.node.one
+#       - permission.node.two
+# ================================================================
+
+groups:
+
+  # ---- MINE RANKS ----
+  # Each rank grants access to mine at that level and below.
+  # Players only access their current rank's mine — not all previous mines.
+
+  'prison.rank.a':
+    - prison.mine.a
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+
+  'prison.rank.b':
+    - prison.mine.b
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+
+  'prison.rank.c':
+    - prison.mine.c
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+
+  'prison.rank.d':
+    - prison.mine.d
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankD
+
+  'prison.rank.e':
+    - prison.mine.e
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.f':
+    - prison.mine.f
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.g':
+    - prison.mine.g
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.h':
+    - prison.mine.h
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.i':
+    - prison.mine.i
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.j':
+    - prison.mine.j
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.k':
+    - prison.mine.k
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.l':
+    - prison.mine.l
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankE
+
+  'prison.rank.m':
+    - prison.mine.m
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.n':
+    - prison.mine.n
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.o':
+    - prison.mine.o
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.p':
+    - prison.mine.p
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.q':
+    - prison.mine.q
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.r':
+    - prison.mine.r
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.s':
+    - prison.mine.s
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.t':
+    - prison.mine.t
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.u':
+    - prison.mine.u
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.v':
+    - prison.mine.v
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.w':
+    - prison.mine.w
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.x':
+    - prison.mine.x
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.y':
+    - prison.mine.y
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankM
+
+  'prison.rank.z':
+    - prison.mine.z
+    - prison.sell
+    - prison.kit.starter
+    - prison.kit.daily
+    - prison.kit.rankZ
+    - prison.prestige.access
+
+  # ---- DONOR RANKS ----
+  # Completely separate from mine ranks — never inherit from each other.
+
+  'prison.donor.donor':
+    - prison.autosell
+    - prison.kit.donor
+    - prison.donor.mines
+
+  'prison.donor.donorplus':
+    - prison.autosell
+    - prison.kit.donorplus
+    - prison.donor.mines
+
+  'prison.donor.elite':
+    - prison.autosell
+    - prison.kit.elite
+    - prison.donor.mines
+
+  'prison.donor.eliteplus':
+    - prison.autosell
+    - prison.kit.eliteplus
+    - prison.donor.mines
+
+  # ---- STAFF RANKS ----
+  # Staff inherit downward — admin has all moderator and helper permissions too.
+  # Only define what each rank adds on top of the rank below it.
+
+  'prison.staff.helper':
+    - prison.staff.helper
+    - prison.mute
+    - prison.slowchat
+    - prison.tp.players
+    - prison.vanish
+
+  'prison.staff.moderator':
+    - prison.kick
+    - prison.tempban
+    - prison.freeze
+    - prison.invsee
+    - prison.tp.anywhere
+    - prison.reports
+
+  'prison.staff.seniormod':
+    - prison.ban
+    - prison.ipban
+    - prison.transactions.view
+
+  'prison.staff.admin':
+    - prison.admintoolkit.use
+    - prison.admintoolkit.economy
+    - prison.admintoolkit.ranks
+    - prison.admintoolkit.mines
+    - prison.admintoolkit.crates
+    - prison.admintoolkit.regions
+    - prison.admintoolkit.servercontrols
+    - prison.admin.*
+
+  'prison.staff.senioradmin':
+    - prison.staff.manage.admin
+
+  'prison.staff.owner':
+    - '*'

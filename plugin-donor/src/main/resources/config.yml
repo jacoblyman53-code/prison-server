@@ -1,0 +1,50 @@
+# ================================================================
+# Prison Server — Donor Rank Configuration
+# ================================================================
+# Donor ranks are assigned by the Tebex delivery plugin (build #21).
+# This file controls display, multipliers, and perk descriptions.
+# ================================================================
+
+ranks:
+  donor:
+    display: "Donor"
+    prefix: "<blue>[<aqua>Donor</aqua>]</blue>"
+    token-multiplier: 1.25
+    perks:
+      - "1.25x token earn multiplier"
+      - "Access to donor mine"
+      - "Auto-sell toggle (/autosell)"
+      - "Kit: /kit donor (resets daily)"
+
+  donorplus:
+    display: "Donor+"
+    prefix: "<blue>[<aqua>Donor<white>+</white></aqua>]</blue>"
+    token-multiplier: 1.5
+    perks:
+      - "1.5x token earn multiplier"
+      - "Access to donor mine"
+      - "Auto-sell toggle (/autosell)"
+      - "Kit: /kit donorplus (resets daily)"
+      - "All Donor perks"
+
+  elite:
+    display: "Elite"
+    prefix: "<dark_aqua>[<aqua><bold>Elite</bold></aqua>]</dark_aqua>"
+    token-multiplier: 1.75
+    perks:
+      - "1.75x token earn multiplier"
+      - "Access to elite mine"
+      - "Auto-sell toggle (/autosell)"
+      - "Kit: /kit elite (resets daily)"
+      - "All Donor+ perks"
+
+  eliteplus:
+    display: "Elite+"
+    prefix: "<dark_aqua>[<aqua><bold>Elite<white>+</white></bold></aqua>]</dark_aqua>"
+    token-multiplier: 2.0
+    perks:
+      - "2.0x token earn multiplier"
+      - "Access to elite mine"
+      - "Auto-sell toggle (/autosell)"
+      - "Kit: /kit eliteplus (resets daily)"
+      - "All Elite perks"

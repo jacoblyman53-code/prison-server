@@ -1,0 +1,15 @@
+name: PrisonDonor
+version: 1.0.0
+main: com.prison.donor.DonorPlugin
+api-version: '1.21'
+description: Donor rank system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+commands:
+  donorrank:
+    description: View your donor rank perks and multiplier
+    usage: /donorrank

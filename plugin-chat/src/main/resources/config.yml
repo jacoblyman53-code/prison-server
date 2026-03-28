@@ -1,0 +1,46 @@
+# ================================================================
+# Prison Server — Chat Formatting Configuration
+# ================================================================
+# All formats use MiniMessage syntax.
+# Tokens: {prestige} {donor} {mine} {staff} {name} {message}
+# Each token is replaced with the player's formatted prefix.
+# Tokens are omitted entirely (no extra space) if the player
+# doesn't have that rank tier.
+# ================================================================
+
+# Full chat format. Tokens are replaced with formatted prefixes.
+chat-format: "{prestige}{donor}{mine}{staff}<white>{name}</white><dark_gray>: </dark_gray><gray>{message}"
+
+# Tablist display name format (same tokens available)
+tablist-format: "{prestige}{donor}{mine}{name}"
+
+# Tablist header and footer. Use \n for line breaks.
+# {online} = current player count, {max} = max players
+tablist-header: "<gold><bold>PRISON</bold></gold>\n<gray>{online} players online"
+tablist-footer: "<dark_gray>Store • Discord • Forums"
+
+# Separator placed between prefixes that are present.
+# Use "" for no separator, " " for a space, etc.
+prefix-separator: " "
+
+# ---- Per-rank prefix overrides ----
+# These override the prefixes defined in the rank config files.
+# Leave a section empty to use the prefix from the rank's own config.
+# Useful for tweaking without touching every individual rank config.
+#
+# Format: rank-key: "MiniMessage prefix string"
+# rank-key for mine ranks: A, B, C ... Z
+# rank-key for donor ranks: donor, donorplus, elite, eliteplus
+# rank-key for staff ranks: helper, moderator, seniormod, admin, senioradmin, owner
+# rank-key for prestige: use the prestige-format token below
+#
+# Leave these sections empty to use the defaults from each plugin's config.
+mine-prefix-overrides: {}
+donor-prefix-overrides: {}
+staff-prefix-overrides:
+  helper:      "<dark_green>[Helper]</dark_green>"
+  moderator:   "<green>[Mod]</green>"
+  seniormod:   "<green>[Sr.Mod]</green>"
+  admin:       "<red>[Admin]</red>"
+  senioradmin: "<dark_red>[Sr.Admin]</dark_red>"
+  owner:       "<dark_red>[Owner]</dark_red>"
