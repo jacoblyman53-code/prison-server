@@ -1,0 +1,21 @@
+name: PrisonGangs
+version: '1.0.0'
+main: com.prison.gangs.GangPlugin
+api-version: '1.21'
+description: Gang / crew system for the prison server.
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+  - PrisonEconomy
+
+softdepend:
+  - PrisonDonor
+
+commands:
+  gang:
+    description: Main gang command.
+    usage: /gang <create|invite|accept|deny|leave|kick|promote|demote|transfer|deposit|withdraw|info|top|disband|chat>
+  gc:
+    description: Send a message to your gang.
+    usage: /gc <message>

@@ -191,6 +191,20 @@ public class MineManager {
         plugin.saveConfig();
     }
 
+    /**
+     * Update a mine's block composition in config and reload immediately.
+     * Called by the admin toolkit GUI.
+     */
+    public void setComposition(FileConfiguration config, String id, Map<Material, Double> newComposition) {
+        // Clear existing composition section
+        config.set("mines." + id + ".composition", null);
+        // Write new entries
+        for (Map.Entry<Material, Double> e : newComposition.entrySet()) {
+            config.set("mines." + id + ".composition." + e.getKey().name(), e.getValue());
+        }
+        // loadFromConfig will be called by the caller after saving
+    }
+
     // ----------------------------------------------------------------
     // Lookups
     // ----------------------------------------------------------------

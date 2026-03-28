@@ -1,0 +1,26 @@
+name: PrisonTebex
+version: '1.0.0'
+main: com.prison.tebex.TebexPlugin
+api-version: '1.21'
+description: Tebex purchase delivery layer for the prison server.
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+  - PrisonDonor
+
+softdepend:
+  - PrisonCrates
+
+commands:
+  tebexdeliver:
+    description: >
+      Called by Tebex on purchase.
+      Usage: /tebexdeliver <username> <transaction_id> <product_id> <product_type> [args...]
+      product_type: donor_rank <rank_id> | crate_key <tier> <amount>
+    permission: prison.tebex.deliver
+
+  tebex:
+    description: Admin Tebex delivery management.
+    usage: /tebex <history|pending> <player>
+    permission: prison.staff.admin

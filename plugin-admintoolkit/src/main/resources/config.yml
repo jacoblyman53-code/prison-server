@@ -1,0 +1,5 @@
+# AdminToolkit Configuration
+
+# Server state persisted across restarts
+maintenance-mode: false
+global-pvp: true

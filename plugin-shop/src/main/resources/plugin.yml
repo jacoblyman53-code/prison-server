@@ -1,0 +1,19 @@
+name: PrisonShop
+version: 1.0.0
+main: com.prison.shop.ShopPlugin
+api-version: '1.21'
+description: IGC Shop for the Prison server
+authors: [prison-server]
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+  - PrisonEconomy
+commands:
+  shop:
+    description: Open the IGC shop
+    usage: /shop
+    permission: prison.sell
+  shopadmin:
+    description: Manage shop categories and items
+    usage: /shopadmin
+    permission: prison.admintoolkit.use

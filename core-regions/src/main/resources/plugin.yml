@@ -10,6 +10,9 @@ load: STARTUP
 depend:
   - PrisonDatabase
 
+softdepend:
+  - PrisonPermissions
+
 commands:
   rg:
     description: Region management

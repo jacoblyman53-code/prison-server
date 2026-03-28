@@ -1,0 +1,23 @@
+# Maximum gang members by donor rank (default applies to non-donors)
+max-members: 10
+donor-max-members:
+  donor: 12
+  donorplus: 14
+  elite: 16
+  eliteplus: 20
+
+# Bank balance thresholds for gang levels 2 through 10
+# Gang starts at level 1; reaches level 2 at 50000 bank balance, etc.
+level-thresholds:
+  - 50000
+  - 150000
+  - 350000
+  - 750000
+  - 1500000
+  - 3000000
+  - 5000000
+  - 8000000
+  - 12000000
+
+# Invite expires after this many seconds if not accepted
+invite-expire-seconds: 120

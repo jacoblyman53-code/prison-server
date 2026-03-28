@@ -1,0 +1,52 @@
+# Crate block locations — format: "world:x:y:z:tier"
+# Set these using /crate setblock <tier> while looking at a block
+crate-blocks: []
+
+# Crate tier definitions
+crates:
+  common:
+    display-name: "Common Crate"
+    key-material: TRIPWIRE_HOOK
+    key-color: "<white>"
+    rewards: []
+
+  rare:
+    display-name: "Rare Crate"
+    key-material: ENDER_EYE
+    key-color: "<light_purple>"
+    rewards: []
+
+  legendary:
+    display-name: "Legendary Crate"
+    key-material: NETHER_STAR
+    key-color: "<gold>"
+    rewards: []
+
+# Reward format (added programmatically via /crate addreward or future GUI):
+# rewards:
+#   - type: IGC           # IGC, TOKEN, CRATE_KEY, ITEM
+#     amount: 5000        # for IGC / TOKEN
+#     weight: 50
+#     broadcast: false
+#     display-name: "$5,000 IGC"
+#
+#   - type: CRATE_KEY
+#     tier: common
+#     key-amount: 1
+#     weight: 10
+#     broadcast: false
+#     display-name: "Common Key"
+#
+#   - type: ITEM
+#     weight: 5
+#     broadcast: true
+#     display-name: "Diamond Sword"
+#     item: <base64-encoded ItemStack bytes>
+
+# Ticks between animation frame updates (lower = faster initial spin)
+animation-start-speed: 2
+animation-end-speed: 8
+# Total ticks for the spin phase before revealing winner
+animation-spin-ticks: 60
+# Ticks to show the winner before closing
+animation-reveal-ticks: 60

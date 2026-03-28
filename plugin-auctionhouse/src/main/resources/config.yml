@@ -1,0 +1,11 @@
+# Auction House Configuration
+listing-fee-percent: 5.0        # % of sale price charged upfront (minimum 1 IGC)
+listing-duration-hours: 48      # How long active listings stay up before expiring
+cache-refresh-interval-seconds: 30  # How often the listing cache refreshes from DB
+
+# Max active listings per player by rank
+max-listings-default: 3
+max-listings-donor: 5
+max-listings-donorplus: 8
+max-listings-elite: 12
+max-listings-eliteplus: 16

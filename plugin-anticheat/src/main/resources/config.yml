@@ -1,0 +1,29 @@
+# ─── Sell Rate Limiter ───────────────────────────────────────────────
+# Minimum milliseconds between /sellall executions. Faster = flagged.
+sell-cooldown-ms: 500
+# How many sell violations within the window trigger a staff alert.
+sell-violation-threshold: 5
+# Window in ms over which sell violations are counted.
+sell-violation-window-ms: 30000
+
+# ─── Block Break Rate ────────────────────────────────────────────────
+# Maximum blocks broken per second before a flag is raised.
+# Account for AoE enchants: Explosive L5 (11×11) mined at 10 breaks/s = 1210/s max.
+# A realistic ceiling with the highest possible enchants is ~1500/s.
+block-break-max-per-second: 1500
+# How many consecutive seconds of exceeding the rate before flagging.
+block-break-consecutive-threshold: 3
+
+# ─── Token Earn Sanity Check ─────────────────────────────────────────
+# Max tokens a player should earn in one minute under normal conditions.
+# Set to 0 to disable this check.
+max-tokens-per-minute: 10000
+# Check interval in seconds.
+token-check-interval-seconds: 300
+
+# ─── Violation Tracking ──────────────────────────────────────────────
+# Total session violations before a staff alert is sent.
+# Alerts fire again every N more violations after the initial trigger.
+alert-every-n-violations: 10
+# Whether to log every individual flag to the database (vs only on threshold).
+log-all-flags: true

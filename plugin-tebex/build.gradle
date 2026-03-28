@@ -1,0 +1,4 @@
+dependencies {
+    compileOnly project(':plugin-donor')   // DonorAPI.setDonorRank
+    compileOnly project(':plugin-crates')  // CrateManager.giveKeys (softdepend at runtime)
+}

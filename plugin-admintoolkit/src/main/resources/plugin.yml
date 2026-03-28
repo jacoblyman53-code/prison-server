@@ -1,0 +1,48 @@
+name: AdminToolkit
+version: 1.0.0
+main: com.prison.admintoolkit.AdminToolkitPlugin
+api-version: '1.21'
+description: Admin toolkit for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+  - PrisonRegions
+  - PrisonRanks
+  - PrisonEconomy
+  - PrisonMines
+  - PrisonStaff
+
+softdepend:
+  - PrisonDonor
+
+commands:
+  adminpanel:
+    description: Open the admin control panel
+    usage: /adminpanel
+    permission: prison.admintoolkit.use
+  adminmine:
+    description: Admin mine management
+    usage: /adminmine [edit <id>]
+    permission: prison.admintoolkit.mines
+  adminranks:
+    description: Admin rank management
+    usage: /adminranks
+    permission: prison.admintoolkit.ranks
+  ecotools:
+    description: Economy management tools
+    usage: /ecotools <player>
+    permission: prison.admintoolkit.economy
+  manage:
+    description: Open player management panel
+    usage: /manage <player>
+    permission: prison.admintoolkit.use
+  announce:
+    description: Send server announcements
+    usage: /announce
+    permission: prison.admintoolkit.use
+  servertools:
+    description: Server control tools
+    usage: /servertools
+    permission: prison.admintoolkit.servercontrols

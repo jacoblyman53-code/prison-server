@@ -1,0 +1,18 @@
+# Notification sent to the player when a delivery is made.
+# Supports MiniMessage. {product} is replaced with a human-readable product description.
+delivery-message: "<green><bold>✦ Purchase delivered!</bold></green> <white>{product}</white>"
+pending-message: "<green>Pending purchase delivered: <white>{product}</white></green>"
+
+# Valid donor rank IDs — must match keys in plugin-donor config.
+# Used for validation only; the actual rank data lives in plugin-donor.
+valid-donor-ranks:
+  - donor
+  - donorplus
+  - elite
+  - eliteplus
+
+# Valid crate tier IDs — must match keys in plugin-crates config.
+valid-crate-tiers:
+  - common
+  - rare
+  - legendary

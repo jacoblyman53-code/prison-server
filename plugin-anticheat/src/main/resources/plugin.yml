@@ -1,0 +1,22 @@
+name: PrisonAnticheat
+version: '1.0.0'
+main: com.prison.anticheat.AnticheatPlugin
+api-version: '1.21'
+description: Lightweight prison-scoped anti-cheat.
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+softdepend:
+  - PrisonPickaxe
+
+commands:
+  acflags:
+    description: View recent anticheat flags for a player.
+    usage: /acflags <player> [page]
+    permission: prison.staff.moderator
+  acclear:
+    description: Clear session violation counters for a player.
+    usage: /acclear <player>
+    permission: prison.staff.admin

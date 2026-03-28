@@ -1,0 +1,4 @@
+# IGC Shop Configuration
+# Categories and items are managed in-game via /shopadmin
+# Items are stored as Base64-encoded serialized ItemStack data
+categories: {}

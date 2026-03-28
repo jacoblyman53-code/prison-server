@@ -1,0 +1,4 @@
+dependencies {
+    // PickaxeAPI — to estimate AoE block counts from explosive/laser enchant levels
+    compileOnly project(':plugin-pickaxe')
+}

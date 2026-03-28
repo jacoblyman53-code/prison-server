@@ -19,5 +19,7 @@ public enum TransactionType {
     IGC_SHOP_PURCHASE,
     ADMIN_SET,
     ADMIN_ADD,
-    ADMIN_REMOVE
+    ADMIN_REMOVE,
+    GANG_DEPOSIT,
+    GANG_WITHDRAW
 }

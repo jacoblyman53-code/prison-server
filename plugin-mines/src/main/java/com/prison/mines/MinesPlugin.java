@@ -401,6 +401,32 @@ public class MinesPlugin extends JavaPlugin implements Listener {
         sender.sendMessage(mm.deserialize("<yellow>/mine setprice <id> <MATERIAL> <price>"));
     }
 
+    /**
+     * Admin toolkit: update a mine's composition in config, save, and reload.
+     */
+    public void adminSetComposition(String mineId, Map<org.bukkit.Material, Double> composition) {
+        if (!getConfig().contains("mines." + mineId)) {
+            getLogger().warning("[Mines] adminSetComposition called for unknown mine: " + mineId);
+            return;
+        }
+        manager.setComposition(getConfig(), mineId, composition);
+        saveConfig();
+        manager.loadFromConfig(getConfig());
+        manager.triggerReset(mineId);
+        getLogger().info("[Mines] Admin updated composition for mine " + mineId + " — reset triggered.");
+    }
+
+    /**
+     * Admin toolkit: update a single block's sell price in a mine.
+     */
+    public void adminSetSellPrice(String mineId, org.bukkit.Material mat, long price) {
+        if (!getConfig().contains("mines." + mineId)) return;
+        getConfig().set("mines." + mineId + ".sell-prices." + mat.name(), price);
+        saveConfig();
+        manager.loadFromConfig(getConfig());
+        getLogger().info("[Mines] Admin set sell price for " + mat.name() + " in mine " + mineId + " to " + price);
+    }
+
     private String formatComposition(MineData mine) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<org.bukkit.Material, Double> e : mine.composition().entrySet()) {

@@ -147,8 +147,23 @@ public class RankPlugin extends JavaPlugin implements Listener {
     // Config loading — uses SnakeYAML directly (same pattern as core-permissions)
     // ----------------------------------------------------------------
 
+    /**
+     * Admin toolkit: update a rank's data, save to config, and hot-reload.
+     * Changes apply immediately — no restart required.
+     */
+    public void adminUpdateRank(String rank, long cost, String display, String prefix) {
+        String upper = rank.toUpperCase();
+        getConfig().set("ranks." + upper + ".cost", cost);
+        getConfig().set("ranks." + upper + ".display", display);
+        getConfig().set("ranks." + upper + ".prefix", prefix);
+        saveConfig();
+        // Reload from the saved file and update the manager
+        manager.reloadConfig(loadRankConfig());
+        getLogger().info("[Ranks] Admin updated rank " + upper + ": cost=" + cost);
+    }
+
     @SuppressWarnings("unchecked")
-    private RankConfig loadRankConfig() {
+    RankConfig loadRankConfig() {
         File configFile = new File(getDataFolder(), "config.yml");
         try (FileInputStream fis = new FileInputStream(configFile)) {
             Map<String, Object> root = new Yaml().load(fis);

@@ -1,0 +1,19 @@
+name: PrisonAuctionHouse
+version: 1.0.0
+main: com.prison.auctionhouse.AuctionHousePlugin
+api-version: '1.21'
+description: Auction house for the Prison server
+authors: [prison-server]
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+  - PrisonEconomy
+commands:
+  ah:
+    description: Open the auction house
+    usage: /ah [sell <price> | mylistings | search <material>]
+    permission: prison.sell
+  auctionhouse:
+    description: Open the auction house (alias)
+    usage: /auctionhouse
+    permission: prison.sell

@@ -27,7 +27,7 @@ public class RankManager {
 
     private static RankManager instance;
 
-    private final RankConfig config;
+    private RankConfig config;
     private final Logger logger;
     private final MiniMessage mm = MiniMessage.miniMessage();
 
@@ -135,6 +135,14 @@ public class RankManager {
     }
 
     public RankConfig getConfig() { return config; }
+
+    /**
+     * Replace the active rank config with a newly loaded one.
+     * Called by RankPlugin after saving changes to the config file.
+     */
+    public void reloadConfig(RankConfig newConfig) {
+        this.config = newConfig;
+    }
 
     // ----------------------------------------------------------------
     // Internal

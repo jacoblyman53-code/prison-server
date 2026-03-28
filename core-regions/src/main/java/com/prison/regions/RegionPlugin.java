@@ -68,6 +68,9 @@ public class RegionPlugin extends JavaPlugin implements Listener {
         getLogger().info("Region engine disabled.");
     }
 
+    /** Used by admin toolkit to create the region wand item. */
+    public RegionWand getWand() { return wand; }
+
     // ----------------------------------------------------------------
     // Wand interaction — handle left/right click with the wand item
     // ----------------------------------------------------------------
@@ -75,7 +78,8 @@ public class RegionPlugin extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onWandUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (!player.hasPermission("prison.admintoolkit.regions")) return;
+        com.prison.permissions.PermissionEngine pe = com.prison.permissions.PermissionEngine.getInstance();
+        if (pe != null ? !pe.hasPermission(player, "prison.admintoolkit.regions") : !player.isOp()) return;
 
         var item = player.getInventory().getItemInMainHand();
         if (!wand.isWand(item)) return;
@@ -109,7 +113,8 @@ public class RegionPlugin extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (!player.hasPermission("prison.admintoolkit.regions")) {
+        com.prison.permissions.PermissionEngine _pe = com.prison.permissions.PermissionEngine.getInstance();
+        if (_pe != null ? !_pe.hasPermission(player, "prison.admintoolkit.regions") : !player.isOp()) {
             player.sendMessage(mm.deserialize("<red>You don't have permission to manage regions."));
             return true;
         }
