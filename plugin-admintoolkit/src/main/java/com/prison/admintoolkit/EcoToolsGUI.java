@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * EcoToolsGUI — GUI for giving, taking, and setting a player's IGC and token balances.
  *
- * Balance operations require the target to be online (EconomyAPI operates on
- * loaded player state). Reading works for offline players via direct DB query.
+ * All balance operations work for both online and offline players.
+ * Online players use the in-memory wallet; offline players use direct DB queries.
  */
 public class EcoToolsGUI {
 
@@ -109,26 +109,32 @@ public class EcoToolsGUI {
         inv.setItem(18, AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
             "<green>Give IGC",
             "<gray>Add IGC to " + targetName + "'s balance.",
+            "<dark_gray>Works for online and offline players.",
             "<dark_gray>Click to enter amount."));
         inv.setItem(19, AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
             "<red>Take IGC",
-            "<gray>Remove IGC from balance.",
+            "<gray>Remove IGC from " + targetName + "'s balance.",
+            "<dark_gray>Fails if balance is insufficient.",
             "<dark_gray>Click to enter amount."));
         inv.setItem(20, AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
             "<yellow>Set IGC",
-            "<gray>Force-set IGC balance.",
+            "<gray>Force-set " + targetName + "'s IGC balance.",
+            "<dark_gray>Overwrites current value.",
             "<dark_gray>Click to enter amount."));
 
         // Token controls
         inv.setItem(24, AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
             "<green>Give Tokens",
-            "<gray>Add tokens to " + targetName + "'s balance."));
+            "<gray>Add tokens to " + targetName + "'s balance.",
+            "<dark_gray>Works for online and offline players."));
         inv.setItem(25, AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
             "<red>Take Tokens",
-            "<gray>Remove tokens from balance."));
+            "<gray>Remove tokens from " + targetName + "'s balance.",
+            "<dark_gray>Fails if balance is insufficient."));
         inv.setItem(26, AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
             "<yellow>Set Tokens",
-            "<gray>Force-set token balance."));
+            "<gray>Force-set " + targetName + "'s token balance.",
+            "<dark_gray>Overwrites current value."));
 
         // Transaction log
         inv.setItem(36, AdminPanel.makeItem(Material.BOOK,
@@ -158,98 +164,112 @@ public class EcoToolsGUI {
         String targetName = targetPlayerNames.get(admin.getUniqueId());
         if (targetName == null) return;
 
-        Player onlineTarget = findOnlinePlayer(targetName);
+        UUID targetUuid = getUUIDForName(targetName);
 
         switch (slot) {
             case 18 -> {
-                // Give IGC
-                requireOnline(admin, onlineTarget, targetName, () ->
-                    AnvilInputGUI.open(admin, "0", text -> {
-                        try {
-                            long amount = Long.parseLong(text.trim());
-                            EconomyAPI.getInstance().addBalance(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_ADD);
-                            admin.sendMessage(MM.deserialize("<green>Gave " + amount + " IGC to " + targetName + "."));
-                        } catch (NumberFormatException e) {
-                            admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
-                        }
-                        refreshGui(admin, targetName);
-                    })
-                );
+                // Give IGC — works for online and offline players
+                AnvilInputGUI.open(admin, "0", text -> {
+                    try {
+                        long amount = Long.parseLong(text.trim());
+                        if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        EconomyAPI.getInstance().addBalanceAsync(targetUuid, amount, TransactionType.ADMIN_ADD)
+                            .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
+                                admin.sendMessage(MM.deserialize("<green>Gave <white>" + amount + " IGC</white> to " + targetName + "."));
+                                refreshGui(admin, targetName);
+                            }));
+                    } catch (NumberFormatException e) {
+                        admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
+                    }
+                });
             }
             case 19 -> {
                 // Take IGC
-                requireOnline(admin, onlineTarget, targetName, () ->
-                    AnvilInputGUI.open(admin, "0", text -> {
-                        try {
-                            long amount = Long.parseLong(text.trim());
-                            EconomyAPI.getInstance().deductBalance(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_REMOVE);
-                            admin.sendMessage(MM.deserialize("<green>Removed " + amount + " IGC from " + targetName + "."));
-                        } catch (NumberFormatException e) {
-                            admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
-                        }
-                        refreshGui(admin, targetName);
-                    })
-                );
+                AnvilInputGUI.open(admin, "0", text -> {
+                    try {
+                        long amount = Long.parseLong(text.trim());
+                        if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        EconomyAPI.getInstance().deductBalanceAsync(targetUuid, amount, TransactionType.ADMIN_REMOVE)
+                            .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
+                                if (newBal < 0) {
+                                    admin.sendMessage(MM.deserialize("<red>" + targetName + " has insufficient funds."));
+                                } else {
+                                    admin.sendMessage(MM.deserialize("<green>Removed <white>" + amount + " IGC</white> from " + targetName + "."));
+                                }
+                                refreshGui(admin, targetName);
+                            }));
+                    } catch (NumberFormatException e) {
+                        admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
+                    }
+                });
             }
             case 20 -> {
                 // Set IGC
-                requireOnline(admin, onlineTarget, targetName, () ->
-                    AnvilInputGUI.open(admin, "0", text -> {
-                        try {
-                            long amount = Long.parseLong(text.trim());
-                            EconomyAPI.getInstance().setBalance(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_SET);
-                            admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s IGC to " + amount + "."));
-                        } catch (NumberFormatException e) {
-                            admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
-                        }
-                        refreshGui(admin, targetName);
-                    })
-                );
+                AnvilInputGUI.open(admin, "0", text -> {
+                    try {
+                        long amount = Long.parseLong(text.trim());
+                        if (amount < 0) { admin.sendMessage(MM.deserialize("<red>Amount cannot be negative.")); return; }
+                        EconomyAPI.getInstance().setBalanceAsync(targetUuid, amount, TransactionType.ADMIN_SET)
+                            .thenRun(() -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
+                                admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s IGC to <white>" + amount + "</white>."));
+                                refreshGui(admin, targetName);
+                            }));
+                    } catch (NumberFormatException e) {
+                        admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
+                    }
+                });
             }
             case 24 -> {
                 // Give Tokens
-                requireOnline(admin, onlineTarget, targetName, () ->
-                    AnvilInputGUI.open(admin, "0", text -> {
-                        try {
-                            long amount = Long.parseLong(text.trim());
-                            EconomyAPI.getInstance().addTokens(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_ADD);
-                            admin.sendMessage(MM.deserialize("<green>Gave " + amount + " tokens to " + targetName + "."));
-                        } catch (NumberFormatException e) {
-                            admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
-                        }
-                        refreshGui(admin, targetName);
-                    })
-                );
+                AnvilInputGUI.open(admin, "0", text -> {
+                    try {
+                        long amount = Long.parseLong(text.trim());
+                        if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        EconomyAPI.getInstance().addTokensAsync(targetUuid, amount, TransactionType.ADMIN_ADD)
+                            .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
+                                admin.sendMessage(MM.deserialize("<green>Gave <white>" + amount + " tokens</white> to " + targetName + "."));
+                                refreshGui(admin, targetName);
+                            }));
+                    } catch (NumberFormatException e) {
+                        admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
+                    }
+                });
             }
             case 25 -> {
                 // Take Tokens
-                requireOnline(admin, onlineTarget, targetName, () ->
-                    AnvilInputGUI.open(admin, "0", text -> {
-                        try {
-                            long amount = Long.parseLong(text.trim());
-                            EconomyAPI.getInstance().deductTokens(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_REMOVE);
-                            admin.sendMessage(MM.deserialize("<green>Removed " + amount + " tokens from " + targetName + "."));
-                        } catch (NumberFormatException e) {
-                            admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
-                        }
-                        refreshGui(admin, targetName);
-                    })
-                );
+                AnvilInputGUI.open(admin, "0", text -> {
+                    try {
+                        long amount = Long.parseLong(text.trim());
+                        if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        EconomyAPI.getInstance().deductTokensAsync(targetUuid, amount, TransactionType.ADMIN_REMOVE)
+                            .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
+                                if (newBal < 0) {
+                                    admin.sendMessage(MM.deserialize("<red>" + targetName + " has insufficient tokens."));
+                                } else {
+                                    admin.sendMessage(MM.deserialize("<green>Removed <white>" + amount + " tokens</white> from " + targetName + "."));
+                                }
+                                refreshGui(admin, targetName);
+                            }));
+                    } catch (NumberFormatException e) {
+                        admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
+                    }
+                });
             }
             case 26 -> {
                 // Set Tokens
-                requireOnline(admin, onlineTarget, targetName, () ->
-                    AnvilInputGUI.open(admin, "0", text -> {
-                        try {
-                            long amount = Long.parseLong(text.trim());
-                            EconomyAPI.getInstance().setTokens(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_SET);
-                            admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s tokens to " + amount + "."));
-                        } catch (NumberFormatException e) {
-                            admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
-                        }
-                        refreshGui(admin, targetName);
-                    })
-                );
+                AnvilInputGUI.open(admin, "0", text -> {
+                    try {
+                        long amount = Long.parseLong(text.trim());
+                        if (amount < 0) { admin.sendMessage(MM.deserialize("<red>Amount cannot be negative.")); return; }
+                        EconomyAPI.getInstance().setTokensAsync(targetUuid, amount, TransactionType.ADMIN_SET)
+                            .thenRun(() -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
+                                admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s tokens to <white>" + amount + "</white>."));
+                                refreshGui(admin, targetName);
+                            }));
+                    } catch (NumberFormatException e) {
+                        admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
+                    }
+                });
             }
             case 36 -> {
                 // Transaction log
@@ -297,14 +317,6 @@ public class EcoToolsGUI {
             if (p.getName().equalsIgnoreCase(name)) return p;
         }
         return null;
-    }
-
-    private static void requireOnline(Player admin, Player target, String targetName, Runnable action) {
-        if (target == null) {
-            admin.sendMessage(MM.deserialize("<red>" + targetName + " must be online to adjust balance."));
-            return;
-        }
-        action.run();
     }
 
     private static void refreshGui(Player admin, String targetName) {

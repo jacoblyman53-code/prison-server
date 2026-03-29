@@ -66,8 +66,11 @@ join-sequence:
   # Large title text shown on screen when the player joins
   title-main: "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>"
 
-  # Smaller subtitle shown below the title
+  # Smaller subtitle shown below the title (returning players)
   title-sub: "<gray>Welcome back, <white>{name}</white>!</gray>"
+
+  # Subtitle for first-time players (replaces title-sub on first join)
+  first-join-title-sub: "<gray>Welcome to <white>Prison</white>, <white>{name}</white>!</gray>"
 
   # Decorative divider line for the welcome box in chat
   welcome-header: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"

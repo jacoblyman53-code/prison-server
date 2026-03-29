@@ -8,19 +8,129 @@ crates:
     display-name: "Common Crate"
     key-material: TRIPWIRE_HOOK
     key-color: "<white>"
-    rewards: []
+    rewards:
+      - type: IGC
+        amount: 2500
+        weight: 40
+        broadcast: false
+        display-name: "$2,500 IGC"
+      - type: IGC
+        amount: 5000
+        weight: 30
+        broadcast: false
+        display-name: "$5,000 IGC"
+      - type: IGC
+        amount: 10000
+        weight: 15
+        broadcast: false
+        display-name: "$10,000 IGC"
+      - type: TOKEN
+        amount: 50
+        weight: 10
+        broadcast: false
+        display-name: "50 Tokens"
+      - type: TOKEN
+        amount: 150
+        weight: 4
+        broadcast: false
+        display-name: "150 Tokens"
+      - type: CRATE_KEY
+        tier: rare
+        key-amount: 1
+        weight: 1
+        broadcast: true
+        display-name: "Rare Key"
 
   rare:
     display-name: "Rare Crate"
     key-material: ENDER_EYE
     key-color: "<light_purple>"
-    rewards: []
+    rewards:
+      - type: IGC
+        amount: 25000
+        weight: 35
+        broadcast: false
+        display-name: "$25,000 IGC"
+      - type: IGC
+        amount: 75000
+        weight: 25
+        broadcast: false
+        display-name: "$75,000 IGC"
+      - type: IGC
+        amount: 150000
+        weight: 15
+        broadcast: false
+        display-name: "$150,000 IGC"
+      - type: TOKEN
+        amount: 500
+        weight: 12
+        broadcast: false
+        display-name: "500 Tokens"
+      - type: TOKEN
+        amount: 1500
+        weight: 8
+        broadcast: false
+        display-name: "1,500 Tokens"
+      - type: CRATE_KEY
+        tier: legendary
+        key-amount: 1
+        weight: 4
+        broadcast: true
+        display-name: "Legendary Key"
+      - type: CRATE_KEY
+        tier: rare
+        key-amount: 2
+        weight: 1
+        broadcast: false
+        display-name: "2x Rare Keys"
 
   legendary:
     display-name: "Legendary Crate"
     key-material: NETHER_STAR
     key-color: "<gold>"
-    rewards: []
+    rewards:
+      - type: IGC
+        amount: 500000
+        weight: 30
+        broadcast: false
+        display-name: "$500,000 IGC"
+      - type: IGC
+        amount: 1500000
+        weight: 20
+        broadcast: false
+        display-name: "$1,500,000 IGC"
+      - type: IGC
+        amount: 5000000
+        weight: 10
+        broadcast: true
+        display-name: "$5,000,000 IGC"
+      - type: TOKEN
+        amount: 5000
+        weight: 20
+        broadcast: false
+        display-name: "5,000 Tokens"
+      - type: TOKEN
+        amount: 15000
+        weight: 10
+        broadcast: false
+        display-name: "15,000 Tokens"
+      - type: TOKEN
+        amount: 50000
+        weight: 5
+        broadcast: true
+        display-name: "50,000 Tokens"
+      - type: CRATE_KEY
+        tier: legendary
+        key-amount: 3
+        weight: 4
+        broadcast: true
+        display-name: "3x Legendary Keys"
+      - type: CRATE_KEY
+        tier: rare
+        key-amount: 5
+        weight: 1
+        broadcast: false
+        display-name: "5x Rare Keys"
 
 # Reward format (added programmatically via /crate addreward or future GUI):
 # rewards:

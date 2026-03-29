@@ -4,6 +4,9 @@ import com.prison.database.DatabaseManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -314,6 +317,186 @@ public class EconomyAPI {
                 baltopCache = Collections.unmodifiableList(top);
             } catch (SQLException e) {
                 logger.log(Level.WARNING, "[Economy] Failed to refresh baltop", e);
+            }
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // Offline Balance Operations
+    // ----------------------------------------------------------------
+    // These methods work whether or not the player is currently online.
+    // If online, they use the in-memory wallet (instant). If offline,
+    // they perform a direct DB operation async and return a future.
+    // Used by admin tools so staff can adjust balances for offline players.
+
+    /** Add IGC for a player regardless of online status. Returns new balance, or -1 on error. */
+    public CompletableFuture<Long> addBalanceAsync(UUID uuid, long amount, TransactionType type) {
+        PlayerWallet w = wallets.get(uuid);
+        if (w != null) {
+            long newBal = addBalance(uuid, amount, type);
+            return CompletableFuture.completedFuture(newBal);
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection conn = DatabaseManager.getInstance().getConnection()) {
+                try (PreparedStatement upd = conn.prepareStatement(
+                        "UPDATE players SET igc_balance = igc_balance + ? WHERE uuid = ?")) {
+                    upd.setLong(1, amount);
+                    upd.setString(2, uuid.toString());
+                    upd.executeUpdate();
+                }
+                try (PreparedStatement sel = conn.prepareStatement(
+                        "SELECT igc_balance FROM players WHERE uuid = ?")) {
+                    sel.setString(1, uuid.toString());
+                    try (ResultSet rs = sel.executeQuery()) {
+                        long newBal = rs.next() ? rs.getLong(1) : 0L;
+                        logTransaction(uuid, "IGC", type, amount, newBal);
+                        return newBal;
+                    }
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "[Economy] addBalanceAsync failed for " + uuid, e);
+                return -1L;
+            }
+        });
+    }
+
+    /**
+     * Deduct IGC for a player regardless of online status.
+     * Returns new balance, or -1 if insufficient funds or error.
+     */
+    public CompletableFuture<Long> deductBalanceAsync(UUID uuid, long amount, TransactionType type) {
+        PlayerWallet w = wallets.get(uuid);
+        if (w != null) {
+            long newBal = deductBalance(uuid, amount, type);
+            return CompletableFuture.completedFuture(newBal);
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection conn = DatabaseManager.getInstance().getConnection()) {
+                // Atomic conditional deduct — only succeeds if balance is sufficient
+                int rows;
+                try (PreparedStatement upd = conn.prepareStatement(
+                        "UPDATE players SET igc_balance = igc_balance - ? WHERE uuid = ? AND igc_balance >= ?")) {
+                    upd.setLong(1, amount);
+                    upd.setString(2, uuid.toString());
+                    upd.setLong(3, amount);
+                    rows = upd.executeUpdate();
+                }
+                if (rows == 0) return -1L; // insufficient funds
+                try (PreparedStatement sel = conn.prepareStatement(
+                        "SELECT igc_balance FROM players WHERE uuid = ?")) {
+                    sel.setString(1, uuid.toString());
+                    try (ResultSet rs = sel.executeQuery()) {
+                        long newBal = rs.next() ? rs.getLong(1) : 0L;
+                        logTransaction(uuid, "IGC", type, -amount, newBal);
+                        return newBal;
+                    }
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "[Economy] deductBalanceAsync failed for " + uuid, e);
+                return -1L;
+            }
+        });
+    }
+
+    /** Force-set IGC for a player regardless of online status. */
+    public CompletableFuture<Void> setBalanceAsync(UUID uuid, long amount, TransactionType type) {
+        PlayerWallet w = wallets.get(uuid);
+        if (w != null) {
+            setBalance(uuid, amount, type);
+            return CompletableFuture.completedFuture(null);
+        }
+        return CompletableFuture.runAsync(() -> {
+            try {
+                DatabaseManager.getInstance().execute(
+                    "UPDATE players SET igc_balance = ? WHERE uuid = ?",
+                    amount, uuid.toString());
+                logTransaction(uuid, "IGC", type, amount, amount);
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "[Economy] setBalanceAsync failed for " + uuid, e);
+            }
+        });
+    }
+
+    /** Add tokens for a player regardless of online status. Returns new balance, or -1 on error. */
+    public CompletableFuture<Long> addTokensAsync(UUID uuid, long amount, TransactionType type) {
+        PlayerWallet w = wallets.get(uuid);
+        if (w != null) {
+            long newBal = addTokens(uuid, amount, type);
+            return CompletableFuture.completedFuture(newBal);
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection conn = DatabaseManager.getInstance().getConnection()) {
+                try (PreparedStatement upd = conn.prepareStatement(
+                        "UPDATE players SET token_balance = token_balance + ? WHERE uuid = ?")) {
+                    upd.setLong(1, amount);
+                    upd.setString(2, uuid.toString());
+                    upd.executeUpdate();
+                }
+                try (PreparedStatement sel = conn.prepareStatement(
+                        "SELECT token_balance FROM players WHERE uuid = ?")) {
+                    sel.setString(1, uuid.toString());
+                    try (ResultSet rs = sel.executeQuery()) {
+                        long newBal = rs.next() ? rs.getLong(1) : 0L;
+                        logTransaction(uuid, "TOKEN", type, amount, newBal);
+                        return newBal;
+                    }
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "[Economy] addTokensAsync failed for " + uuid, e);
+                return -1L;
+            }
+        });
+    }
+
+    /** Deduct tokens regardless of online status. Returns new balance, or -1 if insufficient. */
+    public CompletableFuture<Long> deductTokensAsync(UUID uuid, long amount, TransactionType type) {
+        PlayerWallet w = wallets.get(uuid);
+        if (w != null) {
+            long newBal = deductTokens(uuid, amount, type);
+            return CompletableFuture.completedFuture(newBal);
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection conn = DatabaseManager.getInstance().getConnection()) {
+                int rows;
+                try (PreparedStatement upd = conn.prepareStatement(
+                        "UPDATE players SET token_balance = token_balance - ? WHERE uuid = ? AND token_balance >= ?")) {
+                    upd.setLong(1, amount);
+                    upd.setString(2, uuid.toString());
+                    upd.setLong(3, amount);
+                    rows = upd.executeUpdate();
+                }
+                if (rows == 0) return -1L;
+                try (PreparedStatement sel = conn.prepareStatement(
+                        "SELECT token_balance FROM players WHERE uuid = ?")) {
+                    sel.setString(1, uuid.toString());
+                    try (ResultSet rs = sel.executeQuery()) {
+                        long newBal = rs.next() ? rs.getLong(1) : 0L;
+                        logTransaction(uuid, "TOKEN", type, -amount, newBal);
+                        return newBal;
+                    }
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "[Economy] deductTokensAsync failed for " + uuid, e);
+                return -1L;
+            }
+        });
+    }
+
+    /** Force-set tokens for a player regardless of online status. */
+    public CompletableFuture<Void> setTokensAsync(UUID uuid, long amount, TransactionType type) {
+        PlayerWallet w = wallets.get(uuid);
+        if (w != null) {
+            setTokens(uuid, amount, type);
+            return CompletableFuture.completedFuture(null);
+        }
+        return CompletableFuture.runAsync(() -> {
+            try {
+                DatabaseManager.getInstance().execute(
+                    "UPDATE players SET token_balance = ? WHERE uuid = ?",
+                    amount, uuid.toString());
+                logTransaction(uuid, "TOKEN", type, amount, amount);
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "[Economy] setTokensAsync failed for " + uuid, e);
             }
         });
     }

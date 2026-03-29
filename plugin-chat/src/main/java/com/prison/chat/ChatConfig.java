@@ -22,6 +22,7 @@ public record ChatConfig(
     // ---- Join sequence ----
     String joinTitleMain,
     String joinTitleSub,
+    String firstJoinTitleSub,
     String joinWelcomeHeader,
     String joinWelcomeBody,
     String joinAnnouncement,
@@ -66,6 +67,7 @@ public record ChatConfig(
             // join sequence
             "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>",
             "<gray>Welcome back, <white>{name}</white>!</gray>",
+            "<gray>Welcome to <white>Prison</white>, <white>{name}</white>!</gray>",
             "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
             "<gold> Welcome to <white>Prison</white>! <gray>Rank up and dominate the mines.",
             "<dark_gray>[<green>+</green><dark_gray>] <gray>{rank} <white>{name}</white> <gray>joined the server.",

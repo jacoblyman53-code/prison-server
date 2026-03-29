@@ -117,6 +117,9 @@ public class ChatPlugin extends JavaPlugin implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
+        // Capture first-join state before the playerdata file is written
+        boolean isFirstJoin = !player.hasPlayedBefore();
+
         // Suppress the default Bukkit join message — we send our own
         event.joinMessage(null);
 
@@ -146,9 +149,12 @@ public class ChatPlugin extends JavaPlugin implements Listener {
                 sidebarManager.buildBoard(player);
             }
 
-            // 3. Title screen
+            // 3. Title screen — first-join players see a different subtitle
             String titleMain = chatConfig.joinTitleMain();
-            String titleSub  = chatConfig.joinTitleSub()
+            String subTemplate = isFirstJoin
+                ? chatConfig.firstJoinTitleSub()
+                : chatConfig.joinTitleSub();
+            String titleSub = subTemplate
                 .replace("{name}", player.getName())
                 .replace("{rank}", rankLabel);
 
@@ -173,7 +179,26 @@ public class ChatPlugin extends JavaPlugin implements Listener {
             player.sendMessage(mm.deserialize(body));
             player.sendMessage(mm.deserialize(header));
 
-            // 5. Join sound
+            // 5. First-join tips panel (click to run commands)
+            if (isFirstJoin) {
+                player.sendMessage(mm.deserialize(
+                    "\n<gold><bold>⛏ Getting Started</bold></gold>\n" +
+                    "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n" +
+                    " <gray>You start at Mine <white><bold>A</bold></white><gray>. Mine blocks to earn IGC!\n" +
+                    " <dark_gray>▪ <click:run_command:/kit starter><white>/kit starter</white></click>" +
+                        " <gray>— Claim your free starter kit\n" +
+                    " <dark_gray>▪ <click:run_command:/mines><white>/mines</white></click>" +
+                        " <gray>— View and teleport to mines\n" +
+                    " <dark_gray>▪ <click:run_command:/rankup><white>/rankup</white></click>" +
+                        " <gray>— Rank up when you have enough IGC\n" +
+                    " <dark_gray>▪ <click:run_command:/sell><white>/sell</white></click>" +
+                        " <gray>— Sell held items for IGC\n" +
+                    " <dark_gray>▪ <click:suggest_command:/pay ><white>/pay <player> <amount></white></click>" +
+                        " <gray>— Send IGC to another player\n" +
+                    "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"));
+            }
+
+            // 6. Join sound
             if (chatConfig.joinSoundEnabled()) {
                 player.playSound(
                     Sound.sound(
@@ -384,6 +409,8 @@ public class ChatPlugin extends JavaPlugin implements Listener {
                 "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>");
             String joinTitleSub     = str(joinSec, "title-sub",
                 "<gray>Welcome back, <white>{name}</white>!</gray>");
+            String firstJoinTitleSub = str(joinSec, "first-join-title-sub",
+                "<gray>Welcome to <white>Prison</white>, <white>{name}</white>!</gray>");
             String joinWelcomeHdr   = str(joinSec, "welcome-header",
                 "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
             String joinWelcomeBody  = str(joinSec, "welcome-body",
@@ -416,7 +443,7 @@ public class ChatPlugin extends JavaPlugin implements Listener {
             return new ChatConfig(
                 chatFormat, tablistFormat, tablistHeader, tablistFooter, prefixSep,
                 mineOverrides, donorOverrides, staffOverrides,
-                joinTitleMain, joinTitleSub, joinWelcomeHdr, joinWelcomeBody,
+                joinTitleMain, joinTitleSub, firstJoinTitleSub, joinWelcomeHdr, joinWelcomeBody,
                 joinAnnounce, quitAnnounce, joinSound,
                 sidebarEnabled, sidebarTitle, sidebarDivider, sidebarIp,
                 announcerEnabled, announcerInterval, announcerPrefix, announcerMsgs
