@@ -168,7 +168,7 @@ public class TebexPlugin extends JavaPlugin implements Listener {
         if ("history".equals(sub)) {
             showHistory(sender, uuid, displayName, page);
         } else if ("pending".equals(sub)) {
-            showHistory(sender, uuid, displayName, page); // same query, both show status
+            showPending(sender, uuid, displayName);
         } else {
             sender.sendMessage(MM.deserialize("<red>Unknown subcommand. Use history or pending."));
         }
@@ -195,6 +195,31 @@ public class TebexPlugin extends JavaPlugin implements Listener {
                 });
             } catch (SQLException e) {
                 getLogger().log(java.util.logging.Level.SEVERE, "Failed to query Tebex history", e);
+                Bukkit.getScheduler().runTask(this, () ->
+                    sender.sendMessage(MM.deserialize("<red>Database error. Check console.")));
+            }
+        });
+    }
+
+    private void showPending(CommandSender sender, UUID uuid, String displayName) {
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            try {
+                List<String[]> rows = manager.getPending(uuid);
+                Bukkit.getScheduler().runTask(this, () -> {
+                    sender.sendMessage(MM.deserialize(
+                        "<gold><bold>Pending Deliveries — " + displayName + "</bold></gold>"));
+                    if (rows.isEmpty()) {
+                        sender.sendMessage(MM.deserialize("<gray>No pending deliveries."));
+                        return;
+                    }
+                    for (String[] row : rows) {
+                        sender.sendMessage(MM.deserialize(
+                            "<yellow>" + row[0] + " <white>" + (row[1] != null ? row[1] : "")
+                            + " <red>PENDING <dark_gray>| txn: " + row[4]));
+                    }
+                });
+            } catch (SQLException e) {
+                getLogger().log(java.util.logging.Level.SEVERE, "Failed to query Tebex pending", e);
                 Bukkit.getScheduler().runTask(this, () ->
                     sender.sendMessage(MM.deserialize("<red>Database error. Check console.")));
             }

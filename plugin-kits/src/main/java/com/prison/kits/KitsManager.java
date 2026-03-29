@@ -127,12 +127,20 @@ public class KitsManager {
         if (remaining > 0)              return ClaimResult.ON_COOLDOWN;
 
         // Give items
+        boolean hadOverflow = false;
         for (KitItem kitItem : kit.contents()) {
             ItemStack item = kitItem.toItemStack();
             Map<Integer, ItemStack> overflow = player.getInventory().addItem(item);
-            for (ItemStack dropped : overflow.values()) {
-                player.getWorld().dropItemNaturally(player.getLocation(), dropped);
+            if (!overflow.isEmpty()) {
+                hadOverflow = true;
+                for (ItemStack dropped : overflow.values()) {
+                    player.getWorld().dropItemNaturally(player.getLocation(), dropped);
+                }
             }
+        }
+        if (hadOverflow) {
+            player.sendMessage(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
+                .deserialize("<yellow>Your inventory was full — some kit items were dropped at your feet."));
         }
 
         // Record claim

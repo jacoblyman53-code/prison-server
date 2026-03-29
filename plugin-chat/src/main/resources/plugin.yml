@@ -2,8 +2,11 @@ name: PrisonChat
 version: 1.0.0
 main: com.prison.chat.ChatPlugin
 api-version: '1.21'
-description: Chat formatting and tablist system for the Prison server
+description: Chat formatting and premium experience system for the Prison server
 authors: [prison-server]
 
 depend:
   - PrisonPermissions
+
+softdepend:
+  - PrisonEconomy

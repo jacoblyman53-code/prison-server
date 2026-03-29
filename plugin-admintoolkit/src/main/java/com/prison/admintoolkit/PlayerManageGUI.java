@@ -348,8 +348,7 @@ public class PlayerManageGUI {
                         long amount = Long.parseLong(text.trim());
                         UUID targetUuid = resolveUUID(targetName);
                         if (targetUuid != null) {
-                            // TODO: add ADMIN_GIVE transaction type
-                            EconomyAPI.getInstance().addBalance(targetUuid, amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().addBalance(targetUuid, amount, TransactionType.ADMIN_ADD);
                             admin.sendMessage(MM.deserialize("<green>Gave " + amount + " IGC to " + targetName + "."));
                         } else {
                             admin.sendMessage(MM.deserialize("<red>Could not resolve UUID for " + targetName + "."));
@@ -366,8 +365,7 @@ public class PlayerManageGUI {
                         long amount = Long.parseLong(text.trim());
                         UUID targetUuid = resolveUUID(targetName);
                         if (targetUuid != null) {
-                            // TODO: add ADMIN_GIVE transaction type
-                            EconomyAPI.getInstance().addTokens(targetUuid, amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().addTokens(targetUuid, amount, TransactionType.ADMIN_ADD);
                             admin.sendMessage(MM.deserialize("<green>Gave " + amount + " tokens to " + targetName + "."));
                         } else {
                             admin.sendMessage(MM.deserialize("<red>Could not resolve UUID for " + targetName + "."));

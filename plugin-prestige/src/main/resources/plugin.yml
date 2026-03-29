@@ -9,6 +9,9 @@ depend:
   - PrisonDatabase
   - PrisonPermissions
 
+softdepend:
+  - PrisonMines
+
 commands:
   prestige:
     description: Open the prestige confirmation GUI

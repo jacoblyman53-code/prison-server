@@ -1,4 +1,6 @@
 dependencies {
     compileOnly project(':core-database')
     compileOnly project(':core-permissions')
+    compileOnly project(':plugin-mines')
+    compileOnly project(':plugin-economy')
 }

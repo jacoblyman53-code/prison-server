@@ -75,13 +75,13 @@ kits:
     required-rank: M
     cooldown-hours: 24
     contents:
-      - material: GOLD_PICKAXE
+      - material: GOLDEN_PICKAXE
         amount: 1
         enchants:
           EFFICIENCY: 3
           UNBREAKING: 2
           FORTUNE: 1
-      - material: GOLD_CHESTPLATE
+      - material: GOLDEN_CHESTPLATE
         amount: 1
         enchants:
           PROTECTION: 3

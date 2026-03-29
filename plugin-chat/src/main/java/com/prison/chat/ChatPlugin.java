@@ -1,10 +1,13 @@
 package com.prison.chat;
 
+import com.prison.economy.EconomyAPI;
 import com.prison.permissions.PermissionEngine;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,13 +19,23 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ChatPlugin extends JavaPlugin implements Listener {
 
     private ChatConfig chatConfig;
+    private SidebarManager sidebarManager;
+    private AutoAnnouncer autoAnnouncer;
+
     private final MiniMessage mm = MiniMessage.miniMessage();
+
+    // ----------------------------------------------------------------
+    // Lifecycle
+    // ----------------------------------------------------------------
 
     @Override
     public void onEnable() {
@@ -35,13 +48,41 @@ public class ChatPlugin extends JavaPlugin implements Listener {
         saveDefaultConfig();
         chatConfig = loadChatConfig();
 
+        sidebarManager = new SidebarManager(this);
+        autoAnnouncer  = new AutoAnnouncer(this);
+
         getServer().getPluginManager().registerEvents(this, this);
-        getLogger().info("Chat formatting system enabled.");
+
+        if (chatConfig.announcerEnabled()) {
+            autoAnnouncer.start();
+        }
+
+        // Start repeating scoreboard refresh (every 40 ticks = 2 s)
+        if (chatConfig.sidebarEnabled()) {
+            getServer().getScheduler().runTaskTimer(this, () -> {
+                for (Player p : getServer().getOnlinePlayers()) {
+                    sidebarManager.updateBoard(p);
+                }
+            }, 40L, 40L);
+        }
+
+        getLogger().info("Chat + premium experience system enabled.");
     }
 
     @Override
     public void onDisable() {
+        if (autoAnnouncer != null) {
+            autoAnnouncer.stop();
+        }
         getLogger().info("Chat formatting system disabled.");
+    }
+
+    // ----------------------------------------------------------------
+    // Accessor — used by SidebarManager and AutoAnnouncer
+    // ----------------------------------------------------------------
+
+    public ChatConfig getChatConfig() {
+        return chatConfig;
     }
 
     // ----------------------------------------------------------------
@@ -69,21 +110,106 @@ public class ChatPlugin extends JavaPlugin implements Listener {
     }
 
     // ----------------------------------------------------------------
-    // Tablist Events
+    // Join / Quit Events
     // ----------------------------------------------------------------
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        // Delay 1 tick to ensure the permission cache is loaded before we read it
+        Player player = event.getPlayer();
+
+        // Suppress the default Bukkit join message — we send our own
+        event.joinMessage(null);
+
+        // Announce to all OTHER players immediately (they're already online)
+        String mineRank = PermissionEngine.getInstance().getMineRank(player.getUniqueId());
+        String rankLabel = formatRankLabel(mineRank);
+
+        String joinMsg = chatConfig.joinAnnouncement()
+            .replace("{name}", player.getName())
+            .replace("{rank}", rankLabel);
+        Component joinComponent = mm.deserialize(joinMsg);
+
+        for (Player other : getServer().getOnlinePlayers()) {
+            if (!other.getUniqueId().equals(player.getUniqueId())) {
+                other.sendMessage(joinComponent);
+            }
+        }
+
+        // Delay 2 ticks: permission cache is guaranteed warm, economy wallet loaded
         getServer().getScheduler().runTaskLater(this, () -> {
-            updateTablistName(event.getPlayer());
+            // 1. Tablist name
+            updateTablistName(player);
             refreshTablistHeaderFooter();
-        }, 1L);
+
+            // 2. Sidebar
+            if (chatConfig.sidebarEnabled()) {
+                sidebarManager.buildBoard(player);
+            }
+
+            // 3. Title screen
+            String titleMain = chatConfig.joinTitleMain();
+            String titleSub  = chatConfig.joinTitleSub()
+                .replace("{name}", player.getName())
+                .replace("{rank}", rankLabel);
+
+            Title title = Title.title(
+                mm.deserialize(titleMain),
+                mm.deserialize(titleSub),
+                Title.Times.times(
+                    Duration.ofMillis(500),   // fade in
+                    Duration.ofSeconds(3),    // stay
+                    Duration.ofMillis(500)    // fade out
+                )
+            );
+            player.showTitle(title);
+
+            // 4. Welcome message in chat
+            String header = chatConfig.joinWelcomeHeader();
+            String body   = chatConfig.joinWelcomeBody()
+                .replace("{name}", player.getName())
+                .replace("{rank}", rankLabel);
+
+            player.sendMessage(mm.deserialize(header));
+            player.sendMessage(mm.deserialize(body));
+            player.sendMessage(mm.deserialize(header));
+
+            // 5. Join sound
+            if (chatConfig.joinSoundEnabled()) {
+                player.playSound(
+                    Sound.sound(
+                        org.bukkit.Sound.ENTITY_PLAYER_LEVELUP,
+                        Sound.Source.MASTER,
+                        1.0f,
+                        1.0f
+                    )
+                );
+            }
+        }, 2L);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        // Refresh online count in header/footer for remaining players
+        Player player = event.getPlayer();
+
+        // Suppress the default quit message — we send our own
+        event.quitMessage(null);
+
+        String mineRank  = PermissionEngine.getInstance().getMineRank(player.getUniqueId());
+        String rankLabel = formatRankLabel(mineRank);
+
+        String quitMsg = chatConfig.quitAnnouncement()
+            .replace("{name}", player.getName())
+            .replace("{rank}", rankLabel);
+        Component quitComponent = mm.deserialize(quitMsg);
+
+        for (Player other : getServer().getOnlinePlayers()) {
+            // player is still technically "online" during PlayerQuitEvent
+            if (!other.getUniqueId().equals(player.getUniqueId())) {
+                other.sendMessage(quitComponent);
+            }
+        }
+
+        // Refresh remaining players' tablist counts after the player fully disconnects
         getServer().getScheduler().runTaskLater(this, this::refreshTablistHeaderFooter, 1L);
     }
 
@@ -93,11 +219,6 @@ public class ChatPlugin extends JavaPlugin implements Listener {
 
     /**
      * Builds the full formatted chat line for a player's message.
-     *
-     * Each prefix token is replaced with "prefix + separator" when the player
-     * has that rank, or "" when they don't. This means no separator cleanup is
-     * needed — a player with only a mine rank gets "[A] Name: message", a
-     * player with no ranks gets "Name: message".
      */
     private String buildChatLine(Player player, String safeMessage) {
         String format = chatConfig.chatFormat();
@@ -122,18 +243,15 @@ public class ChatPlugin extends JavaPlugin implements Listener {
 
     // ----------------------------------------------------------------
     // Per-tier Prefix Builders
-    //
-    // Each method returns the formatted prefix with a trailing separator
-    // appended, or "" if the player has no rank in that tier.
-    // This trailing separator approach means tokens collapse naturally
-    // when adjacent tokens are empty — no post-processing needed.
     // ----------------------------------------------------------------
 
     private String prestigePrefix(Player player) {
         int prestige = PermissionEngine.getInstance().getPrestige(player.getUniqueId());
         if (prestige <= 0) return "";
-        String prefix = "<dark_purple>[<light_purple>P" + prestige + "</light_purple>]</dark_purple>";
-        return prefix + chatConfig.prefixSeparator();
+        // Show as colored number + bullet separator — mine rank follows directly
+        // e.g. "P3 • A" — same pattern as Complex Gaming's "VI • A"
+        String color = prestigeColor(prestige);
+        return "<" + color + "><bold>P" + prestige + "</bold></" + color + "><dark_gray> • </dark_gray>";
     }
 
     private String donorPrefix(Player player) {
@@ -141,9 +259,17 @@ public class ChatPlugin extends JavaPlugin implements Listener {
         if (rank == null) return "";
 
         Map<String, String> overrides = chatConfig.donorPrefixOverrides();
-        String prefix = overrides.containsKey(rank.toLowerCase())
-            ? overrides.get(rank.toLowerCase())
-            : "<yellow>[" + formatDonorDisplay(rank) + "]</yellow>";
+        if (overrides.containsKey(rank.toLowerCase())) {
+            return overrides.get(rank.toLowerCase()) + chatConfig.prefixSeparator();
+        }
+
+        String prefix = switch (rank.toLowerCase()) {
+            case "donor"     -> "<gold>[<yellow>Donor</yellow>]</gold>";
+            case "donorplus" -> "<gold>[<yellow>Donor<gold>+</gold>]</gold>";
+            case "elite"     -> "<aqua>[<white>Elite</white>]</aqua>";
+            case "eliteplus" -> "<light_purple>[<white>Elite<light_purple>+</light_purple>]</light_purple>";
+            default          -> "<yellow>[" + formatDonorDisplay(rank) + "]</yellow>";
+        };
         return prefix + chatConfig.prefixSeparator();
     }
 
@@ -152,10 +278,14 @@ public class ChatPlugin extends JavaPlugin implements Listener {
         if (rank == null || rank.isEmpty()) return "";
 
         Map<String, String> overrides = chatConfig.minePrefixOverrides();
-        String prefix = overrides.containsKey(rank.toUpperCase())
-            ? overrides.get(rank.toUpperCase())
-            : "<gray>[<white>" + rank.toUpperCase() + "</white>]</gray>";
-        return prefix + chatConfig.prefixSeparator();
+        if (overrides.containsKey(rank.toUpperCase())) {
+            return overrides.get(rank.toUpperCase()) + chatConfig.prefixSeparator();
+        }
+
+        // Color the rank letter by progression tier — no brackets, just the letter
+        String color = rankTierColor(rank);
+        return "<" + color + "><bold>" + rank.toUpperCase() + "</bold></" + color + ">"
+            + chatConfig.prefixSeparator();
     }
 
     private String staffPrefix(Player player) {
@@ -167,6 +297,29 @@ public class ChatPlugin extends JavaPlugin implements Listener {
             ? overrides.get(rank.toLowerCase())
             : "<red>[" + capitalize(rank) + "]</red>";
         return prefix + chatConfig.prefixSeparator();
+    }
+
+    /** Returns a MiniMessage color tag name based on mine rank tier (A-Z progression). */
+    private static String rankTierColor(String rank) {
+        if (rank == null || rank.isEmpty()) return "gray";
+        char c = Character.toUpperCase(rank.charAt(0));
+        if (c <= 'F') return "gray";
+        if (c <= 'L') return "yellow";
+        if (c <= 'R') return "gold";
+        if (c <= 'V') return "red";
+        return "dark_red";
+    }
+
+    /** Returns a MiniMessage color tag name based on prestige level. */
+    private static String prestigeColor(int level) {
+        return switch (level) {
+            case 1  -> "light_purple";
+            case 2  -> "aqua";
+            case 3  -> "green";
+            case 4  -> "gold";
+            case 5  -> "red";
+            default -> "white";
+        };
     }
 
     // ----------------------------------------------------------------
@@ -205,15 +358,17 @@ public class ChatPlugin extends JavaPlugin implements Listener {
         try (FileInputStream fis = new FileInputStream(configFile)) {
             Map<String, Object> root = new Yaml().load(fis);
 
-            String chatFormat    = (String) root.getOrDefault("chat-format",
+            // ---- Existing fields ----
+            String chatFormat    = str(root, "chat-format",
                 "{prestige}{donor}{mine}{staff}<white>{name}</white><dark_gray>: </dark_gray><gray>{message}");
-            String tablistFormat = (String) root.getOrDefault("tablist-format",
-                "{prestige}{donor}{mine}{name}");
-            String tablistHeader = (String) root.getOrDefault("tablist-header",
-                "<gold><bold>PRISON</bold></gold>\\n<gray>{online} players online");
-            String tablistFooter = (String) root.getOrDefault("tablist-footer",
-                "<dark_gray>Store • Discord • Forums");
-            String prefixSep     = (String) root.getOrDefault("prefix-separator", " ");
+            String tablistFormat = str(root, "tablist-format", "{prestige}{donor}{mine}{name}");
+            String tablistHeader = str(root, "tablist-header",
+                "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>\\n" +
+                "<gray>{online}<dark_gray>/<gray>{max} <white>players online");
+            String tablistFooter = str(root, "tablist-footer",
+                "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\\n" +
+                "<gold>play.server.com  <dark_gray>|  <aqua>discord.gg/server");
+            String prefixSep     = str(root, "prefix-separator", " ");
 
             // YAML stores literal \n — convert to real newlines for Adventure
             tablistHeader = tablistHeader.replace("\\n", "\n");
@@ -223,14 +378,91 @@ public class ChatPlugin extends JavaPlugin implements Listener {
             Map<String, String> donorOverrides  = extractStringMap(root, "donor-prefix-overrides");
             Map<String, String> staffOverrides  = extractStringMap(root, "staff-prefix-overrides");
 
+            // ---- Join sequence ----
+            Map<String, Object> joinSec = section(root, "join-sequence");
+            String joinTitleMain    = str(joinSec, "title-main",
+                "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>");
+            String joinTitleSub     = str(joinSec, "title-sub",
+                "<gray>Welcome back, <white>{name}</white>!</gray>");
+            String joinWelcomeHdr   = str(joinSec, "welcome-header",
+                "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+            String joinWelcomeBody  = str(joinSec, "welcome-body",
+                "<gold> Welcome to <white>Prison</white>! <gray>Rank up and dominate the mines.");
+            String joinAnnounce     = str(joinSec, "join-announcement",
+                "<dark_gray>[<green>+</green><dark_gray>] <gray>{rank} <white>{name}</white> <gray>joined the server.");
+            String quitAnnounce     = str(joinSec, "quit-announcement",
+                "<dark_gray>[<red>-</red><dark_gray>] <gray>{rank} <white>{name}</white> <gray>left the server.");
+            boolean joinSound       = bool(joinSec, "sound-enabled", true);
+
+            // ---- Sidebar ----
+            Map<String, Object> sidebarSec = section(root, "sidebar");
+            boolean sidebarEnabled  = bool(sidebarSec, "enabled", true);
+            String  sidebarTitle    = str(sidebarSec, "title",
+                "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>");
+            String  sidebarDivider  = str(sidebarSec, "divider",
+                "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+            String  sidebarIp       = str(sidebarSec, "server-ip", "play.server.com");
+
+            // ---- Announcer ----
+            Map<String, Object> announceSec = section(root, "announcer");
+            boolean announcerEnabled   = bool(announceSec, "enabled", true);
+            int     announcerInterval  = intVal(announceSec, "interval-seconds", 120);
+            String  announcerPrefix    = str(announceSec, "prefix",
+                "\n<dark_gray>[<gold><bold>!</bold></gold><dark_gray>] <gold>");
+            List<String> announcerMsgs = stringList(announceSec, "messages");
+
             getLogger().info("[Chat] Loaded config. Format: " + chatFormat);
-            return new ChatConfig(chatFormat, tablistFormat, tablistHeader, tablistFooter,
-                prefixSep, mineOverrides, donorOverrides, staffOverrides);
+
+            return new ChatConfig(
+                chatFormat, tablistFormat, tablistHeader, tablistFooter, prefixSep,
+                mineOverrides, donorOverrides, staffOverrides,
+                joinTitleMain, joinTitleSub, joinWelcomeHdr, joinWelcomeBody,
+                joinAnnounce, quitAnnounce, joinSound,
+                sidebarEnabled, sidebarTitle, sidebarDivider, sidebarIp,
+                announcerEnabled, announcerInterval, announcerPrefix, announcerMsgs
+            );
 
         } catch (Exception e) {
             getLogger().severe("[Chat] Failed to load config: " + e.getMessage() + " — using defaults.");
             return ChatConfig.defaults();
         }
+    }
+
+    // ---- Config helper methods ----
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> section(Map<String, Object> root, String key) {
+        Object val = root.get(key);
+        if (val instanceof Map) return (Map<String, Object>) val;
+        return Map.of();
+    }
+
+    private String str(Map<String, Object> map, String key, String def) {
+        Object v = map.get(key);
+        return (v instanceof String s) ? s : def;
+    }
+
+    private boolean bool(Map<String, Object> map, String key, boolean def) {
+        Object v = map.get(key);
+        return (v instanceof Boolean b) ? b : def;
+    }
+
+    private int intVal(Map<String, Object> map, String key, int def) {
+        Object v = map.get(key);
+        if (v instanceof Integer i) return i;
+        if (v instanceof Number n)  return n.intValue();
+        return def;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> stringList(Map<String, Object> map, String key) {
+        Object val = map.get(key);
+        if (!(val instanceof List<?> raw)) return new ArrayList<>();
+        List<String> result = new ArrayList<>();
+        for (Object item : raw) {
+            if (item instanceof String s) result.add(s);
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -251,6 +483,16 @@ public class ChatPlugin extends JavaPlugin implements Listener {
     // ----------------------------------------------------------------
     // Utilities
     // ----------------------------------------------------------------
+
+    /**
+     * Formats a mine rank string into a bracketed label for announcements.
+     * Returns empty string if rank is null/empty.
+     * e.g. "A" → "[A]", null → ""
+     */
+    private String formatRankLabel(String mineRank) {
+        if (mineRank == null || mineRank.isBlank()) return "";
+        return "<gray>[<white>" + mineRank.toUpperCase() + "</white>]</gray>";
+    }
 
     /** "donorplus" → "Donor+" for default donor prefix display. */
     private String formatDonorDisplay(String rank) {

@@ -96,7 +96,10 @@ public class PrestigeManager {
             for (String cmd : rewards) {
                 String resolved = cmd.replace("{player}", player.getName())
                                      .replace("{prestige}", String.valueOf(newPrestige));
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), resolved);
+                boolean cmdOk = Bukkit.dispatchCommand(Bukkit.getConsoleSender(), resolved);
+                if (!cmdOk) {
+                    logger.warning("[Prestige] Reward command returned false — check config: " + resolved);
+                }
             }
 
             // Broadcast
@@ -106,8 +109,18 @@ public class PrestigeManager {
             Bukkit.broadcast(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
                 .deserialize(broadcast));
 
-            // Auto-teleport to mine A (stubbed until warp system is built)
-            logger.fine("[Prestige] Auto-teleport to mine_a for " + player.getName() + " (warp system not yet built)");
+            // Auto-teleport to mine A
+            com.prison.mines.MinesAPI minesApi = com.prison.mines.MinesAPI.getInstance();
+            if (minesApi != null) {
+                org.bukkit.Location spawnLoc = minesApi.getSpawnLocation("A");
+                if (spawnLoc != null) {
+                    player.teleport(spawnLoc);
+                } else {
+                    logger.warning("[Prestige] No spawn location for mine A — player not teleported.");
+                }
+            } else {
+                logger.warning("[Prestige] MinesAPI unavailable — player not teleported to mine A.");
+            }
 
             logger.info("[Prestige] " + player.getName() + " prestiged to P" + newPrestige);
             return newPrestige;

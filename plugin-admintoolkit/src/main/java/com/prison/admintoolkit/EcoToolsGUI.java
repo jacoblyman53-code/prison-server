@@ -167,8 +167,7 @@ public class EcoToolsGUI {
                     AnvilInputGUI.open(admin, "0", text -> {
                         try {
                             long amount = Long.parseLong(text.trim());
-                            // TODO: add ADMIN_GIVE transaction type
-                            EconomyAPI.getInstance().addBalance(onlineTarget.getUniqueId(), amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().addBalance(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_ADD);
                             admin.sendMessage(MM.deserialize("<green>Gave " + amount + " IGC to " + targetName + "."));
                         } catch (NumberFormatException e) {
                             admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
@@ -183,8 +182,7 @@ public class EcoToolsGUI {
                     AnvilInputGUI.open(admin, "0", text -> {
                         try {
                             long amount = Long.parseLong(text.trim());
-                            // TODO: add ADMIN_TAKE transaction type
-                            EconomyAPI.getInstance().deductBalance(onlineTarget.getUniqueId(), amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().deductBalance(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_REMOVE);
                             admin.sendMessage(MM.deserialize("<green>Removed " + amount + " IGC from " + targetName + "."));
                         } catch (NumberFormatException e) {
                             admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
@@ -199,8 +197,7 @@ public class EcoToolsGUI {
                     AnvilInputGUI.open(admin, "0", text -> {
                         try {
                             long amount = Long.parseLong(text.trim());
-                            // TODO: add ADMIN_SET transaction type
-                            EconomyAPI.getInstance().setBalance(onlineTarget.getUniqueId(), amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().setBalance(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_SET);
                             admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s IGC to " + amount + "."));
                         } catch (NumberFormatException e) {
                             admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
@@ -215,8 +212,7 @@ public class EcoToolsGUI {
                     AnvilInputGUI.open(admin, "0", text -> {
                         try {
                             long amount = Long.parseLong(text.trim());
-                            // TODO: add ADMIN_GIVE transaction type
-                            EconomyAPI.getInstance().addTokens(onlineTarget.getUniqueId(), amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().addTokens(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_ADD);
                             admin.sendMessage(MM.deserialize("<green>Gave " + amount + " tokens to " + targetName + "."));
                         } catch (NumberFormatException e) {
                             admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
@@ -231,8 +227,7 @@ public class EcoToolsGUI {
                     AnvilInputGUI.open(admin, "0", text -> {
                         try {
                             long amount = Long.parseLong(text.trim());
-                            // TODO: add ADMIN_TAKE transaction type
-                            EconomyAPI.getInstance().deductTokens(onlineTarget.getUniqueId(), amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().deductTokens(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_REMOVE);
                             admin.sendMessage(MM.deserialize("<green>Removed " + amount + " tokens from " + targetName + "."));
                         } catch (NumberFormatException e) {
                             admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));
@@ -247,8 +242,7 @@ public class EcoToolsGUI {
                     AnvilInputGUI.open(admin, "0", text -> {
                         try {
                             long amount = Long.parseLong(text.trim());
-                            // TODO: add ADMIN_SET transaction type
-                            EconomyAPI.getInstance().setTokens(onlineTarget.getUniqueId(), amount, TransactionType.MINE_SELL);
+                            EconomyAPI.getInstance().setTokens(onlineTarget.getUniqueId(), amount, TransactionType.ADMIN_SET);
                             admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s tokens to " + amount + "."));
                         } catch (NumberFormatException e) {
                             admin.sendMessage(MM.deserialize("<red>Invalid amount: " + text));

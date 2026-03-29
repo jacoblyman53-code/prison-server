@@ -1,46 +1,137 @@
 # ================================================================
-# Prison Server — Chat Formatting Configuration
+# Prison Server — Chat & Premium Experience Configuration
 # ================================================================
-# All formats use MiniMessage syntax.
+# All text values use MiniMessage syntax.
+# MiniMessage reference: https://docs.advntr.dev/minimessage/format.html
+#
+# Gradient example:  <gradient:#FFD700:#FFA500>text</gradient>
+# Color example:     <gold>, <gray>, <white>, <aqua> ...
+# Bold/italic:       <bold>, <italic>
+# Newlines in YAML strings: use \n (converted at runtime)
+# ================================================================
+
+# ----------------------------------------------------------------
+# CHAT FORMAT
+# ----------------------------------------------------------------
 # Tokens: {prestige} {donor} {mine} {staff} {name} {message}
-# Each token is replaced with the player's formatted prefix.
-# Tokens are omitted entirely (no extra space) if the player
-# doesn't have that rank tier.
-# ================================================================
+# Each token expands to the player's formatted prefix for that tier,
+# or empty string if they have no rank in that tier.
+chat-format: "{prestige}{mine}{donor}{staff}<bold><white>{name}</white></bold><dark_gray>: </dark_gray><white>{message}</white>"
 
-# Full chat format. Tokens are replaced with formatted prefixes.
-chat-format: "{prestige}{donor}{mine}{staff}<white>{name}</white><dark_gray>: </dark_gray><gray>{message}"
+# Tablist display name format (same tokens, no {message})
+tablist-format: "{prestige}{mine}{donor}{staff}{name}"
 
-# Tablist display name format (same tokens available)
-tablist-format: "{prestige}{donor}{mine}{name}"
-
-# Tablist header and footer. Use \n for line breaks.
-# {online} = current player count, {max} = max players
-tablist-header: "<gold><bold>PRISON</bold></gold>\n<gray>{online} players online"
-tablist-footer: "<dark_gray>Store • Discord • Forums"
-
-# Separator placed between prefixes that are present.
-# Use "" for no separator, " " for a space, etc.
+# Separator placed between adjacent non-empty prefix tokens.
 prefix-separator: " "
 
-# ---- Per-rank prefix overrides ----
-# These override the prefixes defined in the rank config files.
-# Leave a section empty to use the prefix from the rank's own config.
-# Useful for tweaking without touching every individual rank config.
+# ----------------------------------------------------------------
+# TABLIST HEADER / FOOTER
+# ----------------------------------------------------------------
+# {online} = current player count, {max} = server max players
+# Use \n for line breaks within the value string.
+tablist-header: "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>\n<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n<green>✔ <white>{online}<dark_gray>/<white>{max} <gray>players online  <dark_gray>|  <gold>play.server.com"
+
+tablist-footer: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n<gold><bold>STORE</bold> <dark_gray>store.server.com  <dark_gray>|  <aqua><bold>DISCORD</bold> <dark_gray>discord.gg/server\n<gradient:#FFD700:#FFA500>Thank you for playing!</gradient>"
+
+# ----------------------------------------------------------------
+# PER-RANK PREFIX OVERRIDES
+# ----------------------------------------------------------------
+# Override the default auto-generated prefixes for specific ranks.
+# Leave a section as {} to use the built-in defaults.
 #
-# Format: rank-key: "MiniMessage prefix string"
-# rank-key for mine ranks: A, B, C ... Z
-# rank-key for donor ranks: donor, donorplus, elite, eliteplus
-# rank-key for staff ranks: helper, moderator, seniormod, admin, senioradmin, owner
-# rank-key for prestige: use the prestige-format token below
-#
-# Leave these sections empty to use the defaults from each plugin's config.
+# Mine rank keys:   A, B, C ... Z  (uppercase)
+# Donor rank keys:  donor, donorplus, elite, eliteplus  (lowercase)
+# Staff rank keys:  helper, moderator, seniormod, admin, senioradmin, owner  (lowercase)
 mine-prefix-overrides: {}
+
 donor-prefix-overrides: {}
+
 staff-prefix-overrides:
-  helper:      "<dark_green>[Helper]</dark_green>"
-  moderator:   "<green>[Mod]</green>"
-  seniormod:   "<green>[Sr.Mod]</green>"
-  admin:       "<red>[Admin]</red>"
-  senioradmin: "<dark_red>[Sr.Admin]</dark_red>"
-  owner:       "<dark_red>[Owner]</dark_red>"
+  helper:      "<dark_green>[<green>Helper</green>]</dark_green>"
+  moderator:   "<green>[<white>Mod</white>]</green>"
+  seniormod:   "<aqua>[<white>Sr.Mod</white>]</aqua>"
+  admin:       "<red>[<white>Admin</white>]</red>"
+  senioradmin: "<dark_red>[<red>Sr.Admin</red>]</dark_red>"
+  owner:       "<gradient:#FFD700:#FF6600>[<white>Owner</white>]</gradient>"
+
+# ----------------------------------------------------------------
+# JOIN SEQUENCE
+# ----------------------------------------------------------------
+# Controls the title screen, welcome message, and announcements
+# shown when a player connects or disconnects.
+#
+# Available tokens: {name} = player name, {rank} = mine rank label e.g. [A]
+join-sequence:
+
+  # Large title text shown on screen when the player joins
+  title-main: "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>"
+
+  # Smaller subtitle shown below the title
+  title-sub: "<gray>Welcome back, <white>{name}</white>!</gray>"
+
+  # Decorative divider line for the welcome box in chat
+  welcome-header: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+
+  # Main welcome body text (displayed between two header lines)
+  welcome-body: " <gold>Welcome to <white>Prison<gold>!  <gray>Mine, rank up, and dominate."
+
+  # Broadcast to all OTHER players when someone joins
+  # {rank} is empty string if the player has no mine rank yet
+  join-announcement: "<dark_gray>[<green>✚</green><dark_gray>] <gray>{rank} <white>{name}</white> <gray>joined the server."
+
+  # Broadcast to all other players when someone leaves
+  quit-announcement: "<dark_gray>[<red>✖</red><dark_gray>] <gray>{rank} <white>{name}</white> <gray>left the server."
+
+  # Play ENTITY_PLAYER_LEVELUP sound for the joining player
+  sound-enabled: true
+
+# ----------------------------------------------------------------
+# SIDEBAR SCOREBOARD
+# ----------------------------------------------------------------
+# Per-player sidebar showing live rank, balance, tokens, and player count.
+# Updates every 2 seconds (40 ticks) for all online players.
+#
+# The title is set on the scoreboard objective itself.
+# The divider and server-ip appear as lines within the sidebar.
+sidebar:
+
+  # Set to false to disable the sidebar entirely
+  enabled: true
+
+  # Objective display name — shown at the very top in bold
+  title: "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>"
+
+  # Horizontal rule used as separator lines within the sidebar
+  divider: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+
+  # Shown at the bottom of the sidebar as a branding line
+  server-ip: "play.server.com"
+
+# ----------------------------------------------------------------
+# AUTO-ANNOUNCER
+# ----------------------------------------------------------------
+# Broadcasts rotating tip messages to all players at a fixed interval.
+# Messages cycle in order and wrap around. All text is MiniMessage.
+announcer:
+
+  # Set to false to disable the announcer entirely
+  enabled: true
+
+  # How many seconds between each announcement broadcast
+  interval-seconds: 120
+
+  # Prefix prepended to every announcement message.
+  # The leading \n adds a blank line above the message for visibility.
+  prefix: "\n<dark_gray>[<gold><bold>!</bold></gold><dark_gray>] <gold>"
+
+  # List of messages to broadcast in rotation.
+  # Each message is appended to the prefix above.
+  messages:
+    - "Use <white>/rankup</white> to advance to the next mine rank!"
+    - "Earn <white>tokens</white> by mining and spend them on pickaxe enchants with <white>/enchant</white>."
+    - "Join our Discord at <aqua>discord.gg/server</aqua> for news, giveaways, and support!"
+    - "Type <white>/kit starter</white> to claim your free starter kit if you haven't already."
+    - "Prestige with <white>/prestige</white> once you reach rank <white>Z</white> for exclusive rewards!"
+    - "Use <white>/sell</white> or enable <white>/autosell</white> to cash in your mined blocks."
+    - "Check the <white>/shop</white> for tools, armour, and more at great prices."
+    - "Lost? Use <white>/spawn</white> to return to the hub at any time."

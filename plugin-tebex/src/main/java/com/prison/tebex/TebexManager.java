@@ -275,6 +275,28 @@ public class TebexManager {
     // Admin queries
     // ----------------------------------------------------------------
 
+    /** Returns only undelivered (pending) rows for a player. */
+    public List<String[]> getPending(UUID uuid) throws SQLException {
+        return DatabaseManager.getInstance().query(
+            "SELECT product_type, extra_args, tebex_transaction_id " +
+            "FROM tebex_deliveries WHERE player_uuid = ? AND delivered = 0 ORDER BY id DESC",
+            rs -> {
+                List<String[]> list = new ArrayList<>();
+                while (rs.next()) {
+                    list.add(new String[]{
+                        rs.getString("product_type"),
+                        rs.getString("extra_args"),
+                        "PENDING",
+                        "—",
+                        rs.getString("tebex_transaction_id")
+                    });
+                }
+                return list;
+            },
+            uuid.toString()
+        );
+    }
+
     /** Returns recent delivery rows for a player (up to 10, most recent first). */
     public List<String[]> getHistory(UUID uuid, int page) throws SQLException {
         int offset = (page - 1) * 10;
@@ -284,11 +306,12 @@ public class TebexManager {
             rs -> {
                 List<String[]> list = new ArrayList<>();
                 while (rs.next()) {
+                    java.sql.Timestamp deliveredAt = rs.getTimestamp("delivered_at");
                     list.add(new String[]{
                         rs.getString("product_type"),
                         rs.getString("extra_args"),
                         rs.getInt("delivered") == 1 ? "delivered" : "PENDING",
-                        rs.getTimestamp("delivered_at").toString(),
+                        deliveredAt != null ? deliveredAt.toString() : "—",
                         rs.getString("tebex_transaction_id")
                     });
                 }
