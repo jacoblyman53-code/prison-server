@@ -245,6 +245,10 @@ public class StaffPlugin extends JavaPlugin implements Listener {
         } else if (title.equals(ReportGUI.QUEUE_TITLE)) {
             event.setCancelled(true);
             handleQueueClick(player, event.getRawSlot(), event.isRightClick());
+
+        } else if (title.startsWith(INVSEE_TITLE_PREFIX)) {
+            // Prevent staff from stealing items out of the viewed inventory
+            event.setCancelled(true);
         }
     }
 
@@ -513,16 +517,6 @@ public class StaffPlugin extends JavaPlugin implements Listener {
 
         Player target = Bukkit.getPlayer(args[0]);
         String targetName = args[0];
-        String targetUuid;
-        String targetIp = null;
-
-        if (target != null) {
-            targetUuid = target.getUniqueId().toString();
-            if (ip) targetIp = target.getAddress() != null ? target.getAddress().getAddress().getHostAddress() : null;
-        } else {
-            player.sendMessage(MM.deserialize("<red>Player must be online to ban. (Use /unban to remove a ban.)"));
-            return true;
-        }
 
         LocalDateTime expiresAt = null;
         int reasonStart = 1;
@@ -539,21 +533,55 @@ public class StaffPlugin extends JavaPlugin implements Listener {
         String reason = joinFrom(args, reasonStart);
         PunishmentType type = ip ? PunishmentType.IPBAN : (temp ? PunishmentType.TEMPBAN : PunishmentType.BAN);
         LocalDateTime finalExpires = expiresAt;
-        String finalTargetIp = targetIp;
 
-        manager.issuePunishment(targetUuid, targetName, targetIp, type, reason,
-            player.getUniqueId().toString(), expiresAt)
-        .thenAccept(p -> {
-            if (p == null) return;
-            String duration = finalExpires != null ? " until " + finalExpires.toString().replace("T", " ").substring(0, 16) : " permanently";
-            // Kick them
-            Player online = Bukkit.getPlayer(targetName);
-            if (online != null) {
-                online.kick(MM.deserialize(banMessage(reason, p.expiryString())));
+        if (target != null) {
+            // Player is online — ban immediately and kick
+            String targetUuid = target.getUniqueId().toString();
+            String targetIp   = (ip && target.getAddress() != null)
+                ? target.getAddress().getAddress().getHostAddress() : null;
+            String finalTargetIp = targetIp;
+
+            manager.issuePunishment(targetUuid, targetName, targetIp, type, reason,
+                player.getUniqueId().toString(), expiresAt)
+            .thenAccept(p -> {
+                if (p == null) return;
+                String duration = finalExpires != null
+                    ? " until " + finalExpires.toString().replace("T", " ").substring(0, 16) : " permanently";
+                target.kick(MM.deserialize(banMessage(reason, p.expiryString())));
+                broadcastStaff(MM.deserialize(
+                    "<gray>[Staff] <red>" + player.getName() + " " + type.name().toLowerCase() + "ned "
+                    + targetName + duration));
+            });
+
+        } else {
+            // Player is offline — look up UUID from DB then ban
+            if (ip) {
+                player.sendMessage(MM.deserialize("<red>/ipban requires the player to be online (need their IP)."));
+                return true;
             }
-            broadcastStaff(MM.deserialize(
-                "<gray>[Staff] <red>" + player.getName() + " " + type.name().toLowerCase() + "ned " + targetName + duration));
-        });
+            player.sendMessage(MM.deserialize("<yellow>Player is offline. Looking up UUID..."));
+            lookupUuid(targetName).thenAccept(uuid -> {
+                if (uuid == null) {
+                    player.sendMessage(MM.deserialize("<red>Player not found in database. They must have joined at least once."));
+                    return;
+                }
+                manager.issuePunishment(uuid, targetName, null, type, reason,
+                    player.getUniqueId().toString(), finalExpires)
+                .thenAccept(p -> {
+                    if (p == null) {
+                        player.sendMessage(MM.deserialize("<red>Failed to issue ban."));
+                        return;
+                    }
+                    String duration = finalExpires != null
+                        ? " until " + finalExpires.toString().replace("T", " ").substring(0, 16) : " permanently";
+                    player.sendMessage(MM.deserialize(
+                        "<green>Banned offline player <white>" + targetName + "</white>" + duration + "."));
+                    broadcastStaff(MM.deserialize(
+                        "<gray>[Staff] <red>" + player.getName() + " " + type.name().toLowerCase() + "ned "
+                        + targetName + duration + " <dark_gray>(offline)"));
+                });
+            });
+        }
         return true;
     }
 
@@ -580,6 +608,9 @@ public class StaffPlugin extends JavaPlugin implements Listener {
         return true;
     }
 
+    // Prefix used for /invsee GUI title — also used by click handler to block item theft
+    private static final String INVSEE_TITLE_PREFIX = "Inventory: ";
+
     private boolean cmdInvsee(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) { sender.sendMessage("In-game only."); return true; }
         if (!manager.hasStaffPermPlayer(player, "moderator")) {
@@ -590,9 +621,9 @@ public class StaffPlugin extends JavaPlugin implements Listener {
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) { player.sendMessage(MM.deserialize("<red>Player not found.")); return true; }
 
-        // Open a copy of the target's inventory (read-only — clicking is blocked by title check)
+        // Open a copy of the target's inventory (read-only — clicks blocked via INVSEE_TITLE_PREFIX check)
         Inventory copy = Bukkit.createInventory(null, 54,
-            Component.text("Inventory: " + target.getName()));
+            Component.text(INVSEE_TITLE_PREFIX + target.getName()));
         ItemStack[] contents = target.getInventory().getContents();
         for (int i = 0; i < Math.min(contents.length, 36); i++) {
             if (contents[i] != null) copy.setItem(i, contents[i].clone());
@@ -703,7 +734,12 @@ public class StaffPlugin extends JavaPlugin implements Listener {
     }
 
     private void broadcastStaffMessage(Component msg) {
-        broadcastStaff(msg);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (manager.isStaff(p.getUniqueId())) {
+                p.sendMessage(msg);
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
+            }
+        }
     }
 
     private String banMessage(String reason, String expires) {

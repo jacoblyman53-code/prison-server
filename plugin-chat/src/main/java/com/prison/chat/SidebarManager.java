@@ -2,6 +2,7 @@ package com.prison.chat;
 
 import com.prison.economy.EconomyAPI;
 import com.prison.permissions.PermissionEngine;
+import com.prison.ranks.RanksAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -178,16 +179,38 @@ public class SidebarManager {
             "<gray>Rank: </gray>" + rankDisplay
         ));
 
-        // Line 2: blank
+        // Line 2: Rankup progress bar (or prestige prompt if at max)
+        try {
+            RanksAPI ranksApi = RanksAPI.getInstance();
+            if (ranksApi != null && eco != null) {
+                long nextCost = ranksApi.getNextRankCost(uuid);
+                if (nextCost < 0) {
+                    // Max rank Z — prompt to prestige
+                    lines.add(mm.deserialize("<gold>✦ Ready to Prestige!</gold>"));
+                } else {
+                    // Build 8-segment bar
+                    int filled = nextCost > 0 ? (int) Math.min(8, balance * 8L / nextCost) : 8;
+                    String bar = "<green>" + "█".repeat(filled) + "</green>"
+                               + "<dark_gray>" + "░".repeat(8 - filled) + "</dark_gray>";
+                    int pct = nextCost > 0 ? (int) Math.min(100, balance * 100L / nextCost) : 100;
+                    lines.add(mm.deserialize(
+                        "<gray>Next: " + bar + " <white>" + pct + "%"));
+                }
+            }
+        } catch (NoClassDefFoundError ignored) {
+            // plugin-ranks not loaded at runtime — skip line
+        }
+
+        // Line 3 (was 2): blank
         lines.add(Component.empty());
 
-        // Line 3: Balance
+        // Balance
         boolean ecoAvailable = (eco != null);
         if (ecoAvailable) {
             lines.add(mm.deserialize(
                 "<gray>Balance: </gray><gold>" + formatAmount(balance) + " IGC</gold>"
             ));
-            // Line 4: Tokens
+            // Tokens
             lines.add(mm.deserialize(
                 "<gray>Tokens: </gray><aqua>" + formatAmount(tokens) + "</aqua>"
             ));
@@ -196,18 +219,18 @@ public class SidebarManager {
             lines.add(mm.deserialize("<gray>Tokens: </gray><dark_gray>N/A</dark_gray>"));
         }
 
-        // Line 5: blank
+        // blank
         lines.add(Component.empty());
 
-        // Line 6: Online players
+        // Online players
         lines.add(mm.deserialize(
             "<gray>Players: </gray><yellow>" + online + "</yellow>"
         ));
 
-        // Line 7: bottom divider
+        // bottom divider
         lines.add(mm.deserialize(divider));
 
-        // Line 8: server IP
+        // server IP
         lines.add(mm.deserialize(
             "<dark_aqua>" + plugin.getChatConfig().sidebarServerIp() + "</dark_aqua>"
         ));

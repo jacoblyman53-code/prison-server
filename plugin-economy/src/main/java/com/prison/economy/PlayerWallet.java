@@ -19,8 +19,11 @@ public class PlayerWallet {
     // Not persisted to DB — resets on each login. Fine for a toggle.
     private volatile boolean autoSell = false;
 
-    // Tracks last manual sell time for rate limiting
+    // Tracks last manual sell time for rate limiting AND streak window
     private volatile long lastSellTime = 0;
+
+    // Sell streak — consecutive manual sells within the streak timeout window
+    private volatile int sellStreak = 0;
 
     public PlayerWallet(UUID uuid, long igc, long tokens) {
         this.uuid = uuid;
@@ -34,6 +37,8 @@ public class PlayerWallet {
     public boolean isAutoSell()   { return autoSell; }
     public long  getLastSellTime(){ return lastSellTime; }
 
+    public int  getSellStreak()           { return sellStreak; }
+    public void setSellStreak(int s)      { this.sellStreak = s; }
     public void setAutoSell(boolean v)    { this.autoSell = v; }
     public void setLastSellTime(long t)   { this.lastSellTime = t; }
 

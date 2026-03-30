@@ -11,6 +11,7 @@ depend:
 
 softdepend:
   - PrisonMines
+  - PrisonEconomy
 
 commands:
   prestige:
@@ -20,4 +21,8 @@ commands:
   prestigeinfo:
     description: View prestige levels and rewards
     usage: /prestigeinfo [level]
+    permission: prison.sell
+  prestigeshop:
+    description: Open the prestige points shop
+    usage: /prestigeshop
     permission: prison.sell

@@ -5,6 +5,7 @@ import com.prison.permissions.PermissionEngine;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,18 +21,23 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.time.LocalDate;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class EconomyPlugin extends JavaPlugin implements Listener {
 
     private EconomyAPI api;
     private final MiniMessage mm = MiniMessage.miniMessage();
+    private final HashMap<UUID, Long> joinTimes = new HashMap<>();
 
     private String currencySymbol;
     private String tokenSymbol;
     private long minSellIntervalMs;
+    private long streakTimeoutMs;
     private final EnumMap<Material, Long> configSellPrices = new EnumMap<>(Material.class);
 
     @Override
@@ -54,6 +60,10 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
             configSellPrices.getOrDefault(material, 0L);
 
         api = new EconomyAPI(getLogger(), defaultProvider);
+
+        BoostManager boostManager = BoostManager.initialize();
+        api.setBoostSellProvider(uuid  -> boostManager.getSellMultiplier(uuid));
+        api.setBoostTokenProvider(uuid -> boostManager.getTokenMultiplier(uuid));
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -85,14 +95,84 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        // Load wallet 1 tick after join to ensure the player row exists in DB
-        getServer().getScheduler().runTaskLaterAsynchronously(this,
-            () -> api.loadPlayer(event.getPlayer().getUniqueId()), 1L);
+        Player player = event.getPlayer();
+        joinTimes.put(player.getUniqueId(), System.currentTimeMillis());
+        // Load wallet 1 tick after join to ensure the player row exists in DB,
+        // then check if this is the player's first login today.
+        getServer().getScheduler().runTaskLaterAsynchronously(this, () -> {
+            api.loadPlayer(player.getUniqueId());
+            checkDailyReward(player);
+        }, 1L);
+    }
+
+    private void checkDailyReward(Player player) {
+        try {
+            Boolean isNewDay = DatabaseManager.getInstance().query(
+                "SELECT last_seen FROM players WHERE uuid = ?",
+                rs -> {
+                    if (!rs.next()) return false;
+                    java.sql.Timestamp ts = rs.getTimestamp("last_seen");
+                    if (ts == null) return true;
+                    LocalDate lastDate = ts.toLocalDateTime().toLocalDate();
+                    return !lastDate.equals(LocalDate.now());
+                },
+                player.getUniqueId().toString()
+            );
+
+            // Always update last_seen
+            DatabaseManager.getInstance().execute(
+                "UPDATE players SET last_seen = CURRENT_TIMESTAMP WHERE uuid = ?",
+                player.getUniqueId().toString()
+            );
+
+            if (!Boolean.TRUE.equals(isNewDay)) return;
+
+            // Give reward on main thread
+            final long igcReward   = 2_500L;
+            final long tokenReward = 50L;
+            getServer().getScheduler().runTask(this, () -> {
+                if (!player.isOnline()) return;
+                api.addBalance(player.getUniqueId(), igcReward, TransactionType.DAILY_REWARD);
+                api.addTokens(player.getUniqueId(), tokenReward, TransactionType.DAILY_REWARD);
+                player.sendMessage(mm.deserialize(
+                    "\n<gold>✦ <yellow><bold>Daily Login Reward!</bold></yellow> <gold>✦" +
+                    "\n<gray>  <gold>+" + formatShort(igcReward) + " IGC</gold>  <aqua>+" + tokenReward + " Tokens" +
+                    "\n<dark_gray>  Come back tomorrow for another reward!\n"));
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.5f);
+            });
+        } catch (Exception e) {
+            getLogger().warning("[Economy] Daily reward check failed for " + player.getName() + ": " + e.getMessage());
+        }
+    }
+
+    private static String formatShort(long amount) {
+        if (amount >= 1_000_000L) return String.format("%.1fM", amount / 1_000_000.0).replace(".0M", "M");
+        if (amount >= 1_000L)     return String.format("%.1fK", amount / 1_000.0).replace(".0K", "K");
+        return String.valueOf(amount);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        api.saveAndUnload(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        api.saveAndUnload(uuid);
+        BoostManager boostManager = BoostManager.getInstance();
+        if (boostManager != null) boostManager.cleanup(uuid);
+
+        Long joinTime = joinTimes.remove(uuid);
+        if (joinTime != null) {
+            long secondsPlayed = (System.currentTimeMillis() - joinTime) / 1000L;
+            if (secondsPlayed > 0) {
+                getServer().getScheduler().runTaskAsynchronously(this, () -> {
+                    try {
+                        DatabaseManager.getInstance().execute(
+                            "UPDATE players SET playtime = playtime + ? WHERE uuid = ?",
+                            secondsPlayed, uuid.toString());
+                    } catch (Exception ex) {
+                        getLogger().warning("[Economy] Failed to update playtime for " + uuid + ": " + ex.getMessage());
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -119,10 +199,12 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
         }
 
         if (totalSell > 0) {
-            long earned = totalSell;
+            double extMult = api.getExternalSellMultiplier(player.getUniqueId());
+            long earned = (long)(totalSell * extMult);
             api.addBalance(player.getUniqueId(), earned, TransactionType.MINE_SELL);
+            String multSuffix = extMult > 1.0 ? " <gold>(" + formatMult(extMult) + ")" : "";
             player.sendActionBar(mm.deserialize(
-                "<green>+" + currencySymbol + format(earned) + " <gray>(auto-sell)"));
+                "<green>+" + currencySymbol + format(earned) + " <gray>(auto-sell)" + multSuffix));
         }
     }
 
@@ -132,6 +214,11 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Console-accessible admin commands handled first
+        if (command.getName().equalsIgnoreCase("boostgive")) {
+            return handleBoostGive(sender, args);
+        }
+
         if (!(sender instanceof Player player)) {
             sender.sendMessage("This command must be run by a player.");
             return true;
@@ -148,6 +235,55 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
             case "tokenlog"-> handleTokenLog(player);
             default -> { return false; }
         }
+        return true;
+    }
+
+    /**
+     * /boostgive <player> <SELL|TOKEN> <multiplier> <durationSeconds>
+     * Console-callable — used by crate COMMAND rewards and admins.
+     */
+    private boolean handleBoostGive(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            sender.sendMessage("Usage: /boostgive <player> <SELL|TOKEN> <multiplier> <durationSeconds>");
+            return true;
+        }
+
+        org.bukkit.entity.Player target = getServer().getPlayerExact(args[0]);
+        if (target == null) {
+            sender.sendMessage("Player '" + args[0] + "' is not online.");
+            return true;
+        }
+
+        BoostManager.BoostType type;
+        try {
+            type = BoostManager.BoostType.valueOf(args[1].toUpperCase());
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage("Unknown boost type '" + args[1] + "'. Use SELL or TOKEN.");
+            return true;
+        }
+
+        double multiplier;
+        long durationSeconds;
+        try {
+            multiplier = Double.parseDouble(args[2]);
+            durationSeconds = Long.parseLong(args[3]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("Invalid multiplier or duration. Both must be numbers.");
+            return true;
+        }
+
+        BoostManager bm = BoostManager.getInstance();
+        if (bm == null) {
+            sender.sendMessage("BoostManager is not initialized.");
+            return true;
+        }
+
+        bm.grantBoost(target.getUniqueId(), type, multiplier, durationSeconds * 1000L);
+        target.sendMessage(mm.deserialize(
+            "<green>You received a <gold>" + String.format("%.1fx", multiplier) + " " + type.name().toLowerCase() +
+            " boost<green> for <yellow>" + durationSeconds + " seconds<green>!"));
+        sender.sendMessage("Granted " + multiplier + "x " + type.name() + " boost to " + target.getName()
+            + " for " + durationSeconds + "s.");
         return true;
     }
 
@@ -248,14 +384,19 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        long total = price * held.getAmount();
+        long rawTotal = price * held.getAmount();
+        int  streak   = api.recordSell(player.getUniqueId(), streakTimeoutMs);
+        double mult   = api.getStreakMultiplier(streak) * api.getExternalSellMultiplier(player.getUniqueId());
+        long total    = (long)(rawTotal * mult);
+
         player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
         api.addBalance(player.getUniqueId(), total, TransactionType.MINE_SELL);
-        api.recordSell(player.getUniqueId());
 
         player.sendMessage(mm.deserialize(
             "<green>Sold <white>" + held.getAmount() + "x " + formatMaterial(held.getType()) +
-            "<green> for <white>" + currencySymbol + formatFull(total) + "<green>."));
+            "<green> for <white>" + currencySymbol + formatFull(total) + "<green>." +
+            buildStreakSuffix(streak, mult)));
+        sendStreakActionBar(player, total, streak, mult, false);
     }
 
     private void handleSellAll(Player player) {
@@ -264,8 +405,8 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        long totalEarned = 0;
-        int itemsSold    = 0;
+        long rawEarned = 0;
+        int itemsSold  = 0;
 
         ItemStack[] contents = player.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {
@@ -273,9 +414,9 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
             if (item == null || item.getType() == Material.AIR) continue;
             long price = api.getSellPrice(item.getType(), player);
             if (price <= 0) continue;
-            totalEarned += price * item.getAmount();
-            itemsSold   += item.getAmount();
-            contents[i]  = null;
+            rawEarned += price * item.getAmount();
+            itemsSold += item.getAmount();
+            contents[i] = null;
         }
         player.getInventory().setContents(contents);
 
@@ -284,12 +425,102 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
             return;
         }
 
+        int    streak      = api.recordSell(player.getUniqueId(), streakTimeoutMs);
+        double mult        = api.getStreakMultiplier(streak) * api.getExternalSellMultiplier(player.getUniqueId());
+        long   totalEarned = (long)(rawEarned * mult);
+
         api.addBalance(player.getUniqueId(), totalEarned, TransactionType.MINE_SELL);
-        api.recordSell(player.getUniqueId());
 
         player.sendMessage(mm.deserialize(
             "<green>Sold <white>" + itemsSold + " items<green> for <white>" +
-            currencySymbol + formatFull(totalEarned) + "<green>."));
+            currencySymbol + formatFull(totalEarned) + "<green>." +
+            buildStreakSuffix(streak, mult)));
+        sendStreakActionBar(player, totalEarned, streak, mult, true);
+    }
+
+    /** Builds the streak chat suffix e.g. " <gold>⚡ x25 <yellow>(1.20x)" */
+    private String buildStreakSuffix(int streak, double mult) {
+        if (streak < 5) return "";
+        return " <gold>⚡ x" + streak + " <yellow>(" + formatMult(mult) + ")";
+    }
+
+    /** Sends the action bar with sell amount + breakdown of active multipliers. */
+    private void sendStreakActionBar(Player player, long earned, int streak, double totalMult, boolean isSellAll) {
+        UUID uuid = player.getUniqueId();
+        String label = isSellAll ? " <dark_gray>(sellall)" : "";
+        StringBuilder bar = new StringBuilder();
+        bar.append("<green>+").append(currencySymbol).append(format(earned)).append(label);
+
+        double streakMult    = api.getStreakMultiplier(streak);
+        double gangBonus     = api.getGangSellBonus(uuid);
+        double eventBonus    = api.getEventSellBonus(uuid);
+        double prestigeBonus = api.getPrestigeSellBonus(uuid);
+        double boostBonus    = api.getBoostSellBonus(uuid);
+
+        boolean hasStreak   = streak >= 5;
+        boolean hasGang     = gangBonus > 1.001;
+        boolean hasEvent    = eventBonus > 1.001;
+        boolean hasPrestige = prestigeBonus > 1.001;
+        boolean hasBoost    = boostBonus > 1.001;
+
+        if (hasStreak || hasGang || hasEvent || hasPrestige || hasBoost) {
+            bar.append("  ");
+            if (hasStreak) {
+                bar.append(streakTierColor(streak))
+                   .append("⚡x").append(streak)
+                   .append("<yellow>(").append(formatMult(streakMult)).append(")");
+            }
+            if (hasGang) {
+                bar.append(" <green>Gang(").append(formatMult(gangBonus)).append(")");
+            }
+            if (hasEvent) {
+                bar.append(" <gold>Event(").append(formatMult(eventBonus)).append(")");
+            }
+            if (hasPrestige) {
+                bar.append(" <light_purple>P(").append(formatMult(prestigeBonus)).append(")");
+            }
+            if (hasBoost) {
+                bar.append(" <aqua>Boost(").append(formatMult(boostBonus)).append(")");
+            }
+            if (totalMult > 1.001) {
+                bar.append(" <white>=").append(formatMult(totalMult));
+            }
+        }
+
+        player.sendActionBar(mm.deserialize(bar.toString()));
+
+        // Milestone notifications — fire exactly at each threshold crossing
+        switch (streak) {
+            case 10  -> {
+                player.sendMessage(mm.deserialize("\n<green><bold>⚡ STREAK x10!</bold> <yellow>Sell multiplier active!"));
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 1.5f);
+            }
+            case 25  -> {
+                player.sendMessage(mm.deserialize("\n<yellow><bold>⚡ STREAK x25!</bold> <gold>You're on fire!"));
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.2f);
+            }
+            case 50  -> {
+                player.sendMessage(mm.deserialize("\n<gold><bold>⚡ STREAK x50!</bold> <yellow>Massive sell bonus!"));
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
+            }
+            case 100 -> {
+                player.sendMessage(mm.deserialize("\n<red><bold>⚡ STREAK x100!</bold> <gold>LEGENDARY! Maximum multiplier!"));
+                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+            }
+        }
+    }
+
+    private String streakTierColor(int streak) {
+        if (streak >= 100) return "<red>";
+        if (streak >= 50)  return "<gold>";
+        if (streak >= 25)  return "<yellow>";
+        if (streak >= 10)  return "<green>";
+        return "<white>";
+    }
+
+    private String formatMult(double mult) {
+        if (mult == (long) mult) return (long) mult + "x";
+        return String.format("%.2fx", mult);
     }
 
     private void handleAutoSell(Player player) {
@@ -353,6 +584,7 @@ public class EconomyPlugin extends JavaPlugin implements Listener {
             currencySymbol    = (String) root.getOrDefault("currency-symbol", "$");
             tokenSymbol       = (String) root.getOrDefault("token-symbol", "T");
             minSellIntervalMs = ((Number) root.getOrDefault("min-sell-interval-ms", 500)).longValue();
+            streakTimeoutMs   = ((Number) root.getOrDefault("sell-streak-timeout-seconds", 60)).longValue() * 1000L;
 
             Object pricesObj = root.get("sell-prices");
             if (pricesObj instanceof Map<?, ?> rawPrices) {

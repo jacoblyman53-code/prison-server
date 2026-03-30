@@ -122,6 +122,12 @@ public class PrestigeManager {
                 logger.warning("[Prestige] MinesAPI unavailable — player not teleported to mine A.");
             }
 
+            // Award prestige shop points
+            PrestigeShopManager shopMgr = PrestigeShopManager.getInstance();
+            if (shopMgr != null) {
+                shopMgr.awardPoints(uuid);
+            }
+
             logger.info("[Prestige] " + player.getName() + " prestiged to P" + newPrestige);
             return newPrestige;
 

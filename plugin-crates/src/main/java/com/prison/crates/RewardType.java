@@ -9,5 +9,7 @@ public enum RewardType {
     /** Give the player one or more crate keys of a specified tier. */
     CRATE_KEY,
     /** Give the player a custom serialized ItemStack. */
-    ITEM
+    ITEM,
+    /** Run a console command with {player} replaced by the player's name. */
+    COMMAND
 }

@@ -26,14 +26,14 @@ kits:
     type: FREE
     cooldown-hours: 0       # 0 = one-time only (can never re-claim once used)
     contents:
-      - material: STONE_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 1
-      - material: BREAD
+      - material: COOKED_BEEF
         amount: 32
       - material: TORCH
         amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 4
+      - material: CHEST
+        amount: 2
 
   daily:
     display: "<yellow>Daily Kit"

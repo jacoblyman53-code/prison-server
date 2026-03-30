@@ -24,10 +24,10 @@ custom-enchants:
     icon: TNT
     token-costs:
       1: 500
-      2: 1500
-      3: 4000
-      4: 10000
-      5: 25000
+      2: 3000
+      3: 12000
+      4: 50000
+      5: 200000
     descriptions:
       1: "Breaks a 3x3 area"
       2: "Breaks a 5x5 area"
@@ -126,6 +126,65 @@ custom-enchants:
       1: 0.5
       2: 1.0
       3: 2.0
+
+  nuke:
+    display: "Nuke"
+    max-level: 3
+    icon: TNT_MINECART
+    token-costs:
+      1: 5000
+      2: 20000
+      3: 75000
+    descriptions:
+      1: "5% chance: sphere explosion, radius 3"
+      2: "10% chance: sphere explosion, radius 4"
+      3: "20% chance: sphere explosion, radius 5"
+    chances:
+      1: 0.05
+      2: 0.10
+      3: 0.20
+
+  tunnel:
+    display: "Tunnel Drill"
+    max-level: 3
+    icon: STONE_PICKAXE
+    token-costs:
+      1: 2500
+      2: 8000
+      3: 20000
+    descriptions:
+      1: "Drills a 1x2 tunnel, 3 blocks deep ahead"
+      2: "Drills a 1x2 tunnel, 5 blocks deep ahead"
+      3: "Drills a 1x2 tunnel, 7 blocks deep ahead"
+
+  lightning:
+    display: "Lightning"
+    max-level: 5
+    icon: LIGHTNING_ROD
+    token-costs:
+      1: 1500
+      2: 4000
+      3: 9000
+      4: 20000
+      5: 45000
+    descriptions:
+      1: "15% chance to chain-break 5 extra blocks"
+      2: "25% chance to chain-break 8 extra blocks"
+      3: "35% chance to chain-break 12 extra blocks"
+      4: "45% chance to chain-break 16 extra blocks"
+      5: "55% chance to chain-break 20 extra blocks"
+    chances:
+      1: 0.15
+      2: 0.25
+      3: 0.35
+      4: 0.45
+      5: 0.55
+    chains:
+      1: 5
+      2: 8
+      3: 12
+      4: 16
+      5: 20
 
 # Vanilla enchants tab configuration.
 vanilla-enchants:

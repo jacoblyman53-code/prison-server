@@ -1,6 +1,7 @@
 package com.prison.mines;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -245,17 +246,34 @@ public class MineManager {
         if (state.isResetting()) return; // already in progress
         state.setResetting(true);
 
-        // Step 1 — teleport players and broadcast (main thread)
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        // Countdown ticks (in seconds) before the actual reset fires.
+        final int[] ticks = {10, 5, 3, 2, 1};
+        final int totalSeconds = 10;
+
+        // Schedule action-bar countdown messages on the main thread.
+        for (int sec : ticks) {
+            final int s = sec;
+            long delay = (totalSeconds - sec) * 20L;
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                World w = Bukkit.getWorld(mine.world());
+                if (w == null) return;
+                Component bar = mm.deserialize(
+                    "<gold>[Mine " + mine.id() + "]</gold> <red><bold>Resetting in " + s + "s!</bold></red>");
+                for (Player p : w.getPlayers()) p.sendActionBar(bar);
+            }, delay);
+        }
+
+        // At T=0: broadcast chat warning, teleport players, then rebuild.
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             broadcastInMine(mine, warningMsg);
             teleportPlayersOut(mine);
 
-            // Step 2 — build block list async, then apply on main thread
+            // Build block list async, apply on main thread.
             CompletableFuture.supplyAsync(() -> buildBlockList(mine))
                 .thenAccept(blocks ->
                     Bukkit.getScheduler().runTask(plugin, () ->
                         applyBatch(mine, state, blocks, 0)));
-        });
+        }, totalSeconds * 20L);
     }
 
     /** Build the full list of (blockIndex → material) for the mine. Runs async. */

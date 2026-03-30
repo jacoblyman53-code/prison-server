@@ -21,5 +21,6 @@ public enum TransactionType {
     ADMIN_ADD,
     ADMIN_REMOVE,
     GANG_DEPOSIT,
-    GANG_WITHDRAW
+    GANG_WITHDRAW,
+    DAILY_REWARD
 }

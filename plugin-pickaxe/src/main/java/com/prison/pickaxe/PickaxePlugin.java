@@ -4,6 +4,8 @@ import com.prison.economy.EconomyAPI;
 import com.prison.economy.TransactionType;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
@@ -23,6 +25,10 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Set;
+import java.util.HashSet;
 
 public class PickaxePlugin extends JavaPlugin implements Listener {
 
@@ -35,6 +41,7 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
     // Per-player GUI session state
     // key = player UUID, value = current state
     private final ConcurrentHashMap<UUID, GUISession> sessions = new ConcurrentHashMap<>();
+    private final Random random = new Random();
 
     private static class GUISession {
         UpgradeGUI.Tab tab = UpgradeGUI.Tab.CUSTOM;
@@ -105,37 +112,49 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("pickaxe")) {
-            if (args.length == 0) {
-                player.sendMessage(MM.deserialize("<red>Usage: /pickaxe [give|reload]"));
-                return true;
+        switch (cmd.getName().toLowerCase()) {
+            case "enchant" -> {
+                ItemStack held = getHeldPickaxe(player);
+                if (held == null) {
+                    player.sendMessage(MM.deserialize("<red>Hold your prison pickaxe to open the enchant menu."));
+                    return true;
+                }
+                GUISession session = sessions.computeIfAbsent(player.getUniqueId(), k -> new GUISession());
+                session.confirmOpen = false;
+                session.pendingEnchantId = null;
+                upgradeGUI.open(player, session.tab, held, getPrestige(player));
             }
-
-            switch (args[0].toLowerCase()) {
-                case "give" -> {
-                    if (!player.hasPermission("prison.admin.*")) {
-                        player.sendMessage(MM.deserialize("<red>No permission."));
-                        return true;
-                    }
-                    Player target = args.length >= 2 ? Bukkit.getPlayer(args[1]) : player;
-                    if (target == null) {
-                        player.sendMessage(MM.deserialize("<red>Player not found."));
-                        return true;
-                    }
-                    manager.issuePickaxe(target);
-                    player.sendMessage(MM.deserialize("<green>Pickaxe given to <white>" + target.getName()));
+            case "pickaxe" -> {
+                if (args.length == 0) {
+                    player.sendMessage(MM.deserialize("<red>Usage: /pickaxe [give|reload]"));
+                    return true;
                 }
-                case "reload" -> {
-                    if (!player.hasPermission("prison.admin.*")) {
-                        player.sendMessage(MM.deserialize("<red>No permission."));
-                        return true;
+                switch (args[0].toLowerCase()) {
+                    case "give" -> {
+                        if (!player.hasPermission("prison.admin.*")) {
+                            player.sendMessage(MM.deserialize("<red>No permission."));
+                            return true;
+                        }
+                        Player target = args.length >= 2 ? Bukkit.getPlayer(args[1]) : player;
+                        if (target == null) {
+                            player.sendMessage(MM.deserialize("<red>Player not found."));
+                            return true;
+                        }
+                        manager.issuePickaxe(target);
+                        player.sendMessage(MM.deserialize("<green>Pickaxe given to <white>" + target.getName()));
                     }
-                    reloadConfig();
-                    pcfg = new PickaxeConfig(getConfig());
-                    upgradeGUI = new UpgradeGUI(pcfg);
-                    player.sendMessage(MM.deserialize("<green>Pickaxe config reloaded."));
+                    case "reload" -> {
+                        if (!player.hasPermission("prison.admin.*")) {
+                            player.sendMessage(MM.deserialize("<red>No permission."));
+                            return true;
+                        }
+                        reloadConfig();
+                        pcfg = new PickaxeConfig(getConfig());
+                        upgradeGUI = new UpgradeGUI(pcfg);
+                        player.sendMessage(MM.deserialize("<green>Pickaxe config reloaded."));
+                    }
+                    default -> player.sendMessage(MM.deserialize("<red>Unknown subcommand."));
                 }
-                default -> player.sendMessage(MM.deserialize("<red>Unknown subcommand."));
             }
         }
         return true;
@@ -193,6 +212,30 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
         int laser = manager.getEnchantLevel(item, "laser");
         if (laser > 0) {
             triggerLaser(player, item, broken, laser);
+        }
+
+        // --- Nuke ---
+        int nuke = manager.getEnchantLevel(item, "nuke");
+        if (nuke > 0) {
+            double nukeChance = pcfg.getNukeChances().getOrDefault(nuke, 0.05);
+            if (random.nextDouble() < nukeChance) {
+                triggerNuke(player, item, broken, nuke);
+            }
+        }
+
+        // --- Tunnel ---
+        int tunnel = manager.getEnchantLevel(item, "tunnel");
+        if (tunnel > 0) {
+            triggerTunnel(player, item, broken, tunnel);
+        }
+
+        // --- Lightning ---
+        int lightning = manager.getEnchantLevel(item, "lightning");
+        if (lightning > 0) {
+            double lightningChance = pcfg.getLightningChances().getOrDefault(lightning, 0.15);
+            if (random.nextDouble() < lightningChance) {
+                triggerLightning(player, item, broken, lightning);
+            }
         }
 
         // --- Sellall threshold check ---
@@ -300,6 +343,7 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
         session.confirmOpen      = true;
 
         upgradeGUI.openConfirm(player, enchantId, currentLevel, cost, tokens);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
     }
 
     private void handleConfirmClick(Player player, int slot, GUISession session) {
@@ -346,6 +390,7 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
             + " <green>to level <white>" + newLevel
             + "<green>! Cost: <gold>" + session.pendingCost + " tokens"
         ));
+        player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.6f, 1.4f);
 
         // Apply Speed Mine haste immediately if that was the enchant
         if (session.pendingEnchantId.equals("speed")) {
@@ -401,12 +446,37 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
     }
 
     // ----------------------------------------------------------------
-    // PlayerJoinEvent — sync pickaxe from DB
+    // PlayerJoinEvent — sync pickaxe from DB; auto-issue on first join
     // ----------------------------------------------------------------
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        manager.syncFromDatabase(event.getPlayer());
+        Player player = event.getPlayer();
+
+        // Check if the player already has a server pickaxe in their inventory
+        boolean hasPickaxe = false;
+        for (ItemStack it : player.getInventory().getContents()) {
+            if (manager.isServerPickaxe(it)) { hasPickaxe = true; break; }
+        }
+
+        if (hasPickaxe) {
+            manager.syncFromDatabase(player);
+        } else {
+            // If they have no pickaxe, check whether they've ever been issued one
+            manager.hasPickaxeRecord(player.getUniqueId()).thenAccept(hasRecord -> {
+                if (!hasRecord) {
+                    // First join — issue a prison pickaxe
+                    manager.issuePickaxe(player).thenRun(() ->
+                        getServer().getScheduler().runTask(this, () ->
+                            player.sendMessage(MM.deserialize(
+                                "<green>You've received your <gold>Prison Pickaxe</gold>! " +
+                                "Sneak + right-click or use <white>/enchant</white> to upgrade it."))
+                        )
+                    );
+                }
+                // If hasRecord but no pickaxe in inventory: they lost it — admin can re-issue with /pickaxe give
+            });
+        }
     }
 
     // ----------------------------------------------------------------
@@ -496,6 +566,92 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
         }
     }
 
+    private void triggerNuke(Player player, ItemStack item, Block center, int level) {
+        int[] radii = {3, 4, 5};
+        int radius = radii[Math.min(level - 1, 2)];
+        World world = center.getWorld();
+        int r2 = radius * radius;
+        int count = 0;
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (dx * dx + dy * dy + dz * dz > r2) continue;
+                    if (dx == 0 && dy == 0 && dz == 0) continue;
+                    Block b = center.getRelative(dx, dy, dz);
+                    if (b.getType().isAir() || !isInMine(b)) continue;
+                    awardTokens(player, item, b.getType());
+                    b.setType(Material.AIR, false);
+                    count++;
+                }
+            }
+        }
+
+        if (count > 0) {
+            world.spawnParticle(Particle.LARGE_SMOKE,
+                center.getLocation().add(0.5, 0.5, 0.5),
+                40, radius * 0.4, radius * 0.4, radius * 0.4, 0.05);
+            world.playSound(center.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.6f, 0.9f);
+            player.sendActionBar(MM.deserialize(
+                "<red>☄ <bold>NUKE!</bold> <dark_gray>[+" + count + " blocks]"));
+        }
+    }
+
+    private void triggerTunnel(Player player, ItemStack item, Block start, int level) {
+        int depth = level * 2 + 1; // 3 / 5 / 7 blocks deep
+        BlockFace face = getPlayerFacingFace(player);
+        Block current = start.getRelative(face);
+        for (int d = 0; d < depth - 1; d++) {
+            for (int dy = 0; dy <= 1; dy++) { // 2 blocks tall (feet + head height)
+                Block b = current.getRelative(0, dy, 0);
+                if (!b.getType().isAir() && isInMine(b)) {
+                    awardTokens(player, item, b.getType());
+                    b.setType(Material.AIR, false);
+                }
+            }
+            current = current.getRelative(face);
+        }
+    }
+
+    private void triggerLightning(Player player, ItemStack item, Block center, int level) {
+        int chainCount = pcfg.getLightningChains().getOrDefault(level, 5);
+        World world = center.getWorld();
+        int[][] dirs = {{-1,0,0},{1,0,0},{0,-1,0},{0,1,0},{0,0,-1},{0,0,1}};
+
+        Deque<Block> queue = new ArrayDeque<>();
+        Set<Block> visited = new HashSet<>();
+        queue.add(center);
+        visited.add(center);
+        int broken = 0;
+
+        while (!queue.isEmpty() && broken < chainCount) {
+            Block curr = queue.poll();
+            List<Block> candidates = new ArrayList<>();
+            for (int[] d : dirs) {
+                Block adj = curr.getRelative(d[0], d[1], d[2]);
+                if (!visited.contains(adj) && !adj.getType().isAir() && isInMine(adj)) {
+                    candidates.add(adj);
+                }
+            }
+            if (candidates.isEmpty()) break;
+            Block next = candidates.get(random.nextInt(candidates.size()));
+            visited.add(next);
+            awardTokens(player, item, next.getType());
+            next.setType(Material.AIR, false);
+            broken++;
+            queue.add(next);
+        }
+
+        if (broken > 0) {
+            world.spawnParticle(Particle.END_ROD,
+                center.getLocation().add(0.5, 0.5, 0.5),
+                25, 1.0, 1.0, 1.0, 0.08);
+            world.playSound(center.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 0.3f, 1.8f);
+            player.sendActionBar(MM.deserialize(
+                "<aqua>⚡ <bold>Lightning!</bold> <dark_gray>[+" + broken + " chains]"));
+        }
+    }
+
     private void triggerJackpot(Player player, Block near) {
         // Find which mine we're in and fill inventory with random mine blocks
         if (!isInMine(near)) return;
@@ -515,15 +671,22 @@ public class PickaxePlugin extends JavaPlugin implements Listener {
             List<org.bukkit.Material> mats = new ArrayList<>(comp.keySet());
 
             // Fill empty inventory slots with mine blocks
+            int filled = 0;
             for (int i = 0; i < player.getInventory().getSize(); i++) {
                 ItemStack existing = player.getInventory().getItem(i);
                 if (existing == null || existing.getType().isAir()) {
                     org.bukkit.Material mat = mats.get(new Random().nextInt(mats.size()));
                     player.getInventory().setItem(i, new ItemStack(mat, 64));
+                    filled++;
                 }
             }
 
-            player.sendMessage(MM.deserialize("<gold><bold>JACKPOT! </bold><yellow>Your inventory has been filled!"));
+            player.sendActionBar(MM.deserialize(
+                "<gold>★ <bold>JACKPOT!</bold> <yellow>+" + filled + " slots filled!"));
+            player.sendMessage(MM.deserialize("<gold><bold>JACKPOT! </bold><yellow>Your inventory has been filled with mine blocks!"));
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 0.8f);
+            near.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING,
+                near.getLocation().add(0.5, 1.0, 0.5), 60, 1.0, 1.5, 1.0, 0.15);
         } catch (NoClassDefFoundError ignored) {
             // PrisonMines not loaded
         }

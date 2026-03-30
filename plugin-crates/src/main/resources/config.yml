@@ -83,6 +83,16 @@ crates:
         weight: 1
         broadcast: false
         display-name: "2x Rare Keys"
+      - type: COMMAND
+        command: "boostgive {player} SELL 2.0 300"
+        weight: 3
+        broadcast: false
+        display-name: "<gold>⚡ 2x Sell Boost (5 min)"
+      - type: COMMAND
+        command: "boostgive {player} TOKEN 2.0 300"
+        weight: 3
+        broadcast: false
+        display-name: "<aqua>⚡ 2x Token Boost (5 min)"
 
   legendary:
     display-name: "Legendary Crate"
@@ -131,6 +141,21 @@ crates:
         weight: 1
         broadcast: false
         display-name: "5x Rare Keys"
+      - type: COMMAND
+        command: "boostgive {player} SELL 3.0 600"
+        weight: 3
+        broadcast: true
+        display-name: "<gold>⚡ 3x Sell Boost (10 min)"
+      - type: COMMAND
+        command: "boostgive {player} TOKEN 3.0 600"
+        weight: 3
+        broadcast: true
+        display-name: "<aqua>⚡ 3x Token Boost (10 min)"
+      - type: COMMAND
+        command: "boostgive {player} SELL 2.0 600"
+        weight: 2
+        broadcast: true
+        display-name: "<gold>★ Mega Sell Boost (2x, 10 min)"
 
 # Reward format (added programmatically via /crate addreward or future GUI):
 # rewards:

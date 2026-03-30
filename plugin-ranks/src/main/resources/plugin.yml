@@ -11,11 +11,12 @@ depend:
 
 softdepend:
   - PrisonMines
+  - PrisonQuests
 
 commands:
   rankup:
     description: Rank up to the next mine rank
-    usage: /rankup [autoteleport toggle]
+    usage: /rankup [max|autoteleport toggle]
     permission: prison.sell
   ranks:
     description: View rank progression GUI

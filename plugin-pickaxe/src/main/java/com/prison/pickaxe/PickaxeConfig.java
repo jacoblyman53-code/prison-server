@@ -22,6 +22,9 @@ public class PickaxeConfig {
     private final Map<Integer, Double> tokenatorMultipliers;
     private final Map<Integer, Integer> sellallThresholds;
     private final Map<Integer, Double> jackpotChances;
+    private final Map<Integer, Double> nukeChances;
+    private final Map<Integer, Double> lightningChances;
+    private final Map<Integer, Integer> lightningChains;
 
     public PickaxeConfig(FileConfiguration cfg) {
         prestigeCostMultiplier = cfg.getDouble("prestige-cost-multiplier", 0.10);
@@ -36,6 +39,9 @@ public class PickaxeConfig {
         tokenatorMultipliers = loadDoubleMap(cfg.getConfigurationSection("custom-enchants.tokenator.multipliers"));
         sellallThresholds    = loadIntMap(cfg.getConfigurationSection("custom-enchants.sellall.thresholds"));
         jackpotChances       = loadDoubleMap(cfg.getConfigurationSection("custom-enchants.jackpot.chances"));
+        nukeChances          = loadDoubleMap(cfg.getConfigurationSection("custom-enchants.nuke.chances"));
+        lightningChances     = loadDoubleMap(cfg.getConfigurationSection("custom-enchants.lightning.chances"));
+        lightningChains      = loadIntMap(cfg.getConfigurationSection("custom-enchants.lightning.chains"));
     }
 
     private List<EnchantDef> loadEnchants(ConfigurationSection section, boolean isVanilla) {
@@ -81,6 +87,9 @@ public class PickaxeConfig {
     public Map<Integer, Double>  getTokenatorMultipliers() { return tokenatorMultipliers; }
     public Map<Integer, Integer> getSellallThresholds()    { return sellallThresholds; }
     public Map<Integer, Double>  getJackpotChances()       { return jackpotChances; }
+    public Map<Integer, Double>  getNukeChances()          { return nukeChances; }
+    public Map<Integer, Double>  getLightningChances()     { return lightningChances; }
+    public Map<Integer, Integer> getLightningChains()      { return lightningChains; }
 
     /** All enchant IDs in order: custom first, then vanilla. */
     public List<String> allEnchantIds() {

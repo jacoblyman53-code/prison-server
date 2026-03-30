@@ -1,0 +1,27 @@
+name: PrisonEvents
+version: 1.0.0
+main: com.prison.events.EventPlugin
+api-version: '1.21'
+description: Server-wide timed events with sell and token multipliers for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+softdepend:
+  - PrisonEconomy
+
+commands:
+  event:
+    description: Manage and view server events
+    usage: /event <start|stop|list|info> [eventId]
+    permission: prison.events.use
+
+permissions:
+  prison.admin.events:
+    description: Allows starting and stopping server events
+    default: op
+  prison.events.use:
+    description: Allows using /event list and /event info
+    default: true

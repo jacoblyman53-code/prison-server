@@ -3,11 +3,15 @@ package com.prison.kits;
 import com.prison.database.DatabaseManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -103,6 +107,24 @@ public class KitsPlugin extends JavaPlugin implements Listener {
         manager.unloadPlayer(event.getPlayer().getUniqueId());
     }
 
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!KitsGUI.isTitle(player.getOpenInventory().title())) return;
+        event.setCancelled(true);
+        if (event.getClickedInventory() == event.getView().getTopInventory()) {
+            KitsGUI.handleClick(player, event.getRawSlot(), this);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (KitsGUI.isTitle(player.getOpenInventory().title())) {
+            event.setCancelled(true);
+        }
+    }
+
     // ----------------------------------------------------------------
     // Commands
     // ----------------------------------------------------------------
@@ -117,7 +139,7 @@ public class KitsPlugin extends JavaPlugin implements Listener {
         }
 
         if (args.length == 0 || args[0].equalsIgnoreCase("list")) {
-            showKitList(player);
+            KitsGUI.open(player);
             return true;
         }
 
@@ -251,11 +273,17 @@ public class KitsPlugin extends JavaPlugin implements Listener {
 
         // Claim
         KitsManager.ClaimResult result = manager.claimKit(player, kit);
-        if (result == KitsManager.ClaimResult.SUCCESS) {
-            player.sendMessage(MM.deserialize("<green>You claimed the " + kit.display() + " <green>kit!"));
-        } else {
-            // Should not happen if we checked above, but safety fallback
-            player.sendMessage(MM.deserialize("<red>Could not claim kit. Please try again."));
+        switch (result) {
+            case SUCCESS -> {
+                player.sendMessage(MM.deserialize("<green>You claimed the " + kit.display() + " <green>kit!"));
+                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.2f);
+            }
+            case INVENTORY_FULL ->
+                player.sendMessage(MM.deserialize(
+                    "<red>Your inventory is too full to claim this kit. " +
+                    "<gray>Free up <white>" + kit.contents().size() + " slot(s) <gray>and try again."));
+            default ->
+                player.sendMessage(MM.deserialize("<red>Could not claim kit. Please try again."));
         }
     }
 

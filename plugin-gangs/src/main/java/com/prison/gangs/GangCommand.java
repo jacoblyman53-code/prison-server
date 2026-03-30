@@ -5,13 +5,16 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * GangCommand — handles all /gang subcommands and /gc.
@@ -22,6 +25,9 @@ public class GangCommand implements CommandExecutor {
 
     private final GangPlugin plugin;
     private final GangManager manager;
+
+    /** UUID → timestamp of when /gang disband was first typed. 30s window to confirm. */
+    private final Map<UUID, Long> pendingDisband = new ConcurrentHashMap<>();
 
     public GangCommand(GangPlugin plugin, GangManager manager) {
         this.plugin  = plugin;
@@ -118,6 +124,23 @@ public class GangCommand implements CommandExecutor {
     private void handleDisband(Player player) {
         GangData gang = manager.getGangOf(player.getUniqueId());
         if (gang == null) { player.sendMessage(MM.deserialize("<red>You are not in a gang.")); return; }
+
+        // Require a second /gang disband within 30 seconds to confirm
+        UUID uuid = player.getUniqueId();
+        Long firstTime = pendingDisband.get(uuid);
+        long now = System.currentTimeMillis();
+
+        if (firstTime == null || now - firstTime > 30_000L) {
+            pendingDisband.put(uuid, now);
+            player.sendMessage(MM.deserialize(
+                "<red>⚠ Are you sure you want to disband <white>" + gang.name() + "</white><red>?\n" +
+                "<gray>This will kick all members and delete the gang permanently.\n" +
+                "<yellow>Type <white>/gang disband</white> again within 30s to confirm."));
+            return;
+        }
+
+        // Confirmed — clear pending and proceed
+        pendingDisband.remove(uuid);
 
         manager.disbandGang(player.getUniqueId()).thenAccept(result -> {
             Bukkit.getScheduler().runTask(plugin, () -> {
@@ -349,6 +372,9 @@ public class GangCommand implements CommandExecutor {
         }
         if (amount <= 0) { player.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
 
+        GangData gangBefore = manager.getGangOf(player.getUniqueId());
+        int levelBefore = gangBefore != null ? gangBefore.level() : 1;
+
         manager.deposit(player.getUniqueId(), amount).thenAccept(result -> {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 switch (result) {
@@ -357,6 +383,25 @@ public class GangCommand implements CommandExecutor {
                         String bankStr = gang == null ? "?" : String.format("%,d", gang.bankBalance());
                         player.sendMessage(MM.deserialize("<green>Deposited <white>" + String.format("%,d", amount)
                             + "</white> IGC to the gang bank. Bank: <white>" + bankStr + "</white> IGC."));
+
+                        // Quest progress
+                        try {
+                            com.prison.quests.QuestsAPI qapi = com.prison.quests.QuestsAPI.getInstance();
+                            if (qapi != null) qapi.addProgress(player.getUniqueId(), com.prison.quests.QuestType.GANG_DEPOSITS, 1L);
+                        } catch (NoClassDefFoundError ignored) { /* PrisonQuests not loaded */ }
+
+                        // Gang level-up notification
+                        if (gang != null && gang.level() > levelBefore) {
+                            String msg = "\n<gold>⚔ <yellow>Gang <white>" + gang.name()
+                                + "</white> levelled up to <gold>Level " + gang.level() + "</gold>!";
+                            for (UUID memberId : manager.getMembers(gang.id())) {
+                                Player member = Bukkit.getPlayer(memberId);
+                                if (member != null) {
+                                    member.sendMessage(MM.deserialize(msg));
+                                    member.playSound(member.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 0.8f);
+                                }
+                            }
+                        }
                     }
                     case NOT_IN_GANG        -> player.sendMessage(MM.deserialize("<red>You are not in a gang."));
                     case INSUFFICIENT_FUNDS -> player.sendMessage(MM.deserialize("<red>You don't have enough IGC."));

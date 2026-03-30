@@ -49,10 +49,43 @@ public class GangPlugin extends JavaPlugin {
         }
 
         // ----------------------------------------------------------------
+        // Read sell / token bonus arrays (index = level-1; level 1 = no bonus)
+        // ----------------------------------------------------------------
+        org.bukkit.configuration.ConfigurationSection sellSec =
+            getConfig().getConfigurationSection("sell-bonuses");
+        org.bukkit.configuration.ConfigurationSection tokenSec =
+            getConfig().getConfigurationSection("token-bonuses");
+
+        int maxLevel = thresholds.length + 1; // e.g. 9 thresholds → levels 1-10
+        double[] sellBonuses  = new double[maxLevel];
+        double[] tokenBonuses = new double[maxLevel];
+        for (int lv = 1; lv <= maxLevel; lv++) {
+            sellBonuses[lv - 1]  = (sellSec  != null) ? sellSec.getDouble(String.valueOf(lv),  1.0) : 1.0;
+            tokenBonuses[lv - 1] = (tokenSec != null) ? tokenSec.getDouble(String.valueOf(lv), 1.0) : 1.0;
+        }
+
+        // ----------------------------------------------------------------
         // Initialize manager & API
         // ----------------------------------------------------------------
         manager = GangManager.initialize(defaultMax, donorMax, thresholds, getLogger());
-        new GangAPI(manager);
+        GangAPI gangAPI = new GangAPI(manager);
+        gangAPI.setBonuses(sellBonuses, tokenBonuses);
+
+        // Register gang bonus providers with EconomyAPI (soft-dep — safe if not loaded yet)
+        org.bukkit.plugin.Plugin ecoPlugin =
+            getServer().getPluginManager().getPlugin("PrisonEconomy");
+        if (ecoPlugin != null && ecoPlugin.isEnabled()) {
+            try {
+                com.prison.economy.EconomyAPI eco = com.prison.economy.EconomyAPI.getInstance();
+                if (eco != null) {
+                    eco.setGangSellBonusProvider(uuid -> GangAPI.getInstance().getSellBonus(uuid));
+                    eco.setGangTokenBonusProvider(uuid -> GangAPI.getInstance().getTokenBonus(uuid));
+                    getLogger().info("[Gangs] Registered sell + token bonus providers with EconomyAPI.");
+                }
+            } catch (Exception e) {
+                getLogger().warning("[Gangs] Could not register EconomyAPI bonus providers: " + e.getMessage());
+            }
+        }
 
         // ----------------------------------------------------------------
         // Load data

@@ -1,0 +1,40 @@
+events:
+  sell_boost_2x:
+    display: "<gold>⚡ 2x Sell Boost"
+    type: SELL_BOOST
+    multiplier: 2.0
+    duration-minutes: 30
+    announcement: "<gold><bold>⚡ 2x SELL BOOST! <yellow>Earn double IGC for 30 minutes!"
+
+  sell_boost_3x:
+    display: "<gold>⚡ 3x Sell Boost"
+    type: SELL_BOOST
+    multiplier: 3.0
+    duration-minutes: 20
+    announcement: "<gold><bold>⚡ 3x SELL BOOST! <yellow>Triple IGC for 20 minutes!"
+
+  token_storm:
+    display: "<aqua>⚡ Token Storm"
+    type: TOKEN_STORM
+    multiplier: 3.0
+    duration-minutes: 20
+    announcement: "<aqua><bold>⚡ TOKEN STORM! <yellow>3x tokens for 20 minutes!"
+
+  jackpot_hour:
+    display: "<light_purple>⚡ Jackpot Hour"
+    type: JACKPOT_HOUR
+    multiplier: 5.0
+    duration-minutes: 60
+    announcement: "<light_purple><bold>⚡ JACKPOT HOUR! <yellow>5x sell bonus for 1 hour!"
+
+# Auto-schedule: fires events at specific times each day (server timezone).
+# Set enabled: true to activate.
+schedule:
+  enabled: true
+  entries:
+    - time: "12:00"
+      event: sell_boost_2x
+    - time: "18:00"
+      event: token_storm
+    - time: "21:00"
+      event: sell_boost_3x

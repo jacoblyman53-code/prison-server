@@ -1,4 +1,5 @@
 dependencies {
     compileOnly project(':plugin-economy')
     compileOnly project(':plugin-donor')
+    compileOnly project(':plugin-quests')
 }

@@ -36,6 +36,17 @@ public class EconomyAPI {
     // Sell price provider — replaced by mines plugin at startup for mine-tier pricing
     private volatile SellPriceProvider sellPriceProvider;
 
+    // External sell/token multiplier providers — set by Gangs, Events, Prestige, etc.
+    // Each returns 1.0 when inactive. Products are stacked together.
+    private volatile MultiplierProvider gangSellBonusProvider     = uuid -> 1.0;
+    private volatile MultiplierProvider eventSellBonusProvider    = uuid -> 1.0;
+    private volatile MultiplierProvider prestigeSellBonusProvider = uuid -> 1.0;
+    private volatile MultiplierProvider boostSellProvider         = uuid -> 1.0;
+    private volatile MultiplierProvider gangTokenBonusProvider     = uuid -> 1.0;
+    private volatile MultiplierProvider eventTokenBonusProvider    = uuid -> 1.0;
+    private volatile MultiplierProvider prestigeTokenBonusProvider = uuid -> 1.0;
+    private volatile MultiplierProvider boostTokenProvider         = uuid -> 1.0;
+
     // Cached baltop list — refreshed on a schedule
     private volatile List<BaltopEntry> baltopCache = List.of();
 
@@ -62,6 +73,47 @@ public class EconomyAPI {
     /** Returns the IGC sell price for one unit of a material for this player. */
     public long getSellPrice(Material material, Player player) {
         return sellPriceProvider.getSellPrice(material, player);
+    }
+
+    // ----------------------------------------------------------------
+    // External Multiplier Providers (set by Gangs, Events plugins)
+    // ----------------------------------------------------------------
+
+    public void setGangSellBonusProvider(MultiplierProvider p)     { this.gangSellBonusProvider     = p; }
+    public void setEventSellBonusProvider(MultiplierProvider p)    { this.eventSellBonusProvider    = p; }
+    public void setPrestigeSellBonusProvider(MultiplierProvider p) { this.prestigeSellBonusProvider = p; }
+    public void setBoostSellProvider(MultiplierProvider p)         { this.boostSellProvider         = p; }
+    public void setGangTokenBonusProvider(MultiplierProvider p)     { this.gangTokenBonusProvider     = p; }
+    public void setEventTokenBonusProvider(MultiplierProvider p)    { this.eventTokenBonusProvider    = p; }
+    public void setPrestigeTokenBonusProvider(MultiplierProvider p) { this.prestigeTokenBonusProvider = p; }
+    public void setBoostTokenProvider(MultiplierProvider p)         { this.boostTokenProvider         = p; }
+
+    // Individual getters used by EconomyPlugin for the action bar breakdown display
+    public double getGangSellBonus(UUID uuid)     { return gangSellBonusProvider.getMultiplier(uuid); }
+    public double getEventSellBonus(UUID uuid)    { return eventSellBonusProvider.getMultiplier(uuid); }
+    public double getPrestigeSellBonus(UUID uuid) { return prestigeSellBonusProvider.getMultiplier(uuid); }
+    public double getBoostSellBonus(UUID uuid)    { return boostSellProvider.getMultiplier(uuid); }
+
+    /**
+     * Returns the combined external sell multiplier for a player
+     * (gang × event × prestige × boost). Returns 1.0 when no bonuses are active.
+     */
+    public double getExternalSellMultiplier(UUID uuid) {
+        return gangSellBonusProvider.getMultiplier(uuid)
+             * eventSellBonusProvider.getMultiplier(uuid)
+             * prestigeSellBonusProvider.getMultiplier(uuid)
+             * boostSellProvider.getMultiplier(uuid);
+    }
+
+    /**
+     * Returns the combined external token earn multiplier for a player
+     * (gang × event × prestige × boost). Returns 1.0 when no bonuses are active.
+     */
+    public double getExternalTokenMultiplier(UUID uuid) {
+        return gangTokenBonusProvider.getMultiplier(uuid)
+             * eventTokenBonusProvider.getMultiplier(uuid)
+             * prestigeTokenBonusProvider.getMultiplier(uuid)
+             * boostTokenProvider.getMultiplier(uuid);
     }
 
     // ----------------------------------------------------------------
@@ -209,14 +261,18 @@ public class EconomyAPI {
 
     /**
      * Add tokens to a player's balance.
+     * For TOKEN_EARN transactions, the gang + event token multipliers are applied automatically.
      * Returns the new token balance.
      */
     public long addTokens(UUID uuid, long amount, TransactionType type) {
         PlayerWallet w = wallets.get(uuid);
         if (w == null) return 0L;
-        long newBal = w.addTokens(amount);
+        long finalAmount = (type == TransactionType.TOKEN_EARN)
+            ? (long)(amount * getExternalTokenMultiplier(uuid))
+            : amount;
+        long newBal = w.addTokens(finalAmount);
         persist(w);
-        logTransaction(uuid, "TOKEN", type, amount, newBal);
+        logTransaction(uuid, "TOKEN", type, finalAmount, newBal);
         return newBal;
     }
 
@@ -282,10 +338,43 @@ public class EconomyAPI {
         return System.currentTimeMillis() - w.getLastSellTime() >= minIntervalMs;
     }
 
-    /** Record that the player just used a manual sell command. */
+    /** Record a manual sell, updating streak and last-sell timestamp. Returns new streak count. */
+    public int recordSell(UUID uuid, long streakTimeoutMs) {
+        PlayerWallet w = wallets.get(uuid);
+        if (w == null) return 1;
+        long now  = System.currentTimeMillis();
+        long last = w.getLastSellTime();
+        int streak;
+        if (last > 0 && (now - last) <= streakTimeoutMs) {
+            streak = w.getSellStreak() + 1;
+        } else {
+            streak = 1;
+        }
+        w.setSellStreak(streak);
+        w.setLastSellTime(now);
+        return streak;
+    }
+
+    /** Legacy no-arg overload — records sell with no streak tracking. */
     public void recordSell(UUID uuid) {
         PlayerWallet w = wallets.get(uuid);
         if (w != null) w.setLastSellTime(System.currentTimeMillis());
+    }
+
+    /** Returns the sell multiplier for a given streak count. Thresholds: 5=1.05x 10=1.10x 25=1.20x 50=1.35x 100=1.50x */
+    public double getStreakMultiplier(int streak) {
+        if (streak >= 100) return 1.50;
+        if (streak >= 50)  return 1.35;
+        if (streak >= 25)  return 1.20;
+        if (streak >= 10)  return 1.10;
+        if (streak >= 5)   return 1.05;
+        return 1.0;
+    }
+
+    /** Returns the current sell streak for a player (0 if not loaded). */
+    public int getSellStreak(UUID uuid) {
+        PlayerWallet w = wallets.get(uuid);
+        return w != null ? w.getSellStreak() : 0;
     }
 
     // ----------------------------------------------------------------

@@ -17,3 +17,12 @@ commands:
     description: Manage shop categories and items
     usage: /shopadmin
     permission: prison.admintoolkit.use
+  blackmarket:
+    description: Open the Black Market
+    usage: /blackmarket
+    aliases: [bm]
+  tokenshop:
+    description: Open the Token Shop
+    usage: /tokenshop
+    permission: prison.sell
+    aliases: [ts]

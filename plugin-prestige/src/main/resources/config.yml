@@ -37,3 +37,8 @@ rewards:
 # Max tracked prestige (permission nodes go up to this number).
 # Players can prestige beyond this — they just won't get new perm nodes.
 max-prestige-perms: 50
+
+# ---- Prestige Shop ----
+# Points awarded each time a player prestiges. Use /prestigeshop to spend them.
+# Upgrade costs: Mine Profit / Token Mastery tiers cost 5 / 15 / 30 pts.
+prestige-shop-points-per-prestige: 10

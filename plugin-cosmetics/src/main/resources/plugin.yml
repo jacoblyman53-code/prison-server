@@ -1,0 +1,25 @@
+name: PrisonCosmetics
+version: 1.0.0
+main: com.prison.cosmetics.CosmeticsPlugin
+api-version: '1.21'
+description: Cosmetic system (chat tags, kill effects) for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+commands:
+  cosmetics:
+    description: Open the cosmetics wardrobe GUI
+    usage: /cosmetics
+    aliases: [tags, wardrobe]
+  ctag:
+    description: Admin command to grant or remove chat tags
+    usage: /ctag <give|remove> <player> <tagId>
+    permission: prison.admin.cosmetics
+
+permissions:
+  prison.admin.cosmetics:
+    description: Grants access to /ctag give and /ctag remove
+    default: op

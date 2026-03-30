@@ -1,0 +1,159 @@
+# ============================================================
+#  Black Market Configuration
+#  PrisonShop — plugin-shop
+# ============================================================
+
+rotation:
+  # How many hours between each Black Market refresh.
+  interval-hours: 6
+  # How many items to pick from the pool per rotation.
+  items-per-rotation: 6
+
+# ============================================================
+#  Item Pool
+#  All items listed here are candidates for the rotation.
+#  Each rotation picks 'items-per-rotation' random entries.
+#
+#  Fields:
+#    id       — unique string identifier (no spaces)
+#    price    — cost in IGC
+#    stock    — units available per rotation (1-3 recommended)
+#    item     — Bukkit Material name
+#    amount   — stack size given on purchase (default 1)
+#    display  — MiniMessage display name
+#    lore     — list of MiniMessage lore lines
+# ============================================================
+
+item-pool:
+  - id: enchanted_golden_apple
+    price: 75000
+    stock: 2
+    item: ENCHANTED_GOLDEN_APPLE
+    display: "<!italic><gold><bold>Enchanted Golden Apple"
+    lore:
+      - "<!italic><gray>Absorption IV, Regeneration II"
+      - "<!italic><gray>Fire Resistance, Resistance for 30s"
+
+  - id: nether_star
+    price: 500000
+    stock: 1
+    item: NETHER_STAR
+    display: "<!italic><aqua><bold>Nether Star"
+    lore:
+      - "<!italic><gray>A rare cosmetic material."
+
+  - id: name_tag
+    price: 50000
+    stock: 3
+    item: NAME_TAG
+    display: "<!italic><white><bold>Name Tag"
+    lore:
+      - "<!italic><gray>Rename any mob or item."
+
+  - id: saddle
+    price: 20000
+    stock: 3
+    item: SADDLE
+    display: "<!italic><white>Saddle"
+    lore:
+      - "<!italic><gray>Ride a tamed horse."
+
+  - id: elytra
+    price: 2000000
+    stock: 1
+    item: ELYTRA
+    display: "<!italic><light_purple><bold>Elytra"
+    lore:
+      - "<!italic><gray>Rare gliding wings."
+      - "<!italic><dark_gray>Extremely limited availability."
+
+  - id: dragon_egg
+    price: 5000000
+    stock: 1
+    item: DRAGON_EGG
+    display: "<!italic><dark_purple><bold>Dragon Egg"
+    lore:
+      - "<!italic><gray>The rarest decorative item."
+
+  - id: beacon
+    price: 1500000
+    stock: 1
+    item: BEACON
+    display: "<!italic><yellow><bold>Beacon"
+    lore:
+      - "<!italic><gray>Grants powerful area buffs."
+
+  - id: wither_skeleton_skull
+    price: 300000
+    stock: 2
+    item: WITHER_SKELETON_SKULL
+    display: "<!italic><dark_gray><bold>Wither Skull"
+    lore:
+      - "<!italic><gray>Used to summon the Wither."
+
+  - id: totem_of_undying
+    price: 750000
+    stock: 2
+    item: TOTEM_OF_UNDYING
+    display: "<!italic><green><bold>Totem of Undying"
+    lore:
+      - "<!italic><gray>Cheat death once."
+
+  - id: notch_apple_stack
+    price: 150000
+    stock: 2
+    item: ENCHANTED_GOLDEN_APPLE
+    amount: 5
+    display: "<!italic><gold>Enchanted Apple <dark_gray>x5"
+    lore:
+      - "<!italic><gray>A bundle of 5 enchanted apples."
+
+  - id: tnt_48
+    price: 25000
+    stock: 3
+    item: TNT
+    amount: 48
+    display: "<!italic><red>TNT <dark_gray>x48"
+    lore:
+      - "<!italic><gray>Boom."
+
+  - id: obsidian_64
+    price: 10000
+    stock: 3
+    item: OBSIDIAN
+    amount: 64
+    display: "<!italic><dark_purple>Obsidian <dark_gray>x64"
+    lore:
+      - "<!italic><gray>Full stack of obsidian."
+
+  - id: diamond_block_8
+    price: 200000
+    stock: 2
+    item: DIAMOND_BLOCK
+    amount: 8
+    display: "<!italic><aqua>Diamond Block <dark_gray>x8"
+    lore:
+      - "<!italic><gray>8 diamond blocks."
+
+  - id: netherite_ingot
+    price: 350000
+    stock: 2
+    item: NETHERITE_INGOT
+    display: "<!italic><dark_gray><bold>Netherite Ingot"
+    lore:
+      - "<!italic><gray>Upgrade diamond gear to netherite."
+
+  - id: golden_apple_64
+    price: 80000
+    stock: 2
+    item: GOLDEN_APPLE
+    amount: 64
+    display: "<!italic><gold>Golden Apple <dark_gray>x64"
+    lore:
+      - "<!italic><gray>A full stack of golden apples."
+
+# ============================================================
+#  State (managed automatically — do not edit manually)
+# ============================================================
+state:
+  last-rotation: 0

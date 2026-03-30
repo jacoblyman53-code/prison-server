@@ -1,0 +1,23 @@
+name: PrisonQuests
+version: 1.0.0
+main: com.prison.quests.QuestPlugin
+api-version: '1.21'
+description: Daily, weekly, and milestone quest system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+softdepend:
+  - PrisonEconomy
+
+commands:
+  quests:
+    description: Open the quests GUI
+    usage: /quests
+    aliases: [quest, q]
+  chainquests:
+    description: Open the chain quest questline
+    usage: /chainquests
+    aliases: [chain, cq]

@@ -234,6 +234,30 @@ public class PickaxeManager {
     }
 
     // ----------------------------------------------------------------
+    // First-join check
+    // ----------------------------------------------------------------
+
+    /**
+     * Returns true if the player has any pickaxe record in the database
+     * (i.e., they've been issued a pickaxe before, even if they no longer have it).
+     */
+    public CompletableFuture<Boolean> hasPickaxeRecord(java.util.UUID playerUuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Integer count = DatabaseManager.getInstance().query(
+                    "SELECT COUNT(*) FROM pickaxes WHERE owner_uuid = ?",
+                    rs -> rs.next() ? rs.getInt(1) : 0,
+                    playerUuid.toString()
+                );
+                return count != null && count > 0;
+            } catch (SQLException e) {
+                logger.warning("[Pickaxe] Failed to check pickaxe record: " + e.getMessage());
+                return false;
+            }
+        });
+    }
+
+    // ----------------------------------------------------------------
     // Token multiplier calculation
     // ----------------------------------------------------------------
 

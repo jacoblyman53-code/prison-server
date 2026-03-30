@@ -1,10 +1,13 @@
 package com.prison.ranks;
 
 import com.prison.database.DatabaseManager;
+import com.prison.economy.EconomyAPI;
 import com.prison.mines.MinesAPI;
 import com.prison.permissions.PermissionEngine;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,6 +16,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
+
+import java.time.Duration;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +39,10 @@ public class RankPlugin extends JavaPlugin implements Listener {
     private RanksGUI    gui;
     private final MiniMessage mm = MiniMessage.miniMessage();
 
+    // Track which players have already been notified at their current rank to avoid spam
+    // Cleared on rank-up so the notification fires again for the next rank
+    private final Set<UUID> rankupReadyNotified = ConcurrentHashMap.newKeySet();
+
     @Override
     public void onEnable() {
         if (DatabaseManager.getInstance() == null) {
@@ -48,15 +60,66 @@ public class RankPlugin extends JavaPlugin implements Listener {
         RankConfig config = loadRankConfig();
 
         manager = RankManager.initialize(config, getLogger());
+        RanksAPI.initialize(manager, config);
         gui     = new RanksGUI(manager);
 
         getServer().getPluginManager().registerEvents(this, this);
+
+        // Check every 5 seconds if any online player can now afford their next rank
+        getServer().getScheduler().runTaskTimerAsynchronously(this, () ->
+            getServer().getScheduler().runTask(this, this::checkRankupReady),
+            100L, 100L
+        );
+
         getLogger().info("Rank system enabled — " + RankConfig.RANK_ORDER.length + " mine ranks loaded.");
     }
 
     @Override
     public void onDisable() {
+        RanksAPI.reset();
         getLogger().info("Rank system disabled.");
+    }
+
+    // ----------------------------------------------------------------
+    // Rankup-ready notifier
+    // ----------------------------------------------------------------
+
+    /**
+     * Runs on the main thread every 5 seconds.
+     * Sends a one-shot action bar + chat ping when a player first becomes
+     * able to afford their next rank. Resets when they actually rank up.
+     */
+    private void checkRankupReady() {
+        EconomyAPI eco = EconomyAPI.getInstance();
+        if (eco == null) return;
+
+        for (Player player : getServer().getOnlinePlayers()) {
+            UUID uuid = player.getUniqueId();
+            if (rankupReadyNotified.contains(uuid)) continue;
+
+            boolean canRankUp = manager.canRankUp(uuid);
+            if (!canRankUp) continue;
+
+            // Has reached the threshold — notify once
+            rankupReadyNotified.add(uuid);
+
+            RankConfig config  = manager.getConfig();
+            String currentRank = PermissionEngine.getInstance().getMineRank(uuid);
+            String nextRank    = config.nextRank(currentRank);
+            if (nextRank == null) continue; // already max rank
+
+            RankConfig.RankData next = config.getRank(nextRank);
+            String costStr = next != null ? RankManager.formatNumber(next.cost()) : "?";
+
+            player.sendMessage(mm.deserialize(
+                "\n<gold><bold>★ RANKUP READY!</bold></gold> " +
+                "<green>You can afford " +
+                (next != null ? next.display() : nextRank) +
+                " <green>(" + costStr + " IGC). " +
+                "<yellow>Type <white>/rankup</white> or click in <white>/ranks</white>!</yellow>"));
+
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 1.5f);
+        }
     }
 
     // ----------------------------------------------------------------
@@ -88,6 +151,12 @@ public class RankPlugin extends JavaPlugin implements Listener {
             return;
         }
 
+        // /rankup max — keep ranking up until out of money or at max rank
+        if (args.length >= 1 && args[0].equalsIgnoreCase("max")) {
+            handleRankupMax(player);
+            return;
+        }
+
         // /rankup
         RankManager.RankupResult result = manager.rankUp(player);
         RankConfig config = manager.getConfig();
@@ -100,6 +169,29 @@ public class RankPlugin extends JavaPlugin implements Listener {
                     .replace("{rank}", newRank)
                     .replace("{display}", data != null ? data.display() : newRank);
                 player.sendMessage(mm.deserialize(msg));
+
+                // Title screen
+                String displayName = data != null ? data.display() : newRank;
+                player.showTitle(Title.title(
+                    mm.deserialize("<gold><bold>RANK UP!</bold></gold>"),
+                    mm.deserialize("<yellow>You are now " + displayName),
+                    Title.Times.times(
+                        Duration.ofMillis(300),
+                        Duration.ofMillis(2500),
+                        Duration.ofMillis(700)
+                    )
+                ));
+
+                // Sound + particle burst
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+                player.getWorld().spawnParticle(
+                    org.bukkit.Particle.TOTEM_OF_UNDYING,
+                    player.getLocation().add(0, 1, 0),
+                    150, 0.6, 1.2, 0.6, 0.2
+                );
+
+                // Reset ready-notification so it fires again for the next rank
+                rankupReadyNotified.remove(player.getUniqueId());
 
                 // Broadcast if configured
                 String broadcast = config.getRankupBroadcast();
@@ -132,14 +224,122 @@ public class RankPlugin extends JavaPlugin implements Listener {
         }
     }
 
+    private void handleRankupMax(Player player) {
+        RankConfig config = manager.getConfig();
+        int ranksGained = 0;
+        String finalRank = null;
+
+        while (true) {
+            RankManager.RankupResult result = manager.rankUp(player);
+            if (result.type() == RankManager.RankupResult.Type.SUCCESS) {
+                ranksGained++;
+                finalRank = result.newRank();
+                rankupReadyNotified.remove(player.getUniqueId());
+
+                // Broadcast each rankup if configured
+                String broadcast = config.getRankupBroadcast();
+                if (broadcast != null && !broadcast.isBlank()) {
+                    RankConfig.RankData data = config.getRank(finalRank);
+                    String bMsg = broadcast.replace("{player}", player.getName())
+                                           .replace("{rank}", finalRank)
+                                           .replace("{display}", data != null ? data.display() : finalRank);
+                    Bukkit.broadcast(mm.deserialize(bMsg));
+                }
+            } else {
+                // CANNOT_AFFORD or MAX_RANK — stop looping
+                break;
+            }
+        }
+
+        // Credit quest progress for all ranks gained in one shot.
+        // QuestPlugin's onCommandPreprocess skips "/rankup max" so we are the only counter.
+        if (ranksGained > 0) {
+            try {
+                com.prison.quests.QuestsAPI qapi = com.prison.quests.QuestsAPI.getInstance();
+                if (qapi != null) qapi.addProgress(player.getUniqueId(), com.prison.quests.QuestType.RANKUPS, ranksGained);
+            } catch (NoClassDefFoundError ignored) { /* PrisonQuests not loaded */ }
+        }
+
+        if (ranksGained == 0) {
+            // Couldn't afford even one — show normal can't-afford message
+            String currentRank = com.prison.permissions.PermissionEngine.getInstance().getMineRank(player.getUniqueId());
+            String nextRank    = config.nextRank(currentRank);
+            if (nextRank == null) {
+                player.sendMessage(mm.deserialize(config.getMaxRankMessage()));
+            } else {
+                RankConfig.RankData nextData = config.getRank(nextRank);
+                long cost = nextData != null ? nextData.cost() : 0;
+                player.sendMessage(mm.deserialize(config.getCannotAffordMessage()
+                    .replace("{cost}", RankManager.formatNumber(cost))
+                    .replace("{balance}", "0")));
+            }
+            return;
+        }
+
+        // Show single summary for all ranks gained
+        RankConfig.RankData finalData = config.getRank(finalRank);
+        String displayName = finalData != null ? finalData.display() : finalRank;
+
+        player.sendMessage(mm.deserialize(
+            "<gold>★ <green>Ranked up <white>" + ranksGained + "x</white>! " +
+            "<green>Now " + displayName + "<green>."));
+
+        player.showTitle(Title.title(
+            mm.deserialize("<gold><bold>RANK UP x" + ranksGained + "!</bold></gold>"),
+            mm.deserialize("<yellow>You are now " + displayName),
+            Title.Times.times(
+                Duration.ofMillis(300),
+                Duration.ofMillis(3000),
+                Duration.ofMillis(700)
+            )
+        ));
+
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f + (ranksGained * 0.02f));
+        player.getWorld().spawnParticle(
+            org.bukkit.Particle.TOTEM_OF_UNDYING,
+            player.getLocation().add(0, 1, 0),
+            Math.min(300, 50 + ranksGained * 20), 0.8, 1.5, 0.8, 0.25
+        );
+
+        // Auto-teleport to new mine if enabled
+        if (manager.getAutoteleport(player.getUniqueId())) {
+            MinesAPI minesApi = MinesAPI.getInstance();
+            if (minesApi != null) {
+                org.bukkit.Location spawn = minesApi.getSpawnLocation(finalRank);
+                if (spawn != null) player.teleport(spawn);
+            }
+        }
+    }
+
     // ----------------------------------------------------------------
-    // GUI click — block all clicks in the ranks inventory (read-only)
+    // GUI click — block all clicks; route affordable next-rank click to rankup
     // ----------------------------------------------------------------
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().title().equals(mm.deserialize("<gold><bold>Mine Rank Progression"))) {
-            event.setCancelled(true);
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!event.getView().title().equals(mm.deserialize("<gold><bold>Mine Rank Progression"))) return;
+
+        event.setCancelled(true);
+        int rawSlot = event.getRawSlot();
+
+        // Close button
+        if (rawSlot == 45) {
+            player.closeInventory();
+            return;
+        }
+
+        // Check if the clicked slot is the next rank's slot and the player can afford it
+        RankConfig config = manager.getConfig();
+        String currentRank  = PermissionEngine.getInstance().getMineRank(player.getUniqueId());
+        int currentIndex    = config.rankIndex(currentRank);
+        int nextIndex       = currentIndex + 1;
+
+        if (nextIndex < RankConfig.RANK_ORDER.length && nextIndex < RanksGUI.RANK_SLOTS.length) {
+            if (rawSlot == RanksGUI.RANK_SLOTS[nextIndex] && manager.canRankUp(player.getUniqueId())) {
+                player.closeInventory();
+                handleRankup(player, new String[0]);
+            }
         }
     }
 

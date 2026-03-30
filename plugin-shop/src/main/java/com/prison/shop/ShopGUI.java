@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -137,8 +138,13 @@ public class ShopGUI {
                     meta.displayName(MM.deserialize("<white>" + matName));
                 }
 
-                // Build lore
+                // Build lore — preserve original item lore first
                 List<Component> lore = new ArrayList<>();
+                List<Component> originalLore = meta.lore();
+                if (originalLore != null && !originalLore.isEmpty()) {
+                    lore.addAll(originalLore);
+                    lore.add(Component.empty());
+                }
                 lore.add(MM.deserialize("<yellow>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " IGC"));
                 if (shopItem.stock() == -1) {
                     lore.add(MM.deserialize("<gray>Stock: <green>\u221e Unlimited"));
@@ -154,6 +160,10 @@ public class ShopGUI {
                     lore.add(MM.deserialize("<red>Out of Stock"));
                 }
                 meta.lore(lore);
+                meta.addItemFlags(
+                    org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
+                    org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS,
+                    org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
                 display.setItemMeta(meta);
                 inv.setItem(slot, display);
             } else {
@@ -230,11 +240,20 @@ public class ShopGUI {
             previewMeta.displayName(MM.deserialize("<white>" + formatMaterialName(preview.getType())));
         }
         List<Component> previewLore = new ArrayList<>();
+        List<Component> originalPreviewLore = previewMeta.lore();
+        if (originalPreviewLore != null && !originalPreviewLore.isEmpty()) {
+            previewLore.addAll(originalPreviewLore);
+            previewLore.add(Component.empty());
+        }
         previewLore.add(MM.deserialize("<yellow>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " IGC"));
         previewLore.add(MM.deserialize("<gray>Your balance: <white>" + String.format("%,d", balance) + " IGC"));
         previewLore.add(Component.empty());
         previewLore.add(MM.deserialize("<green>Confirm: slot 11 <red>| Cancel: slot 15"));
         previewMeta.lore(previewLore);
+        previewMeta.addItemFlags(
+            org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
+            org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS,
+            org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         preview.setItemMeta(previewMeta);
         inv.setItem(13, preview);
 
@@ -331,6 +350,7 @@ public class ShopGUI {
                         Optional<ShopItem> itemOpt = ShopManager.getInstance().getItem(catId, state.pendingItemId);
                         long price = itemOpt.map(ShopItem::priceIgc).orElse(0L);
                         player.sendMessage(MM.deserialize("<green>Purchased! <gold>" + String.format("%,d", price) + " IGC<green> deducted."));
+                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_TRADE, 1.0f, 1.2f);
                         player.closeInventory();
                     }
                     case INSUFFICIENT_FUNDS -> {
@@ -348,7 +368,7 @@ public class ShopGUI {
                         player.closeInventory();
                     }
                     case INVENTORY_ERROR -> {
-                        player.sendMessage(MM.deserialize("<red>Inventory error."));
+                        player.sendMessage(MM.deserialize("<red>Your inventory is full. Free up some space and try again."));
                         player.closeInventory();
                     }
                 }

@@ -112,7 +112,8 @@ public class KitsManager {
         KIT_NOT_FOUND,
         NO_PERMISSION,       // missing donor rank or mine rank
         ON_COOLDOWN,
-        ONE_TIME_CLAIMED     // cooldown == 0 and already claimed once
+        ONE_TIME_CLAIMED,    // cooldown == 0 and already claimed once
+        INVENTORY_FULL       // not enough free slots to hold all kit items
     }
 
     /**
@@ -126,21 +127,21 @@ public class KitsManager {
         if (remaining == Long.MAX_VALUE) return ClaimResult.ONE_TIME_CLAIMED;
         if (remaining > 0)              return ClaimResult.ON_COOLDOWN;
 
+        // Refuse if the player doesn't have enough free slots for all kit item stacks.
+        // Being conservative here (ignores possible stacking) is the right trade-off —
+        // it's far better to tell the player to clear space than to silently drop items.
+        int freeSlots = 0;
+        for (ItemStack slot : player.getInventory().getStorageContents()) {
+            if (slot == null) freeSlots++;
+        }
+        if (freeSlots < kit.contents().size()) {
+            return ClaimResult.INVENTORY_FULL;
+        }
+
         // Give items
-        boolean hadOverflow = false;
         for (KitItem kitItem : kit.contents()) {
             ItemStack item = kitItem.toItemStack();
-            Map<Integer, ItemStack> overflow = player.getInventory().addItem(item);
-            if (!overflow.isEmpty()) {
-                hadOverflow = true;
-                for (ItemStack dropped : overflow.values()) {
-                    player.getWorld().dropItemNaturally(player.getLocation(), dropped);
-                }
-            }
-        }
-        if (hadOverflow) {
-            player.sendMessage(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
-                .deserialize("<yellow>Your inventory was full — some kit items were dropped at your feet."));
+            player.getInventory().addItem(item);
         }
 
         // Record claim

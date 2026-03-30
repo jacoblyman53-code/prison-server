@@ -10,6 +10,10 @@ token-symbol: "T"
 # Prevents macro/script abuse. Does NOT apply to auto-sell on block break.
 min-sell-interval-ms: 500
 
+# Sell streak system — consecutive /sell or /sellall within this window keeps the streak alive.
+# Streak multiplier tiers: x5=1.05x  x10=1.10x  x25=1.20x  x50=1.35x  x100=1.50x
+sell-streak-timeout-seconds: 60
+
 # How often to refresh the /baltop leaderboard (seconds)
 baltop-refresh-seconds: 60
 

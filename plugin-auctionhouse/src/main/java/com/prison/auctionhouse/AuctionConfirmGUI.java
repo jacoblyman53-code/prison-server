@@ -179,6 +179,9 @@ public class AuctionConfirmGUI {
                         "<red>You cannot buy your own listing."));
                 case INSUFFICIENT_FUNDS ->
                     player.sendMessage(MM.deserialize("<red>Insufficient funds."));
+                case INVENTORY_FULL ->
+                    player.sendMessage(MM.deserialize(
+                        "<red>Your inventory is full. Free up space and try again."));
             }
 
             if (result != AuctionManager.PurchaseResult.PURCHASE_OK &&

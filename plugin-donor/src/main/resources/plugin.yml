@@ -13,3 +13,7 @@ commands:
   donorrank:
     description: View your donor rank perks and multiplier
     usage: /donorrank
+  donoradmin:
+    description: Admin commands for managing donor ranks
+    usage: /donoradmin <set|remove|check> [player] [tier]
+    permission: prison.admin.donor

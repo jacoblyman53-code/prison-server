@@ -529,9 +529,9 @@ mines:
     spawn-pitch: 0.0
     composition:
       GOLD_ORE: 10
-      REDSTONE_ORE: 10
+      REDSTONE_ORE: 5
       DIAMOND_ORE: 40
-      EMERALD_ORE: 30
+      EMERALD_ORE: 35
       NETHER_GOLD_ORE: 10
     sell-prices: {}
     reset-timer-mins: 15
@@ -551,10 +551,10 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      GOLD_ORE: 10
-      REDSTONE_ORE: 10
+      GOLD_ORE: 5
+      REDSTONE_ORE: 5
       DIAMOND_ORE: 45
-      EMERALD_ORE: 25
+      EMERALD_ORE: 35
       NETHER_GOLD_ORE: 10
     sell-prices: {}
     reset-timer-mins: 15
@@ -574,9 +574,9 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      GOLD_ORE: 10
+      GOLD_ORE: 5
       DIAMOND_ORE: 50
-      EMERALD_ORE: 30
+      EMERALD_ORE: 35
       NETHER_GOLD_ORE: 10
     sell-prices: {}
     reset-timer-mins: 15
@@ -597,8 +597,8 @@ mines:
     spawn-pitch: 0.0
     composition:
       DIAMOND_ORE: 60
-      EMERALD_ORE: 30
-      NETHER_GOLD_ORE: 10
+      EMERALD_ORE: 35
+      NETHER_GOLD_ORE: 5
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80

@@ -1,0 +1,18 @@
+name: PrisonLeaderboards
+version: 1.0.0
+main: com.prison.leaderboards.LeaderboardPlugin
+api-version: '1.21'
+description: Leaderboard system for the Prison server
+authors: [prison-server]
+
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+
+commands:
+  leaderboard:
+    description: Open the leaderboards GUI
+    aliases: [lb, top]
+  stats:
+    description: View your personal server stats
+    usage: /stats

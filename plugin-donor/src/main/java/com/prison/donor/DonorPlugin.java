@@ -3,6 +3,7 @@ package com.prison.donor;
 import com.prison.database.DatabaseManager;
 import com.prison.permissions.PermissionEngine;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,21 +53,24 @@ public class DonorPlugin extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        switch (command.getName().toLowerCase()) {
+            case "donorrank" -> { return cmdDonorRank(sender, args); }
+            case "donoradmin" -> { return cmdDonorAdmin(sender, args); }
+            default -> { return false; }
+        }
+    }
+
+    private boolean cmdDonorRank(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage("This command must be run by a player.");
             return true;
         }
-
-        if (!command.getName().equalsIgnoreCase("donorrank")) return false;
-
         DonorRankData data = api.getDonorRankData(player.getUniqueId());
-
         if (data == null) {
             player.sendMessage(mm.deserialize("<gray>You don't have a donor rank."));
             player.sendMessage(mm.deserialize("<gray>Visit the store to support the server and unlock perks!"));
             return true;
         }
-
         player.sendMessage(mm.deserialize("<gold>═══ Donor Rank Info ═══"));
         player.sendMessage(mm.deserialize("<gray>Your rank: " + data.prefix() + " <white>" + data.display()));
         player.sendMessage(mm.deserialize("<gray>Token multiplier: <white>" + data.tokenMultiplier() + "x"));
@@ -75,6 +79,86 @@ public class DonorPlugin extends JavaPlugin {
             player.sendMessage(mm.deserialize("  <green>✔ <white>" + perk));
         }
         return true;
+    }
+
+    private boolean cmdDonorAdmin(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("prison.admin.donor")) {
+            sender.sendMessage(mm.deserialize("<red>You don't have permission to use this command."));
+            return true;
+        }
+
+        if (args.length == 0) {
+            sender.sendMessage(mm.deserialize(
+                "<gold>Usage:\n" +
+                "  <white>/donoradmin set <player> <tier>\n" +
+                "  <white>/donoradmin remove <player>\n" +
+                "  <white>/donoradmin check <player>\n" +
+                "<gray>Tiers: donor, donorplus, elite, eliteplus"));
+            return true;
+        }
+
+        String sub = args[0].toLowerCase();
+
+        if (sub.equals("check")) {
+            if (args.length < 2) { sender.sendMessage(mm.deserialize("<red>Usage: /donoradmin check <player>")); return true; }
+            Player target = Bukkit.getPlayer(args[1]);
+            UUID uuid = target != null ? target.getUniqueId() : resolveOfflineUUID(args[1]);
+            if (uuid == null) { sender.sendMessage(mm.deserialize("<red>Player not found: " + args[1])); return true; }
+            String rank = api.getDonorRank(uuid);
+            if (rank == null) {
+                sender.sendMessage(mm.deserialize("<gray>" + args[1] + " has no donor rank."));
+            } else {
+                DonorRankData data = api.getRankData(rank);
+                String display = data != null ? data.display() : rank;
+                sender.sendMessage(mm.deserialize("<gray>" + args[1] + "'s donor rank: <gold>" + display));
+            }
+            return true;
+        }
+
+        if (sub.equals("remove")) {
+            if (args.length < 2) { sender.sendMessage(mm.deserialize("<red>Usage: /donoradmin remove <player>")); return true; }
+            Player target = Bukkit.getPlayer(args[1]);
+            UUID uuid = target != null ? target.getUniqueId() : resolveOfflineUUID(args[1]);
+            if (uuid == null) { sender.sendMessage(mm.deserialize("<red>Player not found: " + args[1])); return true; }
+            api.setDonorRank(uuid, null).thenRun(() ->
+                getServer().getScheduler().runTask(this, () ->
+                    sender.sendMessage(mm.deserialize("<green>Removed donor rank from " + args[1] + "."))));
+            return true;
+        }
+
+        if (sub.equals("set")) {
+            if (args.length < 3) { sender.sendMessage(mm.deserialize("<red>Usage: /donoradmin set <player> <tier>")); return true; }
+            String tier = args[2].toLowerCase();
+            if (!TIER_ORDER.contains(tier)) {
+                sender.sendMessage(mm.deserialize("<red>Unknown tier: <white>" + tier +
+                    " <red>— valid tiers: <white>" + String.join(", ", TIER_ORDER)));
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[1]);
+            UUID uuid = target != null ? target.getUniqueId() : resolveOfflineUUID(args[1]);
+            if (uuid == null) { sender.sendMessage(mm.deserialize("<red>Player not found: " + args[1])); return true; }
+            DonorRankData data = api.getRankData(tier);
+            String display = data != null ? data.display() : tier;
+            api.setDonorRank(uuid, tier).thenRun(() ->
+                getServer().getScheduler().runTask(this, () -> {
+                    sender.sendMessage(mm.deserialize("<green>Set " + args[1] + "'s donor rank to <gold>" + display + "<green>."));
+                    if (target != null && target.isOnline()) {
+                        target.sendMessage(mm.deserialize(
+                            "<gold>✦ <yellow>You have been granted the <gold>" + display + " <yellow>donor rank!"));
+                    }
+                }));
+            return true;
+        }
+
+        sender.sendMessage(mm.deserialize("<red>Unknown subcommand. Use /donoradmin for help."));
+        return true;
+    }
+
+    /** Look up a UUID from an offline player by name. Returns null if not found. */
+    @SuppressWarnings("deprecation")
+    private UUID resolveOfflineUUID(String name) {
+        org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(name);
+        return op.hasPlayedBefore() ? op.getUniqueId() : null;
     }
 
     // ----------------------------------------------------------------

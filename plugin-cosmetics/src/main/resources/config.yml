@@ -1,0 +1,44 @@
+# ============================================================
+#  plugin-cosmetics — config.yml
+# ============================================================
+
+chat-tags:
+  lightning:
+    display: "<yellow>[⚡]"
+    description: "Lightning bolt tag"
+    rarity: UNCOMMON
+
+  star:
+    display: "<gold>[☆]"
+    description: "Gold star tag"
+    rarity: RARE
+
+  diamond:
+    display: "<aqua>[♦]"
+    description: "Diamond tag"
+    rarity: RARE
+
+  crown:
+    display: "<gold>[♛]"
+    description: "Crown tag"
+    rarity: LEGENDARY
+
+  skull:
+    display: "<dark_red>[☠]"
+    description: "Skull tag"
+    rarity: LEGENDARY
+
+  prestige:
+    display: "<gradient:#FFD700:#FF4500>[P]</gradient>"
+    description: "Prestige tag (earnable)"
+    rarity: PRESTIGE
+
+  fire:
+    display: "<red>[🔥]"
+    description: "Fire tag"
+    rarity: RARE
+
+  heart:
+    display: "<light_purple>[♥]"
+    description: "Heart tag"
+    rarity: UNCOMMON

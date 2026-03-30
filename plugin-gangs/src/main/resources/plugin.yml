@@ -11,6 +11,7 @@ depend:
 
 softdepend:
   - PrisonDonor
+  - PrisonQuests
 
 commands:
   gang:

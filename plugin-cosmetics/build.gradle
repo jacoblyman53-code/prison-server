@@ -1,0 +1,2 @@
+// plugin-cosmetics — no extra dependencies beyond the root build.gradle defaults
+// (Paper API + core-database + core-permissions are inherited from the root)

@@ -30,3 +30,7 @@ commands:
   tokenlog:
     description: View your recent token transactions
     aliases: [tlog]
+  boostgive:
+    description: Grant a timed boost to a player (admin/console)
+    usage: /boostgive <player> <SELL|TOKEN> <multiplier> <durationSeconds>
+    permission: prison.admin.boost

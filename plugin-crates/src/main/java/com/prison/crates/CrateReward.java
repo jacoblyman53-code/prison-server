@@ -17,6 +17,7 @@ import java.util.List;
  * @param item        The serialized ItemStack for ITEM rewards (null otherwise).
  * @param weight      Relative drop weight — higher means more common.
  * @param broadcast   Whether winning this reward broadcasts to the whole server.
+ * @param command     Console command string for COMMAND rewards; {player} is replaced at delivery.
  * @param displayName MiniMessage display name shown in the GUI.
  */
 public record CrateReward(
@@ -25,6 +26,7 @@ public record CrateReward(
         String crateKeyTier,
         int crateKeyAmount,
         ItemStack item,
+        String command,
         int weight,
         boolean broadcast,
         String displayName
@@ -46,6 +48,7 @@ public record CrateReward(
                 case TOKEN     -> Material.EMERALD;
                 case CRATE_KEY -> Material.TRIPWIRE_HOOK;
                 case ITEM      -> Material.PAPER;
+                case COMMAND   -> Material.BLAZE_POWDER;
             };
             display = new ItemStack(mat);
         }

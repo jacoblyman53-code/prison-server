@@ -170,18 +170,18 @@ public class ShopManager {
             return PurchaseResult.INSUFFICIENT_FUNDS;
         }
 
+        // Refuse purchase if inventory is full — don't charge money for items that would drop
+        int freeSlots = 0;
+        for (ItemStack slot : player.getInventory().getStorageContents()) {
+            if (slot == null) freeSlots++;
+        }
+        if (freeSlots == 0) return PurchaseResult.INVENTORY_ERROR;
+
         long result = EconomyAPI.getInstance().deductBalance(uuid, item.priceIgc(), TransactionType.IGC_SHOP_PURCHASE);
         if (result < 0) return PurchaseResult.INSUFFICIENT_FUNDS;
 
         // Give item
-        Map<Integer, ItemStack> overflow = player.getInventory().addItem(item.item().clone());
-        if (!overflow.isEmpty()) {
-            for (ItemStack leftover : overflow.values()) {
-                player.getWorld().dropItemNaturally(player.getLocation(), leftover);
-            }
-            player.sendMessage(MiniMessage.miniMessage().deserialize(
-                "<yellow>Your inventory was full — some items were dropped at your feet."));
-        }
+        player.getInventory().addItem(item.item().clone());
 
         // Log purchase
         final String logItemId = catId + ":" + itemId;

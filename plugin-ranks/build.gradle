@@ -3,4 +3,5 @@ dependencies {
     compileOnly project(':core-permissions')
     compileOnly project(':plugin-economy')
     compileOnly project(':plugin-mines')
+    compileOnly project(':plugin-quests')
 }

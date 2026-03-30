@@ -39,7 +39,8 @@ public class RanksGUI {
     private final RankManager manager;
 
     // Slot layout: ranks A-Z fill slots 1-26 in the 54-slot grid (skip edges)
-    private static final int[] RANK_SLOTS = {
+    // package-private so RankPlugin can route click events
+    static final int[] RANK_SLOTS = {
         10, 11, 12, 13, 14, 15, 16,   // row 2: A-G
         19, 20, 21, 22, 23, 24, 25,   // row 3: H-N
         28, 29, 30, 31, 32, 33, 34,   // row 4: O-U
@@ -72,7 +73,14 @@ public class RanksGUI {
         }
 
         // Info item in bottom center
-        inv.setItem(49, buildInfoItem(player, currentRank, config));
+        inv.setItem(49, buildInfoItem(player, currentRank, config, canAffordNext));
+
+        // Close button
+        ItemStack close = new ItemStack(Material.BARRIER);
+        ItemMeta cm = close.getItemMeta();
+        cm.displayName(MM.deserialize("<!italic><red>Close"));
+        close.setItemMeta(cm);
+        inv.setItem(45, close);
 
         player.openInventory(inv);
     }
@@ -93,7 +101,7 @@ public class RanksGUI {
         } else if (index == currentIndex + 1 && canAffordNext) {
             // Next rank, affordable
             mat = Material.YELLOW_STAINED_GLASS_PANE;
-            statusLine = "<yellow>← Affordable! Cost: <white>" + RankManager.formatNumber(data.cost()) + " IGC";
+            statusLine = "<yellow>★ Click to rank up! Cost: <white>" + RankManager.formatNumber(data.cost()) + " IGC";
         } else if (index == currentIndex + 1) {
             // Next rank, not yet affordable
             mat = Material.ORANGE_STAINED_GLASS_PANE;
@@ -118,22 +126,27 @@ public class RanksGUI {
         return item;
     }
 
-    private ItemStack buildInfoItem(Player player, String currentRank, RankConfig config) {
+    private ItemStack buildInfoItem(Player player, String currentRank, RankConfig config,
+                                     boolean canAffordNext) {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<aqua>Your Progress"));
+        meta.displayName(MM.deserialize("<!italic><aqua>Your Progress"));
 
         String nextRank = config.nextRank(currentRank);
         List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<gray>Current rank: <white>" + currentRank));
+        lore.add(MM.deserialize("<!italic><gray>Current rank: <white>" + currentRank));
         if (nextRank != null) {
             RankConfig.RankData next = config.getRank(nextRank);
-            lore.add(MM.deserialize("<gray>Next rank: <white>" + nextRank
+            lore.add(MM.deserialize("<!italic><gray>Next rank: <white>" + nextRank
                 + " <dark_gray>(costs " + RankManager.formatNumber(next.cost()) + " IGC)"));
-            lore.add(MM.deserialize(""));
-            lore.add(MM.deserialize("<yellow>Type <white>/rankup</white> to advance!"));
+            lore.add(MM.deserialize("<!italic>"));
+            if (canAffordNext) {
+                lore.add(MM.deserialize("<!italic><green><bold>Click the highlighted rank to rank up!"));
+            } else {
+                lore.add(MM.deserialize("<!italic><yellow>Type <white>/rankup</white> to advance!"));
+            }
         } else {
-            lore.add(MM.deserialize("<gold>You are at the maximum mine rank!"));
+            lore.add(MM.deserialize("<!italic><gold>You are at the maximum mine rank!"));
         }
         meta.lore(lore);
         item.setItemMeta(meta);

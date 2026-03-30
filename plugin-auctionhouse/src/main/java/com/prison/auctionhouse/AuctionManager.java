@@ -7,6 +7,7 @@ import com.prison.permissions.PermissionEngine;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,7 +35,7 @@ public class AuctionManager {
 
     public enum PurchaseResult {
         PURCHASE_OK, LISTING_NOT_FOUND, CANNOT_BUY_OWN,
-        INSUFFICIENT_FUNDS, LISTING_GONE
+        INSUFFICIENT_FUNDS, LISTING_GONE, INVENTORY_FULL
     }
 
     public enum CancelResult {
@@ -286,6 +287,13 @@ public class AuctionManager {
             return PurchaseResult.INSUFFICIENT_FUNDS;
         }
 
+        // Refuse if buyer's inventory has no free slots — don't charge for an item they can't receive
+        int freeSlots = 0;
+        for (ItemStack s : buyer.getInventory().getStorageContents()) {
+            if (s == null) freeSlots++;
+        }
+        if (freeSlots == 0) return PurchaseResult.INVENTORY_FULL;
+
         // Deduct from buyer on main thread
         long deductResult = EconomyAPI.getInstance().deductBalance(
             buyerUuid, listing.priceIgc(), TransactionType.AUCTION_PURCHASE);
@@ -353,6 +361,7 @@ public class AuctionManager {
                     buyer.sendMessage(MM.deserialize(
                         "<green>Purchased <white>" + itemName + "</white> for <gold>" +
                         String.format("%,d", price) + " IGC</gold><green>!"));
+                    buyer.playSound(buyer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.0f);
                 });
 
                 refreshCache();

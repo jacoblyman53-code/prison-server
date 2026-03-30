@@ -16,6 +16,11 @@ softdepend:
   - PrisonMines
 
 commands:
+  enchant:
+    description: Open the pickaxe enchant upgrade menu
+    usage: /enchant
+    permission: prison.sell
+    aliases: [upgrade]
   pickaxe:
     description: Manage your prison pickaxe
     usage: /pickaxe [give|reload]

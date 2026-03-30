@@ -125,6 +125,7 @@ public class CrateManager {
         int weight       = getInt(map, "weight", 1);
         boolean broadcast = getBool(map, "broadcast", false);
         String displayName = getString(map, "display-name", type.name());
+        String command   = getString(map, "command", null);
 
         ItemStack item = null;
         if (type == RewardType.ITEM) {
@@ -139,7 +140,7 @@ public class CrateManager {
             }
         }
 
-        return new CrateReward(type, amount, keyTier, keyAmount, item, weight, broadcast, displayName);
+        return new CrateReward(type, amount, keyTier, keyAmount, item, command, weight, broadcast, displayName);
     }
 
     // ----------------------------------------------------------------
@@ -350,6 +351,14 @@ public class CrateManager {
                         player.getWorld().dropItemNaturally(player.getLocation(), overflow.get(0));
                         player.sendMessage(MM.deserialize("<yellow>Inventory full — item dropped at your feet."));
                     }
+                    player.sendMessage(MM.deserialize(
+                        "<green>You won <white>" + reward.displayName() + "</white><green>!"));
+                }
+            }
+            case COMMAND -> {
+                if (reward.command() != null && !reward.command().isBlank()) {
+                    String cmd = reward.command().replace("{player}", player.getName());
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
                     player.sendMessage(MM.deserialize(
                         "<green>You won <white>" + reward.displayName() + "</white><green>!"));
                 }

@@ -32,6 +32,12 @@ public class ShopPlugin extends JavaPlugin implements Listener {
         ShopManager.initialize(this);
         ShopManager.getInstance().loadCategories();
 
+        if (ShopManager.getInstance().getCategories().isEmpty()) {
+            ShopDefaults.populate(this);
+        }
+
+        BlackMarketManager.initialize(this);
+
         getServer().getPluginManager().registerEvents(this, this);
 
         int catCount = ShopManager.getInstance().getCategories().size();
@@ -63,6 +69,8 @@ public class ShopPlugin extends JavaPlugin implements Listener {
                 }
                 ShopAdminGUI.open(player);
             }
+            case "blackmarket" -> BlackMarketGUI.open(player);
+            case "tokenshop"  -> TokenShopGUI.open(player);
         }
         return true;
     }
@@ -109,6 +117,22 @@ public class ShopPlugin extends JavaPlugin implements Listener {
             if (event.getClickedInventory() == topInv) {
                 ShopAdminGUI.handleClick(player, event.getRawSlot(), event);
             }
+            return;
+        }
+
+        if (BlackMarketGUI.isTitle(openTitle)) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() == topInv) {
+                BlackMarketGUI.handleClick(player, event.getRawSlot());
+            }
+            return;
+        }
+
+        if (TokenShopGUI.isTitle(openTitle)) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() == topInv) {
+                TokenShopGUI.handleClick(player, event.getRawSlot());
+            }
         }
     }
 
@@ -116,7 +140,7 @@ public class ShopPlugin extends JavaPlugin implements Listener {
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         var openTitle = player.getOpenInventory().title();
-        if (ShopGUI.isTitle(openTitle) || ShopAdminGUI.isTitle(openTitle)) {
+        if (ShopGUI.isTitle(openTitle) || ShopAdminGUI.isTitle(openTitle) || BlackMarketGUI.isTitle(openTitle) || TokenShopGUI.isTitle(openTitle)) {
             event.setCancelled(true);
         }
     }
@@ -143,5 +167,7 @@ public class ShopPlugin extends JavaPlugin implements Listener {
         ShopGUI.cleanup(uuid);
         ShopAdminGUI.cleanup(uuid);
         ShopAnvilInput.cleanup(uuid);
+        BlackMarketGUI.cleanup(uuid);
+        TokenShopGUI.cleanup(uuid);
     }
 }

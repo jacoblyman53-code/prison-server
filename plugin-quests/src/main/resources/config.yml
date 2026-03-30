@@ -1,0 +1,115 @@
+# plugin-quests configuration
+# Each quest entry defines a challenge players can complete.
+#
+# Fields:
+#   title       - Display name shown in the GUI
+#   description - Short description shown in lore
+#   type        - Quest type: BLOCKS_MINED | SELL_COMMANDS | RANKUPS | ONLINE_TIME
+#   tier        - Quest tier: DAILY | WEEKLY | MILESTONE
+#   goal        - Target progress value required for completion
+#   icon        - Bukkit Material name for the GUI item
+#   igc         - IGC reward amount (0 = no IGC reward)
+#   tokens      - Token reward amount (0 = no token reward)
+#
+# Tier reset intervals (seconds):
+#   DAILY   = 86400  (24 hours)
+#   WEEKLY  = 604800 (7 days)
+#   MILESTONE = never reset; one completion per player lifetime
+
+quests:
+
+  # ─────────────────────────── DAILY ───────────────────────────
+
+  mine_daily_1:
+    title: "Mine 500 Blocks"
+    description: "Break 500 blocks in any mine today"
+    type: BLOCKS_MINED
+    tier: DAILY
+    goal: 500
+    icon: STONE
+    igc: 50000
+    tokens: 100
+
+  mine_daily_2:
+    title: "Mine 2,000 Blocks"
+    description: "Break 2,000 blocks in any mine today"
+    type: BLOCKS_MINED
+    tier: DAILY
+    goal: 2000
+    icon: COBBLESTONE
+    igc: 150000
+    tokens: 300
+
+  sell_daily:
+    title: "Sell 10 Times"
+    description: "Use /sell or /sellall 10 times today"
+    type: SELL_COMMANDS
+    tier: DAILY
+    goal: 10
+    icon: EMERALD
+    igc: 75000
+    tokens: 150
+
+  # ─────────────────────────── WEEKLY ──────────────────────────
+
+  mine_weekly:
+    title: "Mine 10,000 Blocks"
+    description: "Break 10,000 blocks in any mine this week"
+    type: BLOCKS_MINED
+    tier: WEEKLY
+    goal: 10000
+    icon: DIAMOND_PICKAXE
+    igc: 500000
+    tokens: 1000
+
+  rankup_weekly:
+    title: "Rank Up 3 Times"
+    description: "Use /rankup 3 times this week"
+    type: RANKUPS
+    tier: WEEKLY
+    goal: 3
+    icon: NETHER_STAR
+    igc: 250000
+    tokens: 500
+
+  # ─────────────────────────── MILESTONE ───────────────────────
+
+  first_sell:
+    title: "First Sale!"
+    description: "Complete your very first sell"
+    type: SELL_COMMANDS
+    tier: MILESTONE
+    goal: 1
+    icon: GOLD_INGOT
+    igc: 10000
+    tokens: 0
+
+  mine_1k:
+    title: "1,000 Blocks Mined"
+    description: "Mine a total of 1,000 blocks"
+    type: BLOCKS_MINED
+    tier: MILESTONE
+    goal: 1000
+    icon: STONE_PICKAXE
+    igc: 25000
+    tokens: 50
+
+  mine_10k:
+    title: "10,000 Blocks Mined"
+    description: "Mine a total of 10,000 blocks"
+    type: BLOCKS_MINED
+    tier: MILESTONE
+    goal: 10000
+    icon: IRON_PICKAXE
+    igc: 100000
+    tokens: 200
+
+  mine_100k:
+    title: "100,000 Blocks Mined"
+    description: "Mine a total of 100,000 blocks"
+    type: BLOCKS_MINED
+    tier: MILESTONE
+    goal: 100000
+    icon: DIAMOND_PICKAXE
+    igc: 500000
+    tokens: 1000
