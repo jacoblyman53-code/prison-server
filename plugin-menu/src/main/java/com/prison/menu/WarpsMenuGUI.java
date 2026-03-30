@@ -54,7 +54,7 @@ public class WarpsMenuGUI {
         List<WarpData> warps = getWarps(player);
         int totalPages = Math.max(1, (int) Math.ceil((double) warps.size() / WARPS_PER_PAGE));
 
-        if (slot == SLOT_BACK) {
+        if (slot == 8 || slot == SLOT_BACK) {
             Sounds.nav(player);
             pageMap.remove(uuid);
             MainMenuGUI.open(player);
@@ -98,6 +98,8 @@ public class WarpsMenuGUI {
     private static Inventory build(Player player, int page) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         List<WarpData> warps = getWarps(player);
         int totalPages = Math.max(1, (int) Math.ceil((double) warps.size() / WARPS_PER_PAGE));

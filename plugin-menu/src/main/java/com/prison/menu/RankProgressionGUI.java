@@ -47,7 +47,7 @@ public class RankProgressionGUI {
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
         UUID uuid = player.getUniqueId();
 
-        if (slot == SLOT_BACK) {
+        if (slot == 8 || slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
             return;
@@ -128,6 +128,8 @@ public class RankProgressionGUI {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         RankManager rm  = RankManager.getInstance();
         RankConfig  rc  = rm != null ? rm.getConfig() : null;
@@ -136,18 +138,6 @@ public class RankProgressionGUI {
         String playerRank = getPlayerRank(uuid);
         int    playerIdx  = rankIndex(playerRank);
         long   balance    = eco != null ? eco.getBalance(uuid) : 0L;
-
-        // --- Slot 4: Current Rank info ---
-        String currentDisplay = rc != null && rc.getRank(playerRank) != null
-            ? rc.getRank(playerRank).display() : "Rank " + playerRank;
-        String currentPrefix  = rc != null && rc.getRank(playerRank) != null
-            ? rc.getRank(playerRank).prefix() : "[" + playerRank + "]";
-        inv.setItem(SLOT_CURRENT_RANK, Gui.make(Material.EXPERIENCE_BOTTLE, "<yellow>Current Rank",
-            "<gray>Mine rank: <white>" + playerRank,
-            "<gray>Display: " + currentDisplay,
-            "<gray>Prefix: " + currentPrefix,
-            "",
-            "<gray>Balance: <gold>" + Fmt.number(balance) + " IGC"));
 
         // --- Slot 13: Rank Up CTA ---
         if (playerIdx < 25) {

@@ -37,7 +37,7 @@ public class PickaxeHomeGUI {
     }
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
-        if (slot == SLOT_BACK) {
+        if (slot == 8 || slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
             return;
@@ -55,6 +55,8 @@ public class PickaxeHomeGUI {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         PickaxeAPI papi = PickaxeAPI.getInstance();
         EconomyAPI eco  = EconomyAPI.getInstance();
@@ -62,8 +64,8 @@ public class PickaxeHomeGUI {
         ItemStack held  = player.getInventory().getItemInMainHand();
         boolean hasPickaxe = papi != null && papi.isServerPickaxe(held);
 
-        // --- Slot 4: Overview ---
-        inv.setItem(SLOT_OVERVIEW, Gui.make(Material.BOOK, "<yellow>Server Pickaxe",
+        // --- Slot 40: Overview ---
+        inv.setItem(40, Gui.make(Material.BOOK, "<yellow>Server Pickaxe",
             "<gray>Your server pickaxe is bound to you.",
             "<gray>Upgrade it with tokens to mine faster",
             "<gray>and earn more IGC.",

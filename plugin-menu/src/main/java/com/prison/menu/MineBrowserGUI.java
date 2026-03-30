@@ -47,7 +47,7 @@ public class MineBrowserGUI {
     }
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
-        if (slot == SLOT_BACK) {
+        if (slot == 8 || slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
             return;
@@ -108,17 +108,11 @@ public class MineBrowserGUI {
     private static Inventory build(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         String playerRank    = getPlayerRank(player);
         int    playerRankIdx = rankIndex(playerRank);
-
-        // Info item (slot 4)
-        inv.setItem(SLOT_INFO, Gui.make(Material.BOOK, "<yellow>Mine Guide",
-            "<gray>Green  = your current mine.",
-            "<gray>White  = unlocked — click to teleport.",
-            "<gray>Red    = locked — need higher rank.",
-            "",
-            "<gray>Your rank: <white>" + playerRank));
 
         // Mine items
         MinesAPI api = MinesAPI.getInstance();

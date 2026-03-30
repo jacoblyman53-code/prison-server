@@ -47,6 +47,12 @@ public class ShopCategoryPageGUI {
     }
 
     public static void handleClick(Player player, int slot, ClickType click, MenuPlugin plugin) {
+        if (slot == 8) {
+            Sounds.nav(player);
+            MainMenuGUI.open(player);
+            return;
+        }
+
         // Retrieve stored state
         String[] state = PAGE_STATE.get(player.getUniqueId());
         if (state == null) {
@@ -113,6 +119,8 @@ public class ShopCategoryPageGUI {
     private static Inventory build(Player player, String categoryId, int page) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         ShopManager sm = ShopManager.getInstance();
         if (sm == null) {

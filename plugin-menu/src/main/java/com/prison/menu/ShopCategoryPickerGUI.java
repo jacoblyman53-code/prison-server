@@ -31,7 +31,7 @@ public class ShopCategoryPickerGUI {
     }
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
-        if (slot == SLOT_BACK) {
+        if (slot == 8 || slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
             return;
@@ -56,6 +56,8 @@ public class ShopCategoryPickerGUI {
     private static Inventory build(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         ShopManager sm = ShopManager.getInstance();
         if (sm != null) {

@@ -39,7 +39,7 @@ public class QuestsMenuGUI {
     }
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
-        if (slot == SLOT_BACK) {
+        if (slot == 8 || slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
         }
@@ -54,6 +54,8 @@ public class QuestsMenuGUI {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         QuestManager qm;
         try {
@@ -89,27 +91,27 @@ public class QuestsMenuGUI {
                 .filter(d -> { PlayerQuestData pd = safeGetData(questMgr, playerUuid, d.getId()); return pd != null && pd.isCompleted(); })
                 .count();
 
-            // Slot 1: Daily summary
-            inv.setItem(1, Gui.make(Material.SUNFLOWER, "<yellow>Daily Quests",
+            // Slot 46: Daily summary
+            inv.setItem(46, Gui.make(Material.SUNFLOWER, "<yellow>Daily Quests",
                 "<gray>Total: <white>" + daily.size(),
                 "<gray>Completed today: <green>" + dailyCompleted + "<gray>/<white>" + daily.size()));
 
-            // Slot 2: Weekly summary
-            inv.setItem(2, Gui.make(Material.GLOWSTONE, "<aqua>Weekly Quests",
+            // Slot 47: Weekly summary
+            inv.setItem(47, Gui.make(Material.GLOWSTONE, "<aqua>Weekly Quests",
                 "<gray>Total: <white>" + weekly.size(),
                 "<gray>Completed this week: <green>" + weeklyCompleted + "<gray>/<white>" + weekly.size()));
 
-            // Slot 3: Milestones summary
-            inv.setItem(3, Gui.make(Material.NETHER_STAR, "<light_purple>Milestones",
+            // Slot 48: Milestones summary
+            inv.setItem(48, Gui.make(Material.NETHER_STAR, "<light_purple>Milestones",
                 "<gray>Total: <white>" + milestones.size(),
                 "<gray>Completed: <green>" + milestoneCompleted + "<gray>/<white>" + milestones.size()));
 
-            // Slot 5: Overall info
+            // Slot 50: Overall info
             Collection<QuestDefinition> all = questMgr.getAllDefinitions();
             long totalCompleted = all.stream()
                 .filter(d -> { PlayerQuestData pd = safeGetData(questMgr, playerUuid, d.getId()); return pd != null && pd.isCompleted(); })
                 .count();
-            inv.setItem(5, Gui.make(Material.BOOK, "<white>Quest Overview",
+            inv.setItem(50, Gui.make(Material.BOOK, "<white>Quest Overview",
                 "<gray>Total quests: <white>" + all.size(),
                 "<gray>Completed: <green>" + totalCompleted + "<gray>/<white>" + all.size(),
                 "",

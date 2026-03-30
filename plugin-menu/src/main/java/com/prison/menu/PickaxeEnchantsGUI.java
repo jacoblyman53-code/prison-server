@@ -41,6 +41,11 @@ public class PickaxeEnchantsGUI {
     }
 
     public static void handleClick(Player player, int slot, ClickType click, MenuPlugin plugin) {
+        if (slot == 8) {
+            Sounds.nav(player);
+            MainMenuGUI.open(player);
+            return;
+        }
         if (slot == SLOT_BACK) {
             Sounds.nav(player);
             PickaxeHomeGUI.open(player);
@@ -91,6 +96,8 @@ public class PickaxeEnchantsGUI {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         PickaxeAPI papi = PickaxeAPI.getInstance();
         EconomyAPI eco  = EconomyAPI.getInstance();

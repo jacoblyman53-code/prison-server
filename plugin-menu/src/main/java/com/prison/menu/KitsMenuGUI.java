@@ -41,7 +41,7 @@ public class KitsMenuGUI {
     }
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
-        if (slot == SLOT_BACK) {
+        if (slot == 8 || slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
             return;
@@ -98,6 +98,8 @@ public class KitsMenuGUI {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         KitsAPI api = KitsAPI.getInstance();
 

@@ -29,7 +29,7 @@ public class GangHomeGUI {
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
         switch (slot) {
-            case SLOT_BACK -> {
+            case 8, SLOT_BACK -> {
                 Sounds.nav(player);
                 MainMenuGUI.open(player);
             }
@@ -67,6 +67,8 @@ public class GangHomeGUI {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
+        TopBand.apply(inv, player);
+        inv.setItem(8, Gui.back());
 
         // Resolve gang state
         String gangName = null;
