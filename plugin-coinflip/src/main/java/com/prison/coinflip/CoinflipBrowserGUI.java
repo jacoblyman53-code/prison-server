@@ -133,7 +133,7 @@ public class CoinflipBrowserGUI {
             if (api != null) bal = api.getBalance(player.getUniqueId());
         } catch (Exception ignored) {}
         inv.setItem(SLOT_BALANCE, Gui.make(Material.SUNFLOWER, "<yellow>Your Balance",
-            "<gray>IGC: <gold>" + Fmt.number(bal)));
+            "<gray>Bal: <gold>$" + Fmt.number(bal)));
 
         // Info card
         inv.setItem(SLOT_INFO, Gui.make(Material.BOOK, "<yellow>How Coinflip Works",
@@ -228,8 +228,8 @@ public class CoinflipBrowserGUI {
         lore.add(MM.deserialize("<!italic>" + tierLabel));
         lore.add(Component.empty());
         lore.add(MM.deserialize("<!italic><gray>Creator: " + tierColor + ticket.getCreatorName()));
-        lore.add(MM.deserialize("<!italic><gray>Bet:     <gold>" + Fmt.number(amount) + " IGC"));
-        lore.add(MM.deserialize("<!italic><gray>Prize:   <green>" + Fmt.number(pot) + " IGC"));
+        lore.add(MM.deserialize("<!italic><gray>Bet:     <gold>$" + Fmt.number(amount)));
+        lore.add(MM.deserialize("<!italic><gray>Prize:   <green>$" + Fmt.number(pot)));
         lore.add(Component.empty());
         if (isOwn) {
             lore.add(MM.deserialize("<!italic><yellow>This is your flip."));

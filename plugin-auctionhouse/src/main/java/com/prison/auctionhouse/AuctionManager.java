@@ -203,8 +203,8 @@ public class AuctionManager {
         // Balance check
         if (EconomyAPI.getInstance().getBalance(uuid) < fee) {
             player.sendMessage(MM.deserialize(
-                "<red>You need <gold>" + String.format("%,d", fee) +
-                " IGC</gold> as a listing fee but cannot afford it."));
+                "<red>You need <gold>$" + String.format("%,d", fee) +
+                "</gold> as a listing fee but cannot afford it."));
             return CreateResult.INSUFFICIENT_FUNDS;
         }
 
@@ -262,9 +262,9 @@ public class AuctionManager {
         });
 
         player.sendMessage(MM.deserialize(
-            "<green>Listed <white>" + itemDisplayName + "</white> for <gold>" +
-            String.format("%,d", price) + " IGC</gold><green>. Listing fee: <gold>" +
-            String.format("%,d", fee) + " IGC</gold><green>."));
+            "<green>Listed <white>" + itemDisplayName + "</white> for <gold>$" +
+            String.format("%,d", price) + "</gold><green>. Listing fee: <gold>$" +
+            String.format("%,d", fee) + "</gold><green>."));
         return CreateResult.CREATE_OK;
     }
 
@@ -359,8 +359,8 @@ public class AuctionManager {
                             "<yellow>Inventory full — item dropped at your feet!"));
                     }
                     buyer.sendMessage(MM.deserialize(
-                        "<green>Purchased <white>" + itemName + "</white> for <gold>" +
-                        String.format("%,d", price) + " IGC</gold><green>!"));
+                        "<green>Purchased <white>" + itemName + "</white> for <gold>$" +
+                        String.format("%,d", price) + "</gold><green>!"));
                     buyer.playSound(buyer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.0f);
                 });
 
@@ -571,8 +571,8 @@ public class AuctionManager {
                     for (DeliveryEntry entry : soldNotify) {
                         // We don't have item name easily here — just use generic message
                         player.sendMessage(MM.deserialize(
-                            "<green>Your auction sold for <gold>" +
-                            String.format("%,d", entry.price()) + " IGC</gold><green>!"));
+                            "<green>Your auction sold for <gold>$" +
+                            String.format("%,d", entry.price()) + "</gold><green>!"));
                     }
 
                     // Mark all processed as notified async

@@ -97,7 +97,7 @@ public class ShopQuantityGUI {
             }
             case INSUFFICIENT_FUNDS -> {
                 Sounds.deny(player);
-                player.sendMessage(MM.deserialize("<red>Not enough IGC to buy <white>×" + qty + "</white>."));
+                player.sendMessage(MM.deserialize("<red>Not enough $ to buy <white>×" + qty + "</white>."));
                 open(player, catId, itemId, returnPage);
             }
             case OUT_OF_STOCK -> {
@@ -149,8 +149,8 @@ public class ShopQuantityGUI {
 
         // ── Slot 4: item preview ────────────────────────────────────
         List<Component> previewLore = new ArrayList<>();
-        previewLore.add(MM.deserialize("<!italic><gray>Price: <gold>" + Fmt.number(unitPrice) + " IGC <gray>each"));
-        previewLore.add(MM.deserialize("<!italic><gray>Your balance: <gold>" + Fmt.number(balance) + " IGC"));
+        previewLore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(unitPrice) + " <gray>each"));
+        previewLore.add(MM.deserialize("<!italic><gray>Your balance: <gold>$" + Fmt.number(balance)));
         previewLore.add(Component.empty());
         previewLore.add(MM.deserialize("<!italic><yellow>Pick a quantity below."));
         inv.setItem(SLOT_PREVIEW, Gui.make(shopItem.item().getType(), displayName, previewLore));
@@ -163,7 +163,7 @@ public class ShopQuantityGUI {
 
             Material mat  = afford ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
             String   name = (afford ? "<green>" : "<red>") + "×" + qty;
-            String total2 = "<gray>Total: " + (afford ? "<gold>" : "<red>") + Fmt.number(total) + " IGC";
+            String total2 = "<gray>Total: " + (afford ? "<gold>" : "<red>") + "$" + Fmt.number(total);
             String  hint  = afford ? "<green>Click to buy!" : "<red>Cannot afford.";
 
             inv.setItem(QTY_SLOTS[i], Gui.make(mat, name, total2, hint));

@@ -112,7 +112,7 @@ public class GangHomeGUI {
             String bankStr = "<gray>Bank: <gold>N/A";
             String createdStr = "";
             if (gangData != null) {
-                bankStr = "<gray>Bank: <gold>" + Fmt.number((long) gangData.bankBalance()) + " IGC";
+                bankStr = "<gray>Bank: <gold>$" + Fmt.number((long) gangData.bankBalance());
                 if (gangData.createdAt() != null) {
                     createdStr = "<gray>Founded: <white>" +
                         gangData.createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));

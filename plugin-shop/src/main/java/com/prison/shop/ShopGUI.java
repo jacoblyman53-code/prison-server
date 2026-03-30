@@ -23,8 +23,8 @@ public class ShopGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE_CATEGORIES = MM.deserialize("<dark_green><bold>IGC Shop");
-    static final Component TITLE_ITEMS      = MM.deserialize("<dark_green><bold>IGC Shop \u2014 Browse");
+    static final Component TITLE_CATEGORIES = MM.deserialize("<dark_green><bold>Shop");
+    static final Component TITLE_ITEMS      = MM.deserialize("<dark_green><bold>Shop \u2014 Browse");
     static final Component TITLE_CONFIRM    = MM.deserialize("<green><bold>Confirm Purchase");
 
     // Category picker slots (27-slot GUI): row 1 and row 2 inner slots
@@ -145,7 +145,7 @@ public class ShopGUI {
                     lore.addAll(originalLore);
                     lore.add(Component.empty());
                 }
-                lore.add(MM.deserialize("<yellow>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " IGC"));
+                lore.add(MM.deserialize("<yellow>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
                 if (shopItem.stock() == -1) {
                     lore.add(MM.deserialize("<gray>Stock: <green>\u221e Unlimited"));
                 } else if (shopItem.stock() > 0) {
@@ -245,8 +245,8 @@ public class ShopGUI {
             previewLore.addAll(originalPreviewLore);
             previewLore.add(Component.empty());
         }
-        previewLore.add(MM.deserialize("<yellow>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " IGC"));
-        previewLore.add(MM.deserialize("<gray>Your balance: <white>" + String.format("%,d", balance) + " IGC"));
+        previewLore.add(MM.deserialize("<yellow>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
+        previewLore.add(MM.deserialize("<gray>Your balance: <white>$" + String.format("%,d", balance)));
         previewLore.add(Component.empty());
         previewLore.add(MM.deserialize("<green>Confirm: slot 11 <red>| Cancel: slot 15"));
         previewMeta.lore(previewLore);
@@ -261,12 +261,12 @@ public class ShopGUI {
         if (canAfford) {
             long balAfter = balance - shopItem.priceIgc();
             inv.setItem(11, makeItem(Material.LIME_STAINED_GLASS_PANE,
-                "<green>\u2713 Buy for " + String.format("%,d", shopItem.priceIgc()) + " IGC",
-                "<gray>Balance after: <white>" + String.format("%,d", balAfter) + " IGC"));
+                "<green>\u2713 Buy for $" + String.format("%,d", shopItem.priceIgc()),
+                "<gray>Balance after: <white>$" + String.format("%,d", balAfter)));
         } else {
             inv.setItem(11, makeItem(Material.GRAY_STAINED_GLASS_PANE,
                 "<red>\u2717 Cannot Afford",
-                "<red>Need <gold>" + String.format("%,d", shopItem.priceIgc()) + " IGC<red>, have <white>" + String.format("%,d", balance) + " IGC"));
+                "<red>Need <gold>$" + String.format("%,d", shopItem.priceIgc()) + "<red>, have <white>$" + String.format("%,d", balance)));
         }
 
         // Slot 15: cancel button
@@ -349,7 +349,7 @@ public class ShopGUI {
                     case OK -> {
                         Optional<ShopItem> itemOpt = ShopManager.getInstance().getItem(catId, state.pendingItemId);
                         long price = itemOpt.map(ShopItem::priceIgc).orElse(0L);
-                        player.sendMessage(MM.deserialize("<green>Purchased! <gold>" + String.format("%,d", price) + " IGC<green> deducted."));
+                        player.sendMessage(MM.deserialize("<green>Purchased! <gold>$" + String.format("%,d", price) + "<green> deducted."));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_TRADE, 1.0f, 1.2f);
                         player.closeInventory();
                     }

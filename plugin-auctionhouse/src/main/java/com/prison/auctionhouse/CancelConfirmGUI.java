@@ -64,8 +64,8 @@ public class CancelConfirmGUI {
         }
         List<Component> previewLore = pm.lore() != null ? new ArrayList<>(pm.lore()) : new ArrayList<>();
         previewLore.add(Component.empty());
-        previewLore.add(MM.deserialize("<yellow>Price: <gold>" +
-            String.format("%,d", listing.priceIgc()) + " IGC"));
+        previewLore.add(MM.deserialize("<yellow>Price: <gold>$" +
+            String.format("%,d", listing.priceIgc())));
         previewLore.add(MM.deserialize("<gray>This will be cancelled."));
         previewLore.add(MM.deserialize("<red>Listing fee is non-refundable."));
         previewLore.add(MM.deserialize("<green>Item will be returned."));

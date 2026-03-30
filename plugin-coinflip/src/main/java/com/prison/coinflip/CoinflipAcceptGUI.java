@@ -91,14 +91,14 @@ public class CoinflipAcceptGUI {
         inv.setItem(SLOT_CREATOR, makeHead(ticket.getCreatorName(),
             "<white>" + ticket.getCreatorName(),
             "<gray>Challenger",
-            "<gray>Bet: <gold>" + Fmt.number(ticket.getAmount()) + " IGC"));
+            "<gray>Bet: <gold>$" + Fmt.number(ticket.getAmount())));
 
         // Bet info
         inv.setItem(SLOT_BET, Gui.make(Material.GOLD_INGOT, "<gold>Bet Amount",
-            "<gray>Required match: <gold>" + Fmt.number(ticket.getAmount()) + " IGC",
-            "<gray>Total prize: <green>" + Fmt.number(ticket.getAmount() * 2) + " IGC",
+            "<gray>Required match: <gold>$" + Fmt.number(ticket.getAmount()),
+            "<gray>Total prize: <green>$" + Fmt.number(ticket.getAmount() * 2),
             "",
-            "<gray>Your balance: <gold>" + Fmt.number(bal) + " IGC"));
+            "<gray>Your balance: <gold>$" + Fmt.number(bal)));
 
         // Acceptor head
         inv.setItem(SLOT_ACCEPTOR, makeHead(player.getName(),
@@ -109,14 +109,14 @@ public class CoinflipAcceptGUI {
         // Accept / decline
         if (canAfford) {
             inv.setItem(SLOT_CONFIRM, Gui.make(Material.GREEN_CONCRETE, "<green>Accept Flip",
-                "<gray>Locks <gold>" + Fmt.number(ticket.getAmount()) + " IGC<gray> of your funds.",
-                "<gray>Winner takes <green>" + Fmt.number(ticket.getAmount() * 2) + " IGC<gray>.",
+                "<gray>Locks <gold>$" + Fmt.number(ticket.getAmount()) + "<gray> of your funds.",
+                "<gray>Winner takes <green>$" + Fmt.number(ticket.getAmount() * 2) + "<gray>.",
                 "",
                 "<green>Click to confirm."));
         } else {
             inv.setItem(SLOT_CONFIRM, Gui.make(Material.RED_CONCRETE, "<red>Cannot Afford",
-                "<gray>You need <gold>" + Fmt.number(ticket.getAmount()) + " IGC<gray>.",
-                "<gray>Your balance: <gold>" + Fmt.number(bal)));
+                "<gray>You need <gold>$" + Fmt.number(ticket.getAmount()) + "<gray>.",
+                "<gray>Your balance: <gold>$" + Fmt.number(bal)));
         }
 
         inv.setItem(SLOT_CANCEL, Gui.make(Material.RED_CONCRETE, "<red>Decline",

@@ -381,8 +381,8 @@ public class GangCommand implements CommandExecutor {
                     case SUCCESS -> {
                         GangData gang = manager.getGangOf(player.getUniqueId());
                         String bankStr = gang == null ? "?" : String.format("%,d", gang.bankBalance());
-                        player.sendMessage(MM.deserialize("<green>Deposited <white>" + String.format("%,d", amount)
-                            + "</white> IGC to the gang bank. Bank: <white>" + bankStr + "</white> IGC."));
+                        player.sendMessage(MM.deserialize("<green>Deposited <white>$" + String.format("%,d", amount)
+                            + "</white> to the gang bank. Bank: <white>$" + bankStr + "</white>."));
 
                         // Quest progress
                         try {
@@ -404,7 +404,7 @@ public class GangCommand implements CommandExecutor {
                         }
                     }
                     case NOT_IN_GANG        -> player.sendMessage(MM.deserialize("<red>You are not in a gang."));
-                    case INSUFFICIENT_FUNDS -> player.sendMessage(MM.deserialize("<red>You don't have enough IGC."));
+                    case INSUFFICIENT_FUNDS -> player.sendMessage(MM.deserialize("<red>You don't have enough $."));
                     default                 -> player.sendMessage(MM.deserialize("<red>An error occurred."));
                 }
             });
@@ -429,12 +429,12 @@ public class GangCommand implements CommandExecutor {
                     case SUCCESS -> {
                         GangData gang = manager.getGangOf(player.getUniqueId());
                         String bankStr = gang == null ? "?" : String.format("%,d", gang.bankBalance());
-                        player.sendMessage(MM.deserialize("<green>Withdrew <white>" + String.format("%,d", amount)
-                            + "</white> IGC from the gang bank. Bank: <white>" + bankStr + "</white> IGC."));
+                        player.sendMessage(MM.deserialize("<green>Withdrew <white>$" + String.format("%,d", amount)
+                            + "</white> from the gang bank. Bank: <white>$" + bankStr + "</white>."));
                     }
                     case NOT_IN_GANG        -> player.sendMessage(MM.deserialize("<red>You are not in a gang."));
                     case NO_PERMISSION      -> player.sendMessage(MM.deserialize("<red>Only officers and leaders can withdraw."));
-                    case INSUFFICIENT_FUNDS -> player.sendMessage(MM.deserialize("<red>The gang bank doesn't have enough IGC."));
+                    case INSUFFICIENT_FUNDS -> player.sendMessage(MM.deserialize("<red>The gang bank doesn't have enough $."));
                     default                 -> player.sendMessage(MM.deserialize("<red>An error occurred."));
                 }
             });
@@ -478,7 +478,7 @@ public class GangCommand implements CommandExecutor {
         player.sendMessage(MM.deserialize(
             "<dark_aqua>--- Gang Info: <white>" + finalGang.name() + " <gray>[" + finalGang.tag() + "]</gray> ---\n"
             + "<aqua>Level: <white>" + finalGang.level() + "\n"
-            + "<aqua>Bank: <gold>" + String.format("%,d", finalGang.bankBalance()) + " IGC\n"
+            + "<aqua>Bank: <gold>$" + String.format("%,d", finalGang.bankBalance()) + "\n"
             + "<aqua>Members: <white>" + memberCount + "\n"
             + "<aqua>Roster:" + memberList
         ));
@@ -498,7 +498,7 @@ public class GangCommand implements CommandExecutor {
               .append("<white>").append(g.name()).append("</white>")
               .append(" <gray>[").append(g.tag()).append("]</gray>")
               .append(" <aqua>Lv").append(g.level()).append("</aqua>")
-              .append(" <gold>").append(String.format("%,d", g.bankBalance())).append(" IGC</gold>")
+              .append(" <gold>$").append(String.format("%,d", g.bankBalance())).append("</gold>")
               .append(" <gray>(").append(manager.getMemberCount(g.id())).append(" members)</gray>");
         }
         player.sendMessage(MM.deserialize(sb.toString()));

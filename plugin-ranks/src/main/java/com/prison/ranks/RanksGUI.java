@@ -101,15 +101,15 @@ public class RanksGUI {
         } else if (index == currentIndex + 1 && canAffordNext) {
             // Next rank, affordable
             mat = Material.YELLOW_STAINED_GLASS_PANE;
-            statusLine = "<yellow>★ Click to rank up! Cost: <white>" + RankManager.formatNumber(data.cost()) + " IGC";
+            statusLine = "<yellow>★ Click to rank up! Cost: <white>$" + RankManager.formatNumber(data.cost());
         } else if (index == currentIndex + 1) {
             // Next rank, not yet affordable
             mat = Material.ORANGE_STAINED_GLASS_PANE;
-            statusLine = "<yellow>Next | Cost: <white>" + RankManager.formatNumber(data.cost()) + " IGC";
+            statusLine = "<yellow>Next | Cost: <white>$" + RankManager.formatNumber(data.cost());
         } else {
             // Locked future rank
             mat = Material.RED_STAINED_GLASS_PANE;
-            statusLine = "<red>Locked | Cost: <white>" + RankManager.formatNumber(data.cost()) + " IGC";
+            statusLine = "<red>Locked | Cost: <white>$" + RankManager.formatNumber(data.cost());
         }
 
         ItemStack item = new ItemStack(mat);
@@ -119,7 +119,7 @@ public class RanksGUI {
         List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
         lore.add(MM.deserialize(statusLine));
         if (index > 0 && data.cost() > 0) {
-            lore.add(MM.deserialize("<dark_gray>Rankup cost: <gray>" + RankManager.formatNumber(data.cost()) + " IGC"));
+            lore.add(MM.deserialize("<dark_gray>Rankup cost: <gray>$" + RankManager.formatNumber(data.cost())));
         }
         meta.lore(lore);
         item.setItemMeta(meta);
@@ -138,7 +138,7 @@ public class RanksGUI {
         if (nextRank != null) {
             RankConfig.RankData next = config.getRank(nextRank);
             lore.add(MM.deserialize("<!italic><gray>Next rank: <white>" + nextRank
-                + " <dark_gray>(costs " + RankManager.formatNumber(next.cost()) + " IGC)"));
+                + " <dark_gray>(costs $" + RankManager.formatNumber(next.cost()) + ")"));
             lore.add(MM.deserialize("<!italic>"));
             if (canAffordNext) {
                 lore.add(MM.deserialize("<!italic><green><bold>Click the highlighted rank to rank up!"));

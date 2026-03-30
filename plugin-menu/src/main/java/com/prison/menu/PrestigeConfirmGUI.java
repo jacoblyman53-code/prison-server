@@ -80,7 +80,7 @@ public class PrestigeConfirmGUI {
             inv.setItem(SLOT_CONFIRM, Gui.make(Material.NETHER_STAR,
                 "<light_purple>\u2714 Confirm Prestige",
                 "<gray>Current rank will reset to A",
-                "<gray>IGC balance wiped",
+                "<gray>balance wiped",
                 "<gray>Prestige level: <white>" + prestige + " \u2192 " + (prestige + 1),
                 "",
                 "<light_purple><bold>Click to prestige!"));

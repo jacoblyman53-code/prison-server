@@ -72,10 +72,10 @@ public class AuctionConfirmGUI {
 
         List<Component> previewLore = pm.lore() != null ? new ArrayList<>(pm.lore()) : new ArrayList<>();
         previewLore.add(Component.empty());
-        previewLore.add(MM.deserialize("<yellow>Price: <gold>" + String.format("%,d", price) + " IGC"));
+        previewLore.add(MM.deserialize("<yellow>Price: <gold>$" + String.format("%,d", price)));
         previewLore.add(MM.deserialize("<gray>Seller: <white>" + listing.sellerName()));
-        previewLore.add(MM.deserialize("<gray>Your Balance: <white>" +
-            String.format("%,d", playerBalance) + " IGC"));
+        previewLore.add(MM.deserialize("<gray>Your Balance: <white>$" +
+            String.format("%,d", playerBalance)));
         previewLore.add(Component.empty());
         previewLore.add(MM.deserialize("<green>Confirm: slot 11 <gray>| <red>Cancel: slot 15"));
         pm.lore(previewLore);
@@ -88,10 +88,10 @@ public class AuctionConfirmGUI {
             ItemMeta cm = confirm.getItemMeta();
             cm.displayName(MM.deserialize("<green>✓ Confirm Purchase"));
             List<Component> confirmLore = new ArrayList<>();
-            confirmLore.add(MM.deserialize("<gold>" + String.format("%,d", price) +
-                " IGC<gray> will be deducted."));
-            confirmLore.add(MM.deserialize("<gray>Balance after: <white>" +
-                String.format("%,d", playerBalance - price) + " IGC"));
+            confirmLore.add(MM.deserialize("<gold>$" + String.format("%,d", price) +
+                "<gray> will be deducted."));
+            confirmLore.add(MM.deserialize("<gray>Balance after: <white>$" +
+                String.format("%,d", playerBalance - price)));
             cm.lore(confirmLore);
             confirm.setItemMeta(cm);
             inv.setItem(11, confirm);
@@ -100,10 +100,10 @@ public class AuctionConfirmGUI {
             ItemMeta cam = cantAfford.getItemMeta();
             cam.displayName(MM.deserialize("<red>Cannot Afford"));
             List<Component> caLore = new ArrayList<>();
-            caLore.add(MM.deserialize("<red>You need <gold>" + String.format("%,d", price) +
-                " IGC<red>."));
-            caLore.add(MM.deserialize("<gray>You have: <white>" +
-                String.format("%,d", playerBalance) + " IGC"));
+            caLore.add(MM.deserialize("<red>You need <gold>$" + String.format("%,d", price) +
+                "<red>."));
+            caLore.add(MM.deserialize("<gray>You have: <white>$" +
+                String.format("%,d", playerBalance)));
             cam.lore(caLore);
             cantAfford.setItemMeta(cam);
             inv.setItem(11, cantAfford);

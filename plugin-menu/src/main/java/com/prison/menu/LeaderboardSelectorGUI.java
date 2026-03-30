@@ -47,7 +47,7 @@ public class LeaderboardSelectorGUI {
 
         inv.setItem(SLOT_RICHEST, Gui.make(Material.SUNFLOWER,
             "<gold>Richest Players",
-            "<gray>Top 10 players by IGC balance.",
+            "<gray>Top 10 players by balance.",
             "",
             "<green>Click to view!"));
 

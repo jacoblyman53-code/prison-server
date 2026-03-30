@@ -115,8 +115,8 @@ public class MyListingsGUI {
 
         List<Component> lore = meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<yellow>Price: <gold>" +
-            String.format("%,d", listing.priceIgc()) + " IGC"));
+        lore.add(MM.deserialize("<yellow>Price: <gold>$" +
+            String.format("%,d", listing.priceIgc())));
         lore.add(MM.deserialize("<gray>Expires: <white>" + listing.formattedTimeRemaining()));
         lore.add(Component.empty());
         lore.add(MM.deserialize("<red>Click to cancel listing"));

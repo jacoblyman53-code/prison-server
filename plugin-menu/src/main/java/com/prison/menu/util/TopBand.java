@@ -98,7 +98,7 @@ public final class TopBand {
         } catch (Exception ignored) {}
 
         return Gui.make(Material.SUNFLOWER, "<yellow>Balance",
-            "<gray>IGC: <gold>" + Fmt.number(bal),
+            "<gray>Bal: <gold>$" + Fmt.number(bal),
             "",
             "<dark_gray>Your prison currency.");
     }

@@ -75,7 +75,7 @@ public class CoinflipAnimationGUI {
             ItemStack winHead = makeHead(winnerName,
                 "<green>⭐ " + winnerName,
                 "<green>WINNER!",
-                "<gray>Wins: <gold>" + String.format("%,d", ticket.getAmount() * 2) + " IGC");
+                "<gray>Wins: <gold>$" + String.format("%,d", ticket.getAmount() * 2));
             updateInv(inv, winHead, creator, acceptor, TITLE);
 
             Sounds.win(creator);
@@ -87,7 +87,7 @@ public class CoinflipAnimationGUI {
             // Send title to both
             net.kyori.adventure.title.Title titleMsg = net.kyori.adventure.title.Title.title(
                 MM.deserialize("<green>⭐ " + winnerName + " wins!"),
-                MM.deserialize("<gray>" + String.format("%,d", ticket.getAmount() * 2) + " IGC"),
+                MM.deserialize("<gray>$" + String.format("%,d", ticket.getAmount() * 2)),
                 net.kyori.adventure.title.Title.Times.times(
                     java.time.Duration.ofMillis(200),
                     java.time.Duration.ofMillis(2000),
@@ -107,8 +107,8 @@ public class CoinflipAnimationGUI {
 
     private static void buildStaticElements(Inventory inv, CoinflipTicket ticket) {
         inv.setItem(4, Gui.make(Material.GOLD_INGOT, "<gold>Coinflip",
-            "<gray>Bet: <gold>" + String.format("%,d", ticket.getAmount()) + " IGC each",
-            "<gray>Prize: <green>" + String.format("%,d", ticket.getAmount() * 2) + " IGC"));
+            "<gray>Bet: <gold>$" + String.format("%,d", ticket.getAmount()) + "<gray> each",
+            "<gray>Prize: <green>$" + String.format("%,d", ticket.getAmount() * 2)));
         for (int s : SIDE_SLOTS) inv.setItem(s, Gui.filler());
     }
 

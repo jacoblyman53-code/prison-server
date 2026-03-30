@@ -195,7 +195,7 @@ public class PrestigePlugin extends JavaPlugin implements Listener {
             int newLevel = manager.executePrestige(player);
             if (newLevel > 0) {
                 player.sendMessage(mm.deserialize("<dark_purple>You are now <light_purple><bold>Prestige " + newLevel + "</bold></light_purple><dark_purple>!"));
-                player.sendMessage(mm.deserialize("<gray>Your mine rank has been reset to <white>A</white> and IGC wiped."));
+                player.sendMessage(mm.deserialize("<gray>Your mine rank has been reset to <white>A</white> and balance wiped."));
                 player.sendMessage(mm.deserialize("<gray>Token earn bonus: <white>+" + String.format("%.1f", manager.getConfig().getTotalTokenBonus(newLevel) * 100) + "%"));
 
                 // Title screen

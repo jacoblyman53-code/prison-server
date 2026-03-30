@@ -137,7 +137,7 @@ public class ChainQuestGUI {
         }
 
         lore.add(MM.deserialize("<!italic>"));
-        lore.add(MM.deserialize("<!italic><gray>Reward: <gold>" + fmt(def.igcReward()) + " IGC <dark_gray>+ <aqua>" + def.tokenReward() + " tokens"));
+        lore.add(MM.deserialize("<!italic><gray>Reward: <gold>$" + fmt(def.igcReward()) + " <dark_gray>+ <aqua>" + def.tokenReward() + " tokens"));
 
         meta.lore(lore);
         item.setItemMeta(meta);

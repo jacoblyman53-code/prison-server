@@ -165,7 +165,7 @@ public class AuctionHousePlugin extends JavaPlugin implements Listener {
                         return true;
                     }
                     if (price < 1) {
-                        player.sendMessage(MM.deserialize("<red>Price must be at least 1 IGC."));
+                        player.sendMessage(MM.deserialize("<red>Price must be at least $1."));
                         return true;
                     }
                     ItemStack heldItem = player.getInventory().getItemInMainHand();

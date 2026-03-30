@@ -123,7 +123,7 @@ public class ShopAdminGUI {
 
             String stockStr = shopItem.stock() == -1 ? "\u221e" : String.valueOf(shopItem.stock());
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<gray>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " IGC"));
+            lore.add(MM.deserialize("<gray>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
             lore.add(MM.deserialize("<gray>Stock: <white>" + stockStr));
             lore.add(MM.deserialize("<dark_gray>Click to edit price/stock"));
             lore.add(MM.deserialize("<red>Shift-click to remove"));
@@ -179,7 +179,7 @@ public class ShopAdminGUI {
         previewMeta.displayName(MM.deserialize(nameStr));
         String stockStr = shopItem.stock() == -1 ? "\u221e Unlimited" : String.valueOf(shopItem.stock());
         List<Component> previewLore = new ArrayList<>();
-        previewLore.add(MM.deserialize("<gray>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " IGC"));
+        previewLore.add(MM.deserialize("<gray>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
         previewLore.add(MM.deserialize("<gray>Stock: <white>" + stockStr));
         previewMeta.lore(previewLore);
         preview.setItemMeta(previewMeta);
@@ -188,7 +188,7 @@ public class ShopAdminGUI {
         // Slot 10: Edit Price
         inv.setItem(10, makeItem(Material.GOLD_NUGGET,
             "<gold>Edit Price",
-            "<gray>Current: <white>" + String.format("%,d", shopItem.priceIgc()) + " IGC",
+            "<gray>Current: <white>$" + String.format("%,d", shopItem.priceIgc()),
             "<dark_gray>Click to change."));
 
         // Slot 12: Edit Stock

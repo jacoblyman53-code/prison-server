@@ -99,22 +99,22 @@ public class CoinflipCreateGUI {
             boolean isSelected = preset == selected;
             boolean canAfford  = bal >= preset;
             Material mat = isSelected ? Material.LIME_CONCRETE : (canAfford ? Material.GOLD_INGOT : Material.RED_STAINED_GLASS_PANE);
-            String name  = (isSelected ? "<green>✔ " : "") + "<gold>" + Fmt.compact(preset) + " IGC";
+            String name  = (isSelected ? "<green>✔ " : "") + "<gold>$" + Fmt.compact(preset);
             String hint  = canAfford ? "<green>Click to select" : "<red>Cannot afford";
-            inv.setItem(PRESET_SLOTS[i], Gui.make(mat, name, "<gray>Bet: <gold>" + Fmt.number(preset) + " IGC", hint));
+            inv.setItem(PRESET_SLOTS[i], Gui.make(mat, name, "<gray>Bet: <gold>$" + Fmt.number(preset), hint));
         }
 
         // Confirm
         boolean canAffordSelected = bal >= selected;
         if (canAffordSelected) {
             inv.setItem(SLOT_CONFIRM, Gui.make(Material.GREEN_CONCRETE, "<green>Create Flip",
-                "<gray>Bet: <gold>" + Fmt.number(selected) + " IGC",
-                "<gray>Potential win: <green>" + Fmt.number(selected * 2) + " IGC",
+                "<gray>Bet: <gold>$" + Fmt.number(selected),
+                "<gray>Potential win: <green>$" + Fmt.number(selected * 2),
                 "",
                 "<green>Click to confirm and lock funds."));
         } else {
             inv.setItem(SLOT_CONFIRM, Gui.make(Material.RED_CONCRETE, "<red>Cannot Afford",
-                "<gray>You need <gold>" + Fmt.number(selected) + " IGC<gray>.",
+                "<gray>You need <gold>$" + Fmt.number(selected) + "<gray>.",
                 "<red>Select a smaller amount."));
         }
 

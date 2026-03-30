@@ -126,7 +126,7 @@ public class CoinflipManager {
         // Deduct funds atomically — returns -1 if insufficient
         long result = eco.deductBalance(uuid, amount, TransactionType.PAY_SENT);
         if (result < 0)
-            return "You cannot afford to bet " + String.format("%,d", amount) + " IGC.";
+            return "You cannot afford to bet $" + String.format("%,d", amount) + ".";
 
         // Persist to DB async, get generated id back on completion
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -141,8 +141,8 @@ public class CoinflipManager {
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     player.sendMessage(MM.deserialize(
-                        "<green>✔ Coinflip created for <gold>" + String.format("%,d", amount) +
-                        " IGC<green>. Waiting for a challenger..."));
+                        "<green>✔ Coinflip created for <gold>$" + String.format("%,d", amount) +
+                        "<green>. Waiting for a challenger..."));
                     // Refresh browser for all players who have it open
                     CoinflipBrowserGUI.refreshForOnlinePlayers();
                 });
@@ -174,7 +174,7 @@ public class CoinflipManager {
 
         long result = eco.deductBalance(uuid, ticket.getAmount(), TransactionType.PAY_SENT);
         if (result < 0)
-            return "You need " + String.format("%,d", ticket.getAmount()) + " IGC to accept this coinflip.";
+            return "You need $" + String.format("%,d", ticket.getAmount()) + " to accept this coinflip.";
 
         // Mark as pending immediately to prevent double-accept
         ticket.accept(uuid, acceptor.getName());
@@ -264,7 +264,7 @@ public class CoinflipManager {
             ? ticket.getAcceptorName() : ticket.getCreatorName();
 
         String broadcast = "<gold><bold>COINFLIP</bold> <gray>| <green>" + winnerName +
-            " <gray>won <gold>" + String.format("%,d", prize) + " IGC <gray>against <red>" + loserName + "!";
+            " <gray>won <gold>$" + String.format("%,d", prize) + " <gray>against <red>" + loserName + "!";
         Bukkit.broadcast(MM.deserialize(broadcast));
     }
 }

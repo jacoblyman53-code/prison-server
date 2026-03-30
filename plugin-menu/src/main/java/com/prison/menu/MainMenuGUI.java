@@ -26,8 +26,8 @@ public class MainMenuGUI {
         "<gray>Join a gang for passive sell and token bonuses.",
         "<gray>Prestige at rank Z to earn permanent bonuses.",
         "<gray>Check <white>Black Market <gray>daily for limited-time deals.",
-        "<gray>Complete quests daily to earn extra IGC and tokens.",
-        "<gray>Use <white>/coinflip <gray>to wager IGC against other players.",
+        "<gray>Complete quests daily to earn extra $ and tokens.",
+        "<gray>Use <white>/coinflip <gray>to wager $ against other players.",
         "<gray>Crate keys drop from milestones and are available in the store.",
     };
 
@@ -165,7 +165,7 @@ public class MainMenuGUI {
 
         // ---- Row 2: economy & social (slots 19-26) ----
         inv.setItem(19, Gui.make(Material.CHEST, "<yellow>Shop",
-            "<gray>Browse categories and buy items with IGC.",
+            "<gray>Browse categories and buy items.",
             "",
             "<green>Click to open Shop."));
 
@@ -180,7 +180,7 @@ public class MainMenuGUI {
             "<green>Click to open Crates Hub."));
 
         inv.setItem(22, Gui.make(Material.GOLD_INGOT, "<yellow>Coinflip",
-            "<gray>Wager IGC against other players.",
+            "<gray>Wager $ against other players.",
             "",
             "<green>Click to open Coinflip."));
 

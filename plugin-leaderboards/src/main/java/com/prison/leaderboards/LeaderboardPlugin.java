@@ -143,7 +143,7 @@ public class LeaderboardPlugin extends JavaPlugin implements Listener {
                 player.sendMessage(mm.deserialize("<aqua><bold>  Your Stats"));
                 player.sendMessage(mm.deserialize("<dark_gray>━━━━━━━━━━━━━━━━━━━━━━"));
                 player.sendMessage(mm.deserialize(
-                    "<gray>Balance:     <gold>" + fmt(stats.igcBalance()) + " IGC" +
+                    "<gray>Balance:     <gold>$" + fmt(stats.igcBalance()) +
                     "  <dark_gray>(#<yellow>" + stats.rankRichest() + "<dark_gray>)"));
                 player.sendMessage(mm.deserialize(
                     "<gray>Tokens:      <aqua>" + fmt(stats.tokenBalance()) +

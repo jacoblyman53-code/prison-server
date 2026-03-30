@@ -87,7 +87,7 @@ public class LeaderboardGUI {
 
         inv.setItem(SLOT_RICHEST,  makeCategoryItem(Material.GOLD_INGOT,
             "<gold><!italic><bold>Richest",
-            "<gray><!italic>Top IGC balance",
+            "<gray><!italic>Top balance",
             category.equals("richest")));
 
         inv.setItem(SLOT_PRESTIGE, makeCategoryItem(Material.NETHER_STAR,
@@ -237,7 +237,7 @@ public class LeaderboardGUI {
         };
 
         String displayName = rankColor + "<!italic>#" + rank + " <white><!italic>" + playerName;
-        String loreLine    = "<yellow><!italic>" + formatNumber(value) + " " + currencyLabel;
+        String loreLine    = "<yellow><!italic>" + currencyLabel + formatNumber(value);
 
         return makeItem(material, displayName, loreLine);
     }
@@ -284,13 +284,13 @@ public class LeaderboardGUI {
     // Private helpers — misc
     // ----------------------------------------------------------------
 
-    /** Returns the human-readable currency/unit label for a given category. */
+    /** Returns the prefix/label for a given category's value display. */
     private static String categoryLabel(String category) {
         return switch (category) {
-            case "richest"  -> "IGC";
-            case "prestige" -> "Prestige";
-            case "blocks"   -> "Blocks";
-            case "tokens"   -> "Tokens";
+            case "richest"  -> "$";
+            case "prestige" -> "Prestige ";
+            case "blocks"   -> "Blocks ";
+            case "tokens"   -> "Tokens ";
             default         -> "";
         };
     }

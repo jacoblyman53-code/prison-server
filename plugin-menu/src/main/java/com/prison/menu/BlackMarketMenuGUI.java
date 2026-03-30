@@ -93,7 +93,7 @@ public class BlackMarketMenuGUI {
                         lore.add(Component.empty());
                     }
 
-                    lore.add(MM.deserialize("<!italic><gray>Price: <gold>" + Fmt.number(bmi.getPriceIgc()) + "<gray> IGC"));
+                    lore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(bmi.getPriceIgc())));
 
                     if (bmi.isInStock()) {
                         lore.add(MM.deserialize("<!italic><gray>Stock: <white>" + bmi.getCurrentStock()));
@@ -131,7 +131,7 @@ public class BlackMarketMenuGUI {
             case INSUFFICIENT_FUNDS -> {
                 Sounds.deny(player);
                 player.sendMessage(MM.deserialize(
-                    "<red>You need <gold>" + Fmt.number(bmi.getPriceIgc()) + " IGC<red> to buy that."));
+                    "<red>You need <gold>$" + Fmt.number(bmi.getPriceIgc()) + "<red> to buy that."));
             }
             case OUT_OF_STOCK -> {
                 Sounds.deny(player);

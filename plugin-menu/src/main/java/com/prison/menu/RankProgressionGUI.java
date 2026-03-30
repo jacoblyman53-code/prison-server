@@ -149,8 +149,8 @@ public class RankProgressionGUI {
             if (canAfford) {
                 inv.setItem(SLOT_RANKUP, Gui.make(Material.TOTEM_OF_UNDYING, "<green>Rank Up \u2192 " + nextRank,
                     "<gray>Next rank: " + nextDisplay,
-                    "<gray>Cost: <gold>" + Fmt.number(nextCost) + " IGC",
-                    "<gray>Your balance: <gold>" + Fmt.number(balance) + " IGC",
+                    "<gray>Cost: <gold>$" + Fmt.number(nextCost),
+                    "<gray>Your balance: <gold>$" + Fmt.number(balance),
                     "",
                     "<green>Click to rank up!"));
             } else {
@@ -158,7 +158,7 @@ public class RankProgressionGUI {
                 inv.setItem(SLOT_RANKUP, Gui.make(Material.TOTEM_OF_UNDYING, "<red>Rank Up \u2192 " + nextRank,
                     "<gray>Next rank: " + nextDisplay,
                     "<gray>Cost: <gold>" + Fmt.number(nextCost) + " IGC",
-                    "<red>Need <gold>" + Fmt.number(shortfall) + "<red> more IGC.",
+                    "<red>Need <gold>$" + Fmt.number(shortfall) + "<red> more.",
                     "",
                     "<red>Cannot afford yet."));
             }
@@ -191,13 +191,13 @@ public class RankProgressionGUI {
                 inv.setItem(SLOT_RANKUP_MAX, Gui.make(Material.NETHER_STAR, "<green>Rank Up Max",
                     "<gray>Bulk purchase all affordable ranks.",
                     "<gray>Result rank: <white>" + resultRank,
-                    "<gray>Total cost: <gold>" + Fmt.number(totalCost) + " IGC",
+                    "<gray>Total cost: <gold>$" + Fmt.number(totalCost),
                     "",
                     "<green>Click to rank up as far as possible."));
             } else {
                 inv.setItem(SLOT_RANKUP_MAX, Gui.make(Material.NETHER_STAR, "<gray>Rank Up Max",
                     "<gray>No additional ranks affordable.",
-                    "<dark_gray>Earn more IGC to rank up."));
+                    "<dark_gray>Earn more $ to rank up."));
             }
         } else {
             inv.setItem(SLOT_RANKUP_MAX, Gui.make(Material.NETHER_STAR, "<gold>Maximum Rank!",
@@ -250,17 +250,17 @@ public class RankProgressionGUI {
                 boolean affordable = balance >= cost;
                 mat     = affordable ? Material.YELLOW_STAINED_GLASS_PANE : Material.ORANGE_STAINED_GLASS_PANE;
                 nameTag = affordable ? "<yellow>Rank " + rankId : "<gold>Rank " + rankId;
-                lore.add(MM.deserialize("<!italic><gray>Cost: <gold>" + Fmt.number(cost) + " IGC"));
+                lore.add(MM.deserialize("<!italic><gray>Cost: <gold>$" + Fmt.number(cost)));
                 if (affordable) {
                     lore.add(MM.deserialize("<!italic><green>Click to purchase next rank!"));
                 } else {
-                    lore.add(MM.deserialize("<!italic><red>Need <gold>" + Fmt.number(cost - balance) + "<red> more IGC."));
+                    lore.add(MM.deserialize("<!italic><red>Need <gold>$" + Fmt.number(cost - balance) + "<red> more."));
                 }
             } else {
                 // Future locked rank
                 mat     = Material.RED_STAINED_GLASS_PANE;
                 nameTag = "<red>Rank " + rankId;
-                lore.add(MM.deserialize("<!italic><gray>Cost: <gold>" + Fmt.number(cost) + " IGC"));
+                lore.add(MM.deserialize("<!italic><gray>Cost: <gold>$" + Fmt.number(cost)));
                 lore.add(MM.deserialize("<!italic><red>Locked \u2014 rank up progressively."));
             }
 

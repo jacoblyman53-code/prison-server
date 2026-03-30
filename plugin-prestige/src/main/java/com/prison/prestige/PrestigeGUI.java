@@ -75,7 +75,7 @@ public class PrestigeGUI {
         meta.displayName(MM.deserialize("<red><bold>You Will LOSE:"));
         meta.lore(List.of(
             MM.deserialize("<red>✗ Mine rank resets to <white>A"),
-            MM.deserialize("<red>✗ IGC balance wiped to <white>0"),
+            MM.deserialize("<red>✗ Balance wiped to <white>$0"),
             MM.deserialize(""),
             MM.deserialize("<gray>Token balance: <green>KEPT"),
             MM.deserialize("<gray>Donor rank: <green>KEPT"),

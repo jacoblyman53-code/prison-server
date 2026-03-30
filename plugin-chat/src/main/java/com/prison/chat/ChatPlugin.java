@@ -184,17 +184,17 @@ public class ChatPlugin extends JavaPlugin implements Listener {
                 player.sendMessage(mm.deserialize(
                     "\n<gold><bold>⛏ Getting Started</bold></gold>\n" +
                     "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n" +
-                    " <gray>You start at Mine <white><bold>A</bold></white><gray>. Mine blocks to earn IGC!\n" +
+                    " <gray>You start at Mine <white><bold>A</bold></white><gray>. Mine blocks to earn $!\n" +
                     " <dark_gray>▪ <click:run_command:/kit starter><white>/kit starter</white></click>" +
                         " <gray>— Claim your free starter kit\n" +
                     " <dark_gray>▪ <click:run_command:/mines><white>/mines</white></click>" +
                         " <gray>— View and teleport to mines\n" +
                     " <dark_gray>▪ <click:run_command:/rankup><white>/rankup</white></click>" +
-                        " <gray>— Rank up when you have enough IGC\n" +
+                        " <gray>— Rank up when you have enough $\n" +
                     " <dark_gray>▪ <click:run_command:/sell><white>/sell</white></click>" +
-                        " <gray>— Sell held items for IGC\n" +
+                        " <gray>— Sell held items for $\n" +
                     " <dark_gray>▪ <click:suggest_command:/pay ><white>/pay <player> <amount></white></click>" +
-                        " <gray>— Send IGC to another player\n" +
+                        " <gray>— Send $ to another player\n" +
                     "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"));
             }
 

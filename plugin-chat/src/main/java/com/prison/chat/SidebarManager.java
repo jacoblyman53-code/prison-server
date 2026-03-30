@@ -209,7 +209,7 @@ public class SidebarManager {
         boolean ecoAvailable = (eco != null);
         if (ecoAvailable) {
             lines.add(mm.deserialize(
-                "<gray>Balance: </gray><gold>" + formatAmount(balance) + " IGC</gold>"
+                "<gray>Balance: </gray><gold>$" + formatAmount(balance) + "</gold>"
             ));
             // Tokens
             lines.add(mm.deserialize(

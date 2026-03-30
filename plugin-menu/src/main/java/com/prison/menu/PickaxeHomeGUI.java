@@ -68,7 +68,7 @@ public class PickaxeHomeGUI {
         inv.setItem(40, Gui.make(Material.BOOK, "<yellow>Server Pickaxe",
             "<gray>Your server pickaxe is bound to you.",
             "<gray>Upgrade it with tokens to mine faster",
-            "<gray>and earn more IGC.",
+            "<gray>and earn more $.",
             "",
             "<dark_gray>Hold your pickaxe to see enchant levels."));
 

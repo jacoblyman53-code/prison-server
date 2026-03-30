@@ -81,7 +81,7 @@ public class SellCenterGUI {
             }
         }
         inv.setItem(SLOT_INV_VALUE, Gui.make(Material.SUNFLOWER, "<yellow>Inventory Value",
-            "<gray>Estimated sell value: <gold>" + Fmt.number(estimatedValue) + " IGC",
+            "<gray>Estimated sell value: <gold>$" + Fmt.number(estimatedValue),
             "<dark_gray>(Based on current mine prices and multiplier)",
             "",
             "<dark_gray>Does not include live streak/event bonus."));
@@ -158,7 +158,7 @@ public class SellCenterGUI {
         // --- Main sell button ---
         if (estimatedValue > 0) {
             inv.setItem(SLOT_SELL_ALL, Gui.make(Material.EMERALD_BLOCK, "<green>Sell All",
-                "<gray>Estimated total: <gold>" + Fmt.number(estimatedValue) + " IGC",
+                "<gray>Estimated total: <gold>$" + Fmt.number(estimatedValue),
                 "<dark_gray>(Multiplier applied at time of sale)",
                 "",
                 "<green>Click to sell all blocks!"));
@@ -166,7 +166,7 @@ public class SellCenterGUI {
             inv.setItem(SLOT_SELL_ALL, Gui.make(Material.EMERALD_BLOCK, "<gray>Sell All",
                 "<gray>No sellable blocks in your inventory.",
                 "",
-                "<dark_gray>Mine blocks to earn IGC."));
+                "<dark_gray>Mine blocks to earn $."));
         }
 
         inv.setItem(SLOT_BACK, Gui.back());

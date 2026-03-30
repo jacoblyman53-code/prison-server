@@ -105,7 +105,7 @@ public class BlackMarketGUI {
                 player.sendMessage(mm.deserialize(
                         "<dark_red>☠ <white>You purchased <gold>" + display
                         + "<white> from the Black Market for <gold>"
-                        + formatPrice(bmi.getPriceIgc()) + " IGC<white>."));
+                        + "$" + formatPrice(bmi.getPriceIgc()) + "<white>."));
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_TRADE, 1.0f, 1.2f);
                 // Refresh the GUI so the stock counter updates
                 refreshFor(player);
@@ -236,7 +236,7 @@ public class BlackMarketGUI {
         lore.add(Component.empty());
 
         // Price
-        lore.add(mm.deserialize("<!italic><yellow>Price: <gold>" + formatPrice(bmi.getPriceIgc()) + " IGC"));
+        lore.add(mm.deserialize("<!italic><yellow>Price: <gold>$" + formatPrice(bmi.getPriceIgc())));
 
         // Stock
         lore.add(mm.deserialize("<!italic><gray>Stock: <white>" + bmi.getCurrentStock()));

@@ -156,7 +156,7 @@ public class ShopCategoryPageGUI {
                     : "<white>" + Fmt.mat(shopItem.item().getType().name());
 
                 List<Component> lore = new ArrayList<>();
-                lore.add(MM.deserialize("<!italic><gray>Price: <gold>" + Fmt.number(shopItem.priceIgc()) + "<gray> IGC each"));
+                lore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(shopItem.priceIgc()) + "<gray> each"));
                 if (shopItem.stock() != -1) {
                     lore.add(MM.deserialize("<!italic><gray>Stock: <white>" + shopItem.stock()));
                 }
@@ -205,7 +205,7 @@ public class ShopCategoryPageGUI {
             case INSUFFICIENT_FUNDS -> {
                 Sounds.deny(player);
                 player.sendMessage(MM.deserialize(
-                    "<red>You need <gold>" + Fmt.number(shopItem.priceIgc()) + " IGC<red> to buy that."));
+                    "<red>You need <gold>$" + Fmt.number(shopItem.priceIgc()) + "<red> to buy that."));
             }
             case OUT_OF_STOCK -> {
                 Sounds.deny(player);

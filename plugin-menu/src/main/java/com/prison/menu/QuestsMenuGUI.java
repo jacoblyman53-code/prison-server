@@ -189,7 +189,7 @@ public class QuestsMenuGUI {
         long igcReward = def.getIgcReward();
         long tokenReward = def.getTokenReward();
         if (igcReward > 0) {
-            lore.add(MM.deserialize("<!italic><gold>Reward: " + Fmt.number(igcReward) + "<gold> IGC"));
+            lore.add(MM.deserialize("<!italic><gold>Reward: $" + Fmt.number(igcReward)));
         }
         if (tokenReward > 0) {
             lore.add(MM.deserialize("<!italic><aqua>Reward: " + tokenReward + "<aqua> Tokens"));

@@ -115,7 +115,7 @@ public class RankPlugin extends JavaPlugin implements Listener {
                 "\n<gold><bold>★ RANKUP READY!</bold></gold> " +
                 "<green>You can afford " +
                 (next != null ? next.display() : nextRank) +
-                " <green>(" + costStr + " IGC). " +
+                " <green>($" + costStr + "). " +
                 "<yellow>Type <white>/rankup</white> or click in <white>/ranks</white>!</yellow>"));
 
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 1.5f);
@@ -371,7 +371,7 @@ public class RankPlugin extends JavaPlugin implements Listener {
             boolean autoTp     = Boolean.TRUE.equals(root.get("autoteleport-default"));
             String rankupMsg   = (String) root.getOrDefault("rankup-message",   "<green>Ranked up to {display}!");
             String broadcast   = (String) root.getOrDefault("rankup-broadcast", "");
-            String cantAfford  = (String) root.getOrDefault("cannot-afford-message", "<red>Not enough IGC.");
+            String cantAfford  = (String) root.getOrDefault("cannot-afford-message", "<red>Not enough $.");
             String maxRank     = (String) root.getOrDefault("max-rank-message",  "<gold>You are rank Z!");
 
             Map<String, Object> ranksSection = (Map<String, Object>) root.get("ranks");
@@ -411,7 +411,7 @@ public class RankPlugin extends JavaPlugin implements Listener {
         }
         return new RankConfig(rankMap, true,
             "<green>You ranked up to <gold>{display}</gold>!",
-            "", "<red>You need <gold>{cost} IGC</gold>. You have <gold>{balance} IGC</gold>.",
+            "", "<red>You need <gold>${cost}</gold>. You have <gold>${balance}</gold>.",
             "<gold>You are rank Z — the highest mine rank!");
     }
 }

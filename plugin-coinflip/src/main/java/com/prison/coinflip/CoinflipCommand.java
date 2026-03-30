@@ -59,7 +59,7 @@ public class CoinflipCommand {
                 if (error != null) {
                     player.sendMessage(MM.deserialize("<red>" + error));
                 } else {
-                    player.sendMessage(MM.deserialize("<green>Your coinflip has been cancelled and your IGC refunded."));
+                    player.sendMessage(MM.deserialize("<green>Your coinflip has been cancelled and your $ refunded."));
                 }
             }
             case "accept" -> {
