@@ -52,35 +52,10 @@ public class MineBrowserGUI {
 
     private static final int SLOT_BACK = 8;
 
-    // ── Icon materials per mine (most visually representative block) ──────────
-    private static final Material[] MINE_ICONS = {
-        Material.COAL_ORE,           // A
-        Material.IRON_ORE,           // B
-        Material.IRON_ORE,           // C
-        Material.COPPER_ORE,         // D
-        Material.RAW_IRON_BLOCK,     // E
-        Material.GOLD_ORE,           // F
-        Material.DEEPSLATE_GOLD_ORE, // G
-        Material.NETHER_QUARTZ_ORE,  // H
-        Material.REDSTONE_BLOCK,     // I
-        Material.GOLD_BLOCK,         // J
-        Material.GOLD_BLOCK,         // K
-        Material.GILDED_BLACKSTONE,  // L
-        Material.PRISMARINE,         // M
-        Material.DIAMOND_ORE,        // N
-        Material.DIAMOND_ORE,        // O
-        Material.DIAMOND_BLOCK,      // P
-        Material.DIAMOND_BLOCK,      // Q
-        Material.DIAMOND_BLOCK,      // R
-        Material.EMERALD_ORE,        // S
-        Material.EMERALD_BLOCK,      // T
-        Material.EMERALD_BLOCK,      // U
-        Material.DIAMOND_BLOCK,      // V
-        Material.EMERALD_BLOCK,      // W
-        Material.ANCIENT_DEBRIS,     // X
-        Material.NETHERITE_BLOCK,    // Y
-        Material.NETHERITE_BLOCK,    // Z
-    };
+    // Icons: locked = red glass, unlocked/current = emerald, future = diamond
+    private static final Material ICON_LOCKED   = Material.RED_STAINED_GLASS_PANE;
+    private static final Material ICON_UNLOCKED = Material.EMERALD;
+    private static final Material ICON_LOCKED_MINE = Material.DIAMOND;
 
     // ── Tier display colors (matches mine display tags in config) ─────────────
     private static final String[] MINE_TIER_COLORS = {
@@ -249,19 +224,19 @@ public class MineBrowserGUI {
         String   namePrefix;
 
         if (!isUnlocked) {
-            icon = Material.RED_STAINED_GLASS_PANE;
-            namePrefix = "<red>";
+            icon       = ICON_LOCKED_MINE;
+            namePrefix = "<dark_gray>";
             lore.add(MM.deserialize("<!italic><red>Locked"));
             lore.add(MM.deserialize(
                 "<!italic><dark_gray>Requires rank <gray>" + id + "<dark_gray> to access."));
         } else if (isCurrent) {
-            icon = mineIdx < MINE_ICONS.length ? MINE_ICONS[mineIdx] : Material.EMERALD;
+            icon       = ICON_UNLOCKED;
             namePrefix = "<green>";
             lore.add(MM.deserialize("<!italic><green><bold>▶ YOUR MINE"));
             lore.add(Component.empty());
             lore.add(MM.deserialize("<!italic><green>Click to warp to the " + id + " Mine."));
         } else {
-            icon = mineIdx < MINE_ICONS.length ? MINE_ICONS[mineIdx] : Material.EMERALD;
+            icon       = ICON_UNLOCKED;
             namePrefix = tierColor;
             lore.add(MM.deserialize("<!italic><aqua>Unlocked"));
             lore.add(Component.empty());
