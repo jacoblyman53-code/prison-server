@@ -36,3 +36,7 @@ commands:
   sellmenu:
     description: Open the sell center GUI.
     usage: /sellmenu
+  mines:
+    description: Open the mine browser.
+    aliases: [mine, warp]
+    usage: /mines

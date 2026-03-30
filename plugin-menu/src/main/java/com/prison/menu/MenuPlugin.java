@@ -97,6 +97,10 @@ public class MenuPlugin extends JavaPlugin implements Listener {
                 Sounds.nav(player);
                 SellCenterGUI.open(player);
             }
+            case "mines" -> {
+                Sounds.nav(player);
+                MineBrowserGUI.open(player);
+            }
             default -> { return false; }
         }
         return true;
