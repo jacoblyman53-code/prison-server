@@ -151,7 +151,8 @@ public class MineManager {
             s.getDouble("reset-threshold", 0.80),
             s.getString("permission-node", "prison.mine." + id.toLowerCase()),
             s.getString("mine-type", "STANDARD"),
-            s.getInt("prestige-required", 0)
+            s.getInt("prestige-required", 0),
+            s.getBoolean("vote-crate", false)
         );
     }
 

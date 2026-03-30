@@ -20,70 +20,48 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MineBrowserGUI — shows all 26 A-Z mines in a compact grid.
+ * MineBrowserGUI — 54-slot mine warp and info panel.
  *
- * Layout (36 slots, 4 rows):
- *   Row 0 (0-8):   TopBand, back at slot 8
- *   Row 1 (9-17):  Mines A-I
- *   Row 2 (18-26): Mines J-R
- *   Row 3 (27-35): Mines S-Z + 1 filler at slot 35
+ * Layout:
+ *   Slot  0      : Red X — back to main menu
+ *   Slots 1-8    : Mines A–H  (row 0, right of X)
+ *   Slots 9-17   : Mines I–Q  (row 1)
+ *   Slots 18-26  : Mines R–Z  (row 2)
+ *   Slots 27-53  : Black glass filler
  *
- * No border columns — mines fill every slot in rows 1-3.
+ * Icons: EMERALD = unlocked/current, DIAMOND = not yet unlocked
+ *
+ * Tooltip format (matches reference screenshot):
+ *   [Mine X]
+ *   Click to warp to the X Mine.
+ *
+ *   Average Inventory: $X,XXX
+ *
+ *   Vote Crate: ✔ / ✗
+ *
+ *   Blocks:
+ *   ◆ Block Name (XX%)
+ *   ...
  */
 public class MineBrowserGUI {
 
     public static final Component TITLE = MiniMessage.miniMessage()
-        .deserialize("<!italic><dark_gray>[ <green>Mines <dark_gray>]");
+        .deserialize("<!italic>Mines");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    // 26 consecutive slots — rows 1-3, all 9 columns, no border gaps
-    private static final int[] MINE_SLOTS = {
-         9, 10, 11, 12, 13, 14, 15, 16, 17,  // A-I
-        18, 19, 20, 21, 22, 23, 24, 25, 26,  // J-R
-        27, 28, 29, 30, 31, 32, 33, 34       // S-Z
-    };
+    // Slot 0 = back/close, mines start at slot 1
+    private static final int SLOT_BACK = 0;
+
+    // 26 mine slots: slot 0 is back, mines A-Z fill slots 1-26
+    private static final int[] MINE_SLOTS;
+    static {
+        MINE_SLOTS = new int[26];
+        for (int i = 0; i < 26; i++) MINE_SLOTS[i] = i + 1;
+    }
 
     private static final String[] MINE_IDS = RankConfig.RANK_ORDER; // A-Z
 
-    private static final int SLOT_BACK = 8;
-
-    // Icons: locked = red glass, unlocked/current = emerald, future = diamond
-    private static final Material ICON_LOCKED   = Material.RED_STAINED_GLASS_PANE;
-    private static final Material ICON_UNLOCKED = Material.EMERALD;
-    private static final Material ICON_LOCKED_MINE = Material.DIAMOND;
-
-    // ── Tier display colors (matches mine display tags in config) ─────────────
-    private static final String[] MINE_TIER_COLORS = {
-        "<gray>",         // A
-        "<gray>",         // B
-        "<gray>",         // C
-        "<gray>",         // D
-        "<gray>",         // E
-        "<yellow>",       // F
-        "<yellow>",       // G
-        "<yellow>",       // H
-        "<yellow>",       // I
-        "<yellow>",       // J
-        "<gold>",         // K
-        "<gold>",         // L
-        "<gold>",         // M
-        "<gold>",         // N
-        "<gold>",         // O
-        "<aqua>",         // P
-        "<aqua>",         // Q
-        "<aqua>",         // R
-        "<aqua>",         // S
-        "<aqua>",         // T
-        "<light_purple>", // U
-        "<light_purple>", // V
-        "<light_purple>", // W
-        "<dark_purple>",  // X
-        "<dark_purple>",  // Y
-        "<dark_purple>",  // Z
-    };
-
-    // Assumed block count for "average full inventory" value calculation
-    // ~28 full stacks of 64 = 1,792 blocks (typical mine run)
+    // ~28 full stacks per inventory run
     private static final int AVG_INVENTORY_BLOCKS = 1792;
 
     // ----------------------------------------------------------------
@@ -115,8 +93,7 @@ public class MineBrowserGUI {
     // ----------------------------------------------------------------
 
     private static void handleMineClick(Player player, String mineId) {
-        String playerRank = getPlayerRank(player);
-        int playerIdx = rankIndex(playerRank);
+        int playerIdx = rankIndex(getPlayerRank(player));
         int mineIdx   = rankIndex(mineId);
 
         if (mineIdx > playerIdx) {
@@ -135,7 +112,7 @@ public class MineBrowserGUI {
         Location loc = api.getSpawnLocation(mineId);
         if (loc == null) {
             player.sendMessage(MM.deserialize(
-                "<red>Mine <white>" + mineId + "<red> does not have a warp configured yet."));
+                "<red>Mine <white>" + mineId + "<red> does not have a warp set yet."));
             return;
         }
 
@@ -151,18 +128,20 @@ public class MineBrowserGUI {
     // ----------------------------------------------------------------
 
     private static Inventory build(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 36, TITLE);
+        Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         Gui.fillAll(inv);
-        TopBand.apply(inv, player);
-        inv.setItem(SLOT_BACK, Gui.back());
+
+        // Red X back button (BARRIER)
+        inv.setItem(SLOT_BACK, Gui.make(Material.BARRIER, "<red>Close",
+            "<!italic><dark_gray>Return to the main menu."));
 
         String playerRank    = getPlayerRank(player);
         int    playerRankIdx = rankIndex(playerRank);
 
-        MinesAPI api = MinesAPI.getInstance();
+        MinesAPI   api = MinesAPI.getInstance();
         EconomyAPI eco = EconomyAPI.getInstance();
 
-        for (int i = 0; i < MINE_IDS.length && i < MINE_SLOTS.length; i++) {
+        for (int i = 0; i < MINE_IDS.length; i++) {
             String   id   = MINE_IDS[i];
             MineData data = (api != null) ? api.getMine(id) : null;
             inv.setItem(MINE_SLOTS[i], buildMineItem(player, id, i, playerRankIdx, data, eco));
@@ -177,92 +156,69 @@ public class MineBrowserGUI {
 
     private static ItemStack buildMineItem(Player player, String id, int mineIdx,
                                             int playerRankIdx, MineData data, EconomyAPI eco) {
-        boolean isCurrent  = (mineIdx == playerRankIdx);
         boolean isUnlocked = (mineIdx <= playerRankIdx);
+        boolean isCurrent  = (mineIdx == playerRankIdx);
 
-        String tierColor = mineIdx < MINE_TIER_COLORS.length ? MINE_TIER_COLORS[mineIdx] : "<white>";
+        Material icon = isUnlocked ? Material.EMERALD : Material.DIAMOND;
 
-        // ── Average inventory value ─────────────────────────────────
-        long avgValue = calcAvgInventoryValue(player, data, eco);
+        // Name: "Mine A" through "Mine Z", green if current, white if unlocked, gray if locked
+        String nameColor = isCurrent ? "<green>" : (isUnlocked ? "<white>" : "<gray>");
+        String itemName  = nameColor + "Mine " + id;
 
-        // ── Build lore ──────────────────────────────────────────────
+        // ── Lore ────────────────────────────────────────────────────
         List<Component> lore = new ArrayList<>();
+
+        // Click instruction
+        if (isUnlocked) {
+            lore.add(MM.deserialize("<!italic><gray>Click to warp to the " + id + " Mine."));
+        } else {
+            lore.add(MM.deserialize("<!italic><red>Requires rank <white>" + id + "<red> to unlock."));
+        }
+
         lore.add(Component.empty());
 
-        // Avg inventory value (cyan, prominent)
-        lore.add(MM.deserialize("<!italic><gray>Avg. Inventory: <aqua>$" + Fmt.number(avgValue)));
+        // Average inventory value
+        long avgValue = calcAvgInventoryValue(player, data, eco);
+        lore.add(MM.deserialize("<!italic><gray>Average Inventory: <white>$" + Fmt.number(avgValue)));
 
-        // Composition block list
+        lore.add(Component.empty());
+
+        // Vote crate indicator
+        boolean voteCrate = (data != null) && data.voteCrate();
+        lore.add(MM.deserialize("<!italic><gray>Vote Crate: " + (voteCrate ? "<green>✔" : "<red>✗")));
+
+        lore.add(Component.empty());
+
+        // Block composition
+        lore.add(MM.deserialize("<!italic><white>Blocks:"));
         if (data != null && data.composition() != null && !data.composition().isEmpty()) {
-            lore.add(Component.empty());
-            lore.add(MM.deserialize("<!italic><dark_gray>Block Composition:"));
             for (Map.Entry<Material, Double> entry : data.composition().entrySet()) {
                 String blockName = Fmt.mat(entry.getKey().name());
                 int    pct       = (int) Math.round(entry.getValue());
                 lore.add(MM.deserialize(
-                    "<!italic><green>+ <white>" + blockName + " <gray>(" + pct + "%)"));
+                    "<!italic><green>◆ <white>" + blockName + " <gray>(" + pct + "%)"));
             }
-        }
-
-        lore.add(Component.empty());
-
-        // Reset timer
-        if (data != null && data.resetTimerMins() > 0) {
-            lore.add(MM.deserialize(
-                "<!italic><gray>Resets every: <white>" + data.resetTimerMins() + "m"));
-        }
-
-        lore.add(Component.empty());
-
-        // Status line + click instruction
-        Material icon;
-        String   namePrefix;
-
-        if (!isUnlocked) {
-            icon       = ICON_LOCKED_MINE;
-            namePrefix = "<dark_gray>";
-            lore.add(MM.deserialize("<!italic><red>Locked"));
-            lore.add(MM.deserialize(
-                "<!italic><dark_gray>Requires rank <gray>" + id + "<dark_gray> to access."));
-        } else if (isCurrent) {
-            icon       = ICON_UNLOCKED;
-            namePrefix = "<green>";
-            lore.add(MM.deserialize("<!italic><green><bold>▶ YOUR MINE"));
-            lore.add(Component.empty());
-            lore.add(MM.deserialize("<!italic><green>Click to warp to the " + id + " Mine."));
         } else {
-            icon       = ICON_UNLOCKED;
-            namePrefix = tierColor;
-            lore.add(MM.deserialize("<!italic><aqua>Unlocked"));
-            lore.add(Component.empty());
-            lore.add(MM.deserialize("<!italic><green>Click to warp to the " + id + " Mine."));
+            lore.add(MM.deserialize("<!italic><dark_gray>Not configured yet."));
         }
 
-        return Gui.make(icon, namePrefix + "Mine " + id, lore);
+        return Gui.make(icon, itemName, lore);
     }
 
     // ----------------------------------------------------------------
     // Average inventory value calculation
     // ----------------------------------------------------------------
 
-    /**
-     * Calculates the average value of a full inventory if mined from this mine.
-     * Formula: sum(weight% × sell_price_per_block) × AVG_INVENTORY_BLOCKS
-     */
     private static long calcAvgInventoryValue(Player player, MineData data, EconomyAPI eco) {
-        if (data == null || data.composition() == null || data.composition().isEmpty()) {
-            return 0L;
-        }
-        if (eco == null) {
-            return 0L;
-        }
+        if (data == null || data.composition() == null || data.composition().isEmpty()) return 0L;
+        if (eco == null) return 0L;
 
-        double totalWeight  = data.composition().values().stream().mapToDouble(Double::doubleValue).sum();
-        if (totalWeight <= 0) return 0L;
+        double total = data.composition().values().stream().mapToDouble(Double::doubleValue).sum();
+        if (total <= 0) return 0L;
 
         double avgPerBlock = 0.0;
         for (Map.Entry<Material, Double> entry : data.composition().entrySet()) {
-            double weight = entry.getValue() / totalWeight; // normalise to 0-1
+            double weight = entry.getValue() / total;
             long   price  = eco.getSellPrice(entry.getKey(), player);
             avgPerBlock  += weight * price;
         }

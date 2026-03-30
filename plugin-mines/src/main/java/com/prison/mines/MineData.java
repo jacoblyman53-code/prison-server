@@ -22,7 +22,8 @@ public record MineData(
     double resetThreshold,             // 0.0 = threshold disabled, 0.8 = 80%
     String permissionNode,
     String mineType,                   // STANDARD | DONOR | PRESTIGE
-    int    prestigeRequired
+    int    prestigeRequired,
+    boolean voteCrate                  // true = this mine awards a vote crate on /sell
 ) {
     /** True when the mine has non-zero volume (corners have been set). */
     public boolean isConfigured() {
