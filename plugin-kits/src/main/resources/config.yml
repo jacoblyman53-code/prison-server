@@ -5,8 +5,17 @@
 # Kit types:
 #   FREE   — available to all players, timer cooldown
 #   RANK   — requires a minimum mine rank, timer cooldown
-#   DONOR  — requires a donor rank, cooldown resets on server restart
-#            (min-cooldown-hours prevents abuse if server restarts often)
+#   DONOR  — requires a donor rank; claimable after server restart
+#            AND min-cooldown-hours must have elapsed since last claim
+#
+# Tier philosophy (OP Prison):
+#   Starter     — iron gear to get going
+#   Rank kits   — gradual upgrades as players progress through mines
+#   Donor T1    — full diamond, Protection cap 4–5
+#   Top Tier    — netherite, max vanilla enchant +1 ONLY on key stats
+#                 (power comes from custom enchants, not vanilla stacking)
+#
+# Cooldown scaling: 24h → 18h → 12h → 8h (donor tier 1 → top tier)
 #
 # Contents format per item:
 #   material: MATERIAL_NAME
@@ -24,16 +33,39 @@ kits:
   starter:
     display: "<green>Starter Kit"
     type: FREE
-    cooldown-hours: 0       # 0 = one-time only (can never re-claim once used)
+    cooldown-hours: 0       # 0 = one-time only
     contents:
+      - material: IRON_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 1
+          UNBREAKING: 1
+      - material: IRON_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 1
+          UNBREAKING: 1
+      - material: IRON_HELMET
+        amount: 1
+        enchants:
+          PROTECTION: 1
+      - material: IRON_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 1
+      - material: IRON_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 1
+      - material: IRON_BOOTS
+        amount: 1
+        enchants:
+          PROTECTION: 1
+          FEATHER_FALLING: 1
       - material: COOKED_BEEF
         amount: 32
       - material: TORCH
         amount: 64
-      - material: EXPERIENCE_BOTTLE
-        amount: 4
-      - material: CHEST
-        amount: 2
 
   daily:
     display: "<yellow>Daily Kit"
@@ -49,7 +81,30 @@ kits:
 
   # ------------------------------------------------------------------
   # RANK kits — unlocked at the listed mine rank (or higher)
+  # Gradual gear upgrades mirroring progression through A → Z
   # ------------------------------------------------------------------
+
+  rank_a:
+    display: "<gray>Rank A Kit"
+    type: RANK
+    required-rank: A
+    cooldown-hours: 24
+    contents:
+      - material: IRON_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 2
+          UNBREAKING: 1
+      - material: IRON_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 1
+      - material: IRON_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 1
+      - material: COOKED_BEEF
+        amount: 32
 
   rank_e:
     display: "<aqua>Rank E Kit"
@@ -62,6 +117,11 @@ kits:
         enchants:
           EFFICIENCY: 2
           UNBREAKING: 2
+      - material: IRON_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 2
+          UNBREAKING: 1
       - material: IRON_CHESTPLATE
         amount: 1
         enchants:
@@ -75,13 +135,18 @@ kits:
     required-rank: M
     cooldown-hours: 24
     contents:
-      - material: GOLDEN_PICKAXE
+      - material: GOLDEN_PICKAXE    # high base speed — ideal for prison mining
         amount: 1
         enchants:
           EFFICIENCY: 3
           UNBREAKING: 2
           FORTUNE: 1
-      - material: GOLDEN_CHESTPLATE
+      - material: IRON_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 2
+          UNBREAKING: 2
+      - material: IRON_CHESTPLATE
         amount: 1
         enchants:
           PROTECTION: 3
@@ -90,8 +155,35 @@ kits:
       - material: EXPERIENCE_BOTTLE
         amount: 8
 
+  rank_r:
+    display: "<light_purple>Rank R Kit"
+    type: RANK
+    required-rank: R
+    cooldown-hours: 18
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 4
+          UNBREAKING: 3
+          FORTUNE: 2
+      - material: DIAMOND_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 3
+          UNBREAKING: 2
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 2
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 12
+
   rank_z:
-    display: "<light_purple>Rank Z Kit"
+    display: "<gradient:#b967ff:#01cdfe>Rank Z Kit</gradient>"
     type: RANK
     required-rank: Z
     cooldown-hours: 12
@@ -102,53 +194,11 @@ kits:
           EFFICIENCY: 4
           UNBREAKING: 3
           FORTUNE: 2
-      - material: DIAMOND_CHESTPLATE
+      - material: DIAMOND_SWORD
         amount: 1
         enchants:
-          PROTECTION: 4
+          SHARPNESS: 4
           UNBREAKING: 3
-      - material: COOKED_BEEF
-        amount: 64
-      - material: EXPERIENCE_BOTTLE
-        amount: 16
-
-  # ------------------------------------------------------------------
-  # DONOR kits — cooldown resets on server restart
-  # ------------------------------------------------------------------
-
-  donor:
-    display: "<blue>Donor Kit"
-    type: DONOR
-    required-donor-rank: donor
-    min-cooldown-hours: 1   # must be at least 1h since last claim even after restart
-    contents:
-      - material: DIAMOND_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 3
-          UNBREAKING: 3
-      - material: DIAMOND_CHESTPLATE
-        amount: 1
-        enchants:
-          PROTECTION: 3
-          UNBREAKING: 2
-      - material: COOKED_BEEF
-        amount: 64
-      - material: EXPERIENCE_BOTTLE
-        amount: 16
-
-  donorplus:
-    display: "<blue>Donor<dark_blue>+</dark_blue> Kit"
-    type: DONOR
-    required-donor-rank: donorplus
-    min-cooldown-hours: 1
-    contents:
-      - material: DIAMOND_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 4
-          UNBREAKING: 3
-          FORTUNE: 1
       - material: DIAMOND_CHESTPLATE
         amount: 1
         enchants:
@@ -159,6 +209,88 @@ kits:
         enchants:
           PROTECTION: 3
           UNBREAKING: 2
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 16
+
+  # ------------------------------------------------------------------
+  # DONOR kits — require donor rank; cooldown resets on server restart
+  # min-cooldown-hours prevents abuse on frequent restarts
+  # Scaling: 24h → 18h → 12h → 8h
+  # ------------------------------------------------------------------
+
+  donor:
+    display: "<blue>Donor Kit"
+    type: DONOR
+    required-donor-rank: donor
+    min-cooldown-hours: 24
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 3
+          UNBREAKING: 3
+          FORTUNE: 1
+      - material: DIAMOND_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 3
+          UNBREAKING: 2
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 2
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 2
+      - material: DIAMOND_BOOTS
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 2
+          FEATHER_FALLING: 4
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 16
+
+  donorplus:
+    display: "<blue>Donor<aqua>+ Kit"
+    type: DONOR
+    required-donor-rank: donorplus
+    min-cooldown-hours: 18
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 4
+          UNBREAKING: 3
+          FORTUNE: 2
+      - material: DIAMOND_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 4
+          UNBREAKING: 3
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 5       # prot 5 = max+1 cap for donor
+          UNBREAKING: 3
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+      - material: DIAMOND_BOOTS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          FEATHER_FALLING: 4
       - material: COOKED_BEEF
         amount: 64
       - material: EXPERIENCE_BOTTLE
@@ -168,66 +300,83 @@ kits:
     display: "<gold>Elite Kit"
     type: DONOR
     required-donor-rank: elite
-    min-cooldown-hours: 1
+    min-cooldown-hours: 12
     contents:
       - material: DIAMOND_PICKAXE
         amount: 1
         enchants:
           EFFICIENCY: 5
           UNBREAKING: 3
-          FORTUNE: 2
+          FORTUNE: 3
+      - material: DIAMOND_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 5
+          UNBREAKING: 3
+          LOOTING: 3
       - material: DIAMOND_CHESTPLATE
         amount: 1
         enchants:
-          PROTECTION: 4
+          PROTECTION: 5
           UNBREAKING: 3
-          THORNS: 2
+          MENDING: 1
       - material: DIAMOND_LEGGINGS
         amount: 1
         enchants:
-          PROTECTION: 4
+          PROTECTION: 5
           UNBREAKING: 3
+          MENDING: 1
       - material: DIAMOND_BOOTS
         amount: 1
         enchants:
-          PROTECTION: 3
+          PROTECTION: 5
           UNBREAKING: 3
           FEATHER_FALLING: 4
+          MENDING: 1
       - material: COOKED_BEEF
         amount: 64
       - material: EXPERIENCE_BOTTLE
         amount: 32
 
   eliteplus:
-    display: "<gold>Elite<yellow>+</yellow> Kit"
+    display: "<gradient:#f7971e:#ffd200>Elite+ Kit</gradient>"
     type: DONOR
     required-donor-rank: eliteplus
-    min-cooldown-hours: 1
+    min-cooldown-hours: 8
+    # Top tier: max vanilla enchant +1 ONLY on key power stats.
+    # Efficiency 6 (max 5+1), Fortune 4 (max 3+1), Protection 5 (max 4+1).
+    # Unbreaking stays at 3 (vanilla max). Power beyond this comes from custom enchants.
     contents:
       - material: NETHERITE_PICKAXE
         amount: 1
         enchants:
-          EFFICIENCY: 5
+          EFFICIENCY: 6     # +1 above vanilla max (5)
           UNBREAKING: 3
-          FORTUNE: 3
+          FORTUNE: 4        # +1 above vanilla max (3)
+          MENDING: 1
+      - material: NETHERITE_SWORD
+        amount: 1
+        enchants:
+          SHARPNESS: 6      # +1 above vanilla max (5)
+          UNBREAKING: 3
+          LOOTING: 3
           MENDING: 1
       - material: NETHERITE_CHESTPLATE
         amount: 1
         enchants:
-          PROTECTION: 4
+          PROTECTION: 5     # +1 above vanilla max (4)
           UNBREAKING: 3
-          THORNS: 3
           MENDING: 1
       - material: NETHERITE_LEGGINGS
         amount: 1
         enchants:
-          PROTECTION: 4
+          PROTECTION: 5
           UNBREAKING: 3
           MENDING: 1
       - material: NETHERITE_BOOTS
         amount: 1
         enchants:
-          PROTECTION: 4
+          PROTECTION: 5
           UNBREAKING: 3
           FEATHER_FALLING: 4
           MENDING: 1

@@ -180,8 +180,10 @@ public class ShopManager {
         long result = EconomyAPI.getInstance().deductBalance(uuid, item.priceIgc(), TransactionType.IGC_SHOP_PURCHASE);
         if (result < 0) return PurchaseResult.INSUFFICIENT_FUNDS;
 
-        // Give item
-        player.getInventory().addItem(item.item().clone());
+        // Give item — tag as IN_GAME so economy separation rules can be enforced
+        ItemStack toGive = item.item().clone();
+        com.prison.permissions.ItemOriginTag.set(toGive, com.prison.permissions.ItemOriginTag.Origin.IN_GAME);
+        player.getInventory().addItem(toGive);
 
         // Log purchase
         final String logItemId = catId + ":" + itemId;

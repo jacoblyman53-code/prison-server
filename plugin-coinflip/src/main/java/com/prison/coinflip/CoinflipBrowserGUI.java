@@ -177,23 +177,77 @@ public class CoinflipBrowserGUI {
 
     private static ItemStack buildTicketItem(CoinflipTicket ticket, UUID viewerUuid) {
         boolean isOwn = ticket.getCreatorUuid().equals(viewerUuid);
-        String nameColor = isOwn ? "<yellow>" : "<white>";
-        long pot = ticket.getAmount() * 2;
+        long amount = ticket.getAmount();
+        long pot = amount * 2;
+
+        // Tier-based colour + material scaling with bet size
+        // < 50k    → gray   PAPER
+        // 50k–250k → white  GOLD_NUGGET
+        // 250k–1M  → gold   GOLD_INGOT
+        // 1M–5M    → orange GOLD_BLOCK  + glow
+        // > 5M     → red    NETHER_STAR + glow (whale bet)
+        String tierColor;
+        Material mat;
+        boolean glow;
+        String tierLabel;
+
+        if (amount >= 5_000_000L) {
+            tierColor = "<red>";
+            mat = Material.NETHER_STAR;
+            glow = true;
+            tierLabel = "<red>🔥 WHALE BET";
+        } else if (amount >= 1_000_000L) {
+            tierColor = "<gold>";
+            mat = Material.GOLD_BLOCK;
+            glow = true;
+            tierLabel = "<gold>⭐ High Roller";
+        } else if (amount >= 250_000L) {
+            tierColor = "<yellow>";
+            mat = Material.GOLD_INGOT;
+            glow = false;
+            tierLabel = "<yellow>Large Bet";
+        } else if (amount >= 50_000L) {
+            tierColor = "<white>";
+            mat = Material.GOLD_NUGGET;
+            glow = false;
+            tierLabel = "<gray>Medium Bet";
+        } else {
+            tierColor = "<gray>";
+            mat = Material.PAPER;
+            glow = false;
+            tierLabel = "<dark_gray>Small Bet";
+        }
+
+        if (isOwn) {
+            tierColor = "<yellow>";
+            mat = Material.GOLD_INGOT;
+        }
 
         List<Component> lore = new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<!italic><gray>Creator: " + nameColor + ticket.getCreatorName()));
-        lore.add(MM.deserialize("<!italic><gray>Bet:     <gold>" + Fmt.number(ticket.getAmount()) + " IGC"));
+        lore.add(MM.deserialize("<!italic>" + tierLabel));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gray>Creator: " + tierColor + ticket.getCreatorName()));
+        lore.add(MM.deserialize("<!italic><gray>Bet:     <gold>" + Fmt.number(amount) + " IGC"));
         lore.add(MM.deserialize("<!italic><gray>Prize:   <green>" + Fmt.number(pot) + " IGC"));
         lore.add(Component.empty());
         if (isOwn) {
             lore.add(MM.deserialize("<!italic><yellow>This is your flip."));
             lore.add(MM.deserialize("<!italic><dark_gray>/coinflip cancel to remove it."));
         } else {
-            lore.add(MM.deserialize("<!italic><green>Click to accept this bet!"));
+            lore.add(MM.deserialize("<!italic><green>▶ Click to accept this bet!"));
         }
 
-        Material mat = isOwn ? Material.GOLD_INGOT : Material.PAPER;
-        return Gui.make(mat, nameColor + ticket.getCreatorName() + "'s Flip", lore);
+        ItemStack item = Gui.make(mat, tierColor + ticket.getCreatorName() + "'s Flip", lore);
+
+        // Add enchant glow for high-value bets
+        if (glow) {
+            item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.LUCK_OF_THE_SEA, 1);
+            org.bukkit.inventory.meta.ItemMeta glowMeta = item.getItemMeta();
+            glowMeta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+            item.setItemMeta(glowMeta);
+        }
+
+        return item;
     }
 }
