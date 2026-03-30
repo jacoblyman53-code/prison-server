@@ -26,27 +26,60 @@ auto-save-seconds: 300
 # These defaults apply when the mines plugin is not providing per-mine prices.
 # The admin toolkit will let you set these in-game once it's built.
 sell-prices:
-  STONE:          5
-  COBBLESTONE:    3
-  COAL_ORE:       50
-  DEEPSLATE_COAL_ORE: 55
-  IRON_ORE:       100
-  DEEPSLATE_IRON_ORE: 110
-  GOLD_ORE:       200
-  DEEPSLATE_GOLD_ORE: 220
-  LAPIS_ORE:      60
-  DEEPSLATE_LAPIS_ORE: 65
-  REDSTONE_ORE:   40
-  DEEPSLATE_REDSTONE_ORE: 45
-  DIAMOND_ORE:    500
-  DEEPSLATE_DIAMOND_ORE: 550
-  EMERALD_ORE:    750
-  DEEPSLATE_EMERALD_ORE: 825
-  NETHER_QUARTZ_ORE: 80
-  NETHER_GOLD_ORE: 150
-  SAND:           2
-  GRAVEL:         2
-  CLAY:           10
-  NETHERRACK:     8
-  GLOWSTONE:      120
-  QUARTZ_BLOCK:   90
+  # ── Blocks ────────────────────────────────────────────
+  DIRT:                   1
+  COBBLESTONE:            2
+  STONE:                  3
+  SAND:                   4
+  GRAVEL:                 5
+  OAK_LOG:                8
+  BIRCH_LOG:              9
+  SPRUCE_LOG:             10
+  JUNGLE_LOG:             11
+  ACACIA_LOG:             12
+  DARK_OAK_LOG:           12
+  MANGROVE_LOG:           11
+  CHERRY_LOG:             10
+  OAK_PLANKS:             10
+  BIRCH_PLANKS:           11
+  SPRUCE_PLANKS:          12
+  JUNGLE_PLANKS:          13
+  ACACIA_PLANKS:          14
+  DARK_OAK_PLANKS:        14
+  # ── Ore drops (what players actually receive when mining) ──
+  COAL:                   8
+  RAW_IRON:               12
+  IRON_INGOT:             15
+  LAPIS_LAZULI:           10
+  REDSTONE:               5
+  RAW_GOLD:               28
+  GOLD_INGOT:             35
+  QUARTZ:                 12
+  DIAMOND:                120
+  EMERALD:                300
+  NETHERITE_SCRAP:        600
+  NETHERITE_INGOT:        2400
+  ANCIENT_DEBRIS:         800
+  # ── Ore blocks (silk touch) ────────────────────────────
+  COAL_ORE:               8
+  DEEPSLATE_COAL_ORE:     9
+  IRON_ORE:               12
+  DEEPSLATE_IRON_ORE:     13
+  GOLD_ORE:               28
+  DEEPSLATE_GOLD_ORE:     30
+  LAPIS_ORE:              10
+  DEEPSLATE_LAPIS_ORE:    11
+  REDSTONE_ORE:           5
+  DEEPSLATE_REDSTONE_ORE: 6
+  DIAMOND_ORE:            120
+  DEEPSLATE_DIAMOND_ORE:  125
+  EMERALD_ORE:            300
+  DEEPSLATE_EMERALD_ORE:  310
+  NETHER_QUARTZ_ORE:      12
+  NETHER_GOLD_ORE:        28
+  # ── Other sellable drops ───────────────────────────────
+  GLOWSTONE_DUST:         8
+  NETHERRACK:             2
+  SOUL_SAND:              6
+  GRAVEL:                 5
+  FLINT:                  3

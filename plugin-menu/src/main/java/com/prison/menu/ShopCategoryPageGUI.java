@@ -1,5 +1,7 @@
 package com.prison.menu;
 
+import com.prison.economy.EconomyAPI;
+import com.prison.economy.TransactionType;
 import com.prison.menu.util.*;
 import com.prison.shop.ShopCategory;
 import com.prison.shop.ShopItem;
@@ -11,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +59,6 @@ public class ShopCategoryPageGUI {
         // Retrieve stored state
         String[] state = PAGE_STATE.get(player.getUniqueId());
         if (state == null) {
-            // Fallback: return to picker
             ShopCategoryPickerGUI.open(player);
             return;
         }
@@ -100,6 +102,13 @@ public class ShopCategoryPageGUI {
                 int itemIndex = offset + i;
                 if (itemIndex >= items.size()) return;
                 ShopItem shopItem = items.get(itemIndex);
+
+                if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT) {
+                    handleSell(player, shopItem, click == ClickType.SHIFT_RIGHT);
+                    return;
+                }
+
+                // Left click — open quantity picker
                 if (!shopItem.isInStock()) {
                     Sounds.deny(player);
                     player.sendMessage(MM.deserialize("<red>That item is out of stock."));
@@ -112,6 +121,56 @@ public class ShopCategoryPageGUI {
         }
     }
 
+    // ----------------------------------------------------------------
+    // Sell
+    // ----------------------------------------------------------------
+
+    private static void handleSell(Player player, ShopItem shopItem, boolean sellAll) {
+        EconomyAPI eco = EconomyAPI.getInstance();
+        if (eco == null) return;
+
+        Material mat = shopItem.item().getType();
+        String displayName = shopItem.displayName() != null
+            ? shopItem.displayName()
+            : "<white>" + Fmt.mat(mat.name());
+
+        // Count how many the player has in inventory
+        int count = 0;
+        for (ItemStack s : player.getInventory().getStorageContents()) {
+            if (s != null && s.getType() == mat) count += s.getAmount();
+        }
+        if (count == 0) {
+            Sounds.deny(player);
+            player.sendMessage(MM.deserialize("<red>You don't have any " + displayName + "<red> to sell."));
+            return;
+        }
+
+        int toSell = sellAll ? count : 1;
+
+        // Remove items from inventory
+        ItemStack[] contents = player.getInventory().getStorageContents();
+        int removed = 0;
+        for (int i = 0; i < contents.length && removed < toSell; i++) {
+            ItemStack s = contents[i];
+            if (s == null || s.getType() != mat) continue;
+            int take = Math.min(s.getAmount(), toSell - removed);
+            removed += take;
+            s.setAmount(s.getAmount() - take);
+            if (s.getAmount() == 0) contents[i] = null;
+        }
+        player.getInventory().setStorageContents(contents);
+
+        long earned = shopItem.priceIgc() * removed;
+        eco.addBalance(player.getUniqueId(), earned, TransactionType.IGC_SHOP_SELL);
+
+        Sounds.buy(player);
+        player.sendMessage(MM.deserialize(
+            "<green>Sold <white>×" + removed + " " + displayName
+            + " <green>for <gold>$" + Fmt.number(earned)));
+    }
+
+    // ----------------------------------------------------------------
+    // Build
     // ----------------------------------------------------------------
 
     private static Inventory build(Player player, String categoryId, int page) {
@@ -134,7 +193,6 @@ public class ShopCategoryPageGUI {
 
         List<ShopItem> items = category.items();
         int totalPages = Math.max(1, (int) Math.ceil((double) items.size() / ITEMS_PER_PAGE));
-        // Clamp page to valid range
         if (page >= totalPages) page = totalPages - 1;
         if (page < 0) page = 0;
 
@@ -145,42 +203,28 @@ public class ShopCategoryPageGUI {
             if (itemIndex >= items.size()) break;
             ShopItem shopItem = items.get(itemIndex);
 
-            if (!shopItem.isInStock()) {
-                // Sold-out placeholder
-                inv.setItem(CONTENT_SLOTS[i], Gui.make(Material.GRAY_STAINED_GLASS_PANE,
-                    "<red>Sold Out",
-                    "<gray>This item is currently out of stock."));
-            } else {
-                String displayName = shopItem.displayName() != null
-                    ? shopItem.displayName()
-                    : "<white>" + Fmt.mat(shopItem.item().getType().name());
+            String displayName = shopItem.displayName() != null
+                ? shopItem.displayName()
+                : "<white>" + Fmt.mat(shopItem.item().getType().name());
 
-                List<Component> lore = new ArrayList<>();
-                lore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(shopItem.priceIgc()) + "<gray> each"));
-                if (shopItem.stock() != -1) {
-                    lore.add(MM.deserialize("<!italic><gray>Stock: <white>" + shopItem.stock()));
-                }
-                lore.add(Component.empty());
-                lore.add(MM.deserialize("<!italic><green>Click to choose quantity!"));
+            List<Component> lore = new ArrayList<>();
+            lore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(shopItem.priceIgc()) + "<gray> each"));
+            lore.add(Component.empty());
+            lore.add(MM.deserialize("<!italic><green>Left-click: Buy  <gray>|  <yellow>Right-click: Sell"));
+            lore.add(MM.deserialize("<!italic><yellow>Shift right-click: Sell all"));
 
-                inv.setItem(CONTENT_SLOTS[i], Gui.make(shopItem.item().getType(), displayName, lore));
-            }
+            inv.setItem(CONTENT_SLOTS[i], Gui.make(shopItem.item().getType(), displayName, lore));
         }
 
-        // Back
         inv.setItem(SLOT_BACK, Gui.back());
 
-        // Prev page
         if (page > 0) {
             inv.setItem(SLOT_PREV, Gui.prevPage(page + 1, totalPages));
         }
-
-        // Next page
         if (page < totalPages - 1) {
             inv.setItem(SLOT_NEXT, Gui.nextPage(page + 1, totalPages));
         }
 
-        // Info item
         inv.setItem(SLOT_INFO, Gui.make(Material.CHEST,
             category.displayName(),
             "<gray>Page <white>" + (page + 1) + "<gray> of <white>" + totalPages,
@@ -194,31 +238,5 @@ public class ShopCategoryPageGUI {
             if (cat.id().equals(categoryId)) return cat;
         }
         return null;
-    }
-
-    private static void handlePurchaseResult(Player player, ShopManager.PurchaseResult result, ShopItem shopItem) {
-        switch (result) {
-            case OK -> {
-                Sounds.buy(player);
-                player.sendMessage(MM.deserialize("<green>Purchased successfully!"));
-            }
-            case INSUFFICIENT_FUNDS -> {
-                Sounds.deny(player);
-                player.sendMessage(MM.deserialize(
-                    "<red>You need <gold>$" + Fmt.number(shopItem.priceIgc()) + "<red> to buy that."));
-            }
-            case OUT_OF_STOCK -> {
-                Sounds.deny(player);
-                player.sendMessage(MM.deserialize("<red>That item is out of stock."));
-            }
-            case INVENTORY_ERROR -> {
-                Sounds.deny(player);
-                player.sendMessage(MM.deserialize("<red>Your inventory is full."));
-            }
-            case ITEM_NOT_FOUND -> {
-                Sounds.deny(player);
-                player.sendMessage(MM.deserialize("<red>That item could not be found."));
-            }
-        }
     }
 }

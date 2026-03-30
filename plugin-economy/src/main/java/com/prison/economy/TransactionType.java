@@ -17,6 +17,7 @@ public enum TransactionType {
     AUCTION_SALE,
     AUCTION_PURCHASE,
     IGC_SHOP_PURCHASE,
+    IGC_SHOP_SELL,
     ADMIN_SET,
     ADMIN_ADD,
     ADMIN_REMOVE,
