@@ -90,6 +90,9 @@ public class AdminPanel {
             "<red>Coming soon!",
             "<dark_gray>Plugin not yet installed."));
 
+        // Close button (bottom-center)
+        inv.setItem(49, makeItem(Material.BARRIER, "<red>Close", "<gray>Close the admin panel."));
+
         player.openInventory(inv);
     }
 
@@ -132,6 +135,7 @@ public class AdminPanel {
                 player.sendMessage(MM.deserialize("<green>Region wand added to your inventory."));
             }
             case 34 -> player.sendMessage(MM.deserialize("<yellow>Crates plugin not yet installed."));
+            case 49 -> player.closeInventory();
         }
     }
 

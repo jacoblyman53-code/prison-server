@@ -46,7 +46,7 @@ public class EcoToolsGUI {
         if (onlineTarget != null) {
             long igc    = EconomyAPI.getInstance().getBalance(onlineTarget.getUniqueId());
             long tokens = EconomyAPI.getInstance().getTokens(onlineTarget.getUniqueId());
-            renderEcoToolsGUI(admin, targetName, igc, tokens);
+            renderEcoToolsGUI(admin, targetName, igc, tokens, false);
             return;
         }
 
@@ -70,7 +70,7 @@ public class EcoToolsGUI {
             long igc    = balances != null ? balances[0] : 0L;
             long tokens = balances != null ? balances[1] : 0L;
             Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(),
-                () -> renderEcoToolsGUI(admin, targetName, igc, tokens));
+                () -> renderEcoToolsGUI(admin, targetName, igc, tokens, true));
         });
     }
 
@@ -78,7 +78,7 @@ public class EcoToolsGUI {
     // Render
     // ----------------------------------------------------------------
 
-    private static void renderEcoToolsGUI(Player admin, String targetName, long igc, long tokens) {
+    private static void renderEcoToolsGUI(Player admin, String targetName, long igc, long tokens, boolean offline) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
 
         // Fill border
@@ -93,7 +93,7 @@ public class EcoToolsGUI {
         // Player head at slot 4
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-        skullMeta.displayName(MM.deserialize("<!italic><gold>" + targetName));
+        skullMeta.displayName(MM.deserialize("<!italic><gold>" + targetName + (offline ? " <dark_gray>(offline)" : "")));
         skullMeta.lore(java.util.List.of(
             MM.deserialize("<!italic><gray>IGC Balance: <white>" + igc),
             MM.deserialize("<!italic><gray>Token Balance: <white>" + tokens)
@@ -105,36 +105,86 @@ public class EcoToolsGUI {
         head.setItemMeta(skullMeta);
         inv.setItem(4, head);
 
+        // Offline warning — slot 22 (center of content area)
+        if (offline) {
+            inv.setItem(22, AdminPanel.makeItem(Material.ORANGE_STAINED_GLASS_PANE,
+                "<gold>⚠ Offline Player",
+                "<yellow>" + targetName + " is not currently online.",
+                "",
+                "<gray>Balance changes write directly to the database.",
+                "<gray>The new value takes effect on their next login.",
+                "",
+                "<dark_gray>DB value shown above may be cached; reload to refresh."));
+        }
+
+        // Offline note appended to each button's lore
+        String offlineNote = offline ? "<gold>⚠ Writes directly to DB — takes effect on login." : null;
+
         // IGC controls
-        inv.setItem(18, AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
-            "<green>Give IGC",
-            "<gray>Add IGC to " + targetName + "'s balance.",
-            "<dark_gray>Works for online and offline players.",
-            "<dark_gray>Click to enter amount."));
-        inv.setItem(19, AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
-            "<red>Take IGC",
-            "<gray>Remove IGC from " + targetName + "'s balance.",
-            "<dark_gray>Fails if balance is insufficient.",
-            "<dark_gray>Click to enter amount."));
-        inv.setItem(20, AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
-            "<yellow>Set IGC",
-            "<gray>Force-set " + targetName + "'s IGC balance.",
-            "<dark_gray>Overwrites current value.",
-            "<dark_gray>Click to enter amount."));
+        inv.setItem(18, offlineNote != null
+            ? AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
+                "<green>Give IGC",
+                "<gray>Add IGC to " + targetName + "'s balance.",
+                "",
+                offlineNote)
+            : AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
+                "<green>Give IGC",
+                "<gray>Add IGC to " + targetName + "'s balance.",
+                "<dark_gray>Click to enter amount."));
+        inv.setItem(19, offlineNote != null
+            ? AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
+                "<red>Take IGC",
+                "<gray>Remove IGC from " + targetName + "'s balance.",
+                "",
+                offlineNote)
+            : AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
+                "<red>Take IGC",
+                "<gray>Remove IGC from " + targetName + "'s balance.",
+                "<dark_gray>Fails if balance is insufficient.",
+                "<dark_gray>Click to enter amount."));
+        inv.setItem(20, offlineNote != null
+            ? AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
+                "<yellow>Set IGC",
+                "<gray>Force-set " + targetName + "'s IGC balance.",
+                "",
+                offlineNote)
+            : AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
+                "<yellow>Set IGC",
+                "<gray>Force-set " + targetName + "'s IGC balance.",
+                "<dark_gray>Overwrites current value.",
+                "<dark_gray>Click to enter amount."));
 
         // Token controls
-        inv.setItem(24, AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
-            "<green>Give Tokens",
-            "<gray>Add tokens to " + targetName + "'s balance.",
-            "<dark_gray>Works for online and offline players."));
-        inv.setItem(25, AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
-            "<red>Take Tokens",
-            "<gray>Remove tokens from " + targetName + "'s balance.",
-            "<dark_gray>Fails if balance is insufficient."));
-        inv.setItem(26, AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
-            "<yellow>Set Tokens",
-            "<gray>Force-set " + targetName + "'s token balance.",
-            "<dark_gray>Overwrites current value."));
+        inv.setItem(24, offlineNote != null
+            ? AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
+                "<green>Give Tokens",
+                "<gray>Add tokens to " + targetName + "'s balance.",
+                "",
+                offlineNote)
+            : AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
+                "<green>Give Tokens",
+                "<gray>Add tokens to " + targetName + "'s balance.",
+                "<dark_gray>Click to enter amount."));
+        inv.setItem(25, offlineNote != null
+            ? AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
+                "<red>Take Tokens",
+                "<gray>Remove tokens from " + targetName + "'s balance.",
+                "",
+                offlineNote)
+            : AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
+                "<red>Take Tokens",
+                "<gray>Remove tokens from " + targetName + "'s balance.",
+                "<dark_gray>Fails if balance is insufficient."));
+        inv.setItem(26, offlineNote != null
+            ? AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
+                "<yellow>Set Tokens",
+                "<gray>Force-set " + targetName + "'s token balance.",
+                "",
+                offlineNote)
+            : AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
+                "<yellow>Set Tokens",
+                "<gray>Force-set " + targetName + "'s token balance.",
+                "<dark_gray>Overwrites current value."));
 
         // Transaction log
         inv.setItem(36, AdminPanel.makeItem(Material.BOOK,
@@ -166,6 +216,8 @@ public class EcoToolsGUI {
 
         UUID targetUuid = getUUIDForName(targetName);
 
+        boolean offline = findOnlinePlayer(targetName) == null;
+
         switch (slot) {
             case 18 -> {
                 // Give IGC — works for online and offline players
@@ -173,6 +225,7 @@ public class EcoToolsGUI {
                     try {
                         long amount = Long.parseLong(text.trim());
                         if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        if (offline) admin.sendMessage(MM.deserialize("<gold>⚠ " + targetName + " is offline — change writes to DB and takes effect on login."));
                         EconomyAPI.getInstance().addBalanceAsync(targetUuid, amount, TransactionType.ADMIN_ADD)
                             .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Gave <white>" + amount + " IGC</white> to " + targetName + "."));
@@ -189,6 +242,7 @@ public class EcoToolsGUI {
                     try {
                         long amount = Long.parseLong(text.trim());
                         if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        if (offline) admin.sendMessage(MM.deserialize("<gold>⚠ " + targetName + " is offline — change writes to DB and takes effect on login."));
                         EconomyAPI.getInstance().deductBalanceAsync(targetUuid, amount, TransactionType.ADMIN_REMOVE)
                             .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 if (newBal < 0) {
@@ -209,6 +263,7 @@ public class EcoToolsGUI {
                     try {
                         long amount = Long.parseLong(text.trim());
                         if (amount < 0) { admin.sendMessage(MM.deserialize("<red>Amount cannot be negative.")); return; }
+                        if (offline) admin.sendMessage(MM.deserialize("<gold>⚠ " + targetName + " is offline — change writes to DB and takes effect on login."));
                         EconomyAPI.getInstance().setBalanceAsync(targetUuid, amount, TransactionType.ADMIN_SET)
                             .thenRun(() -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s IGC to <white>" + amount + "</white>."));
@@ -225,6 +280,7 @@ public class EcoToolsGUI {
                     try {
                         long amount = Long.parseLong(text.trim());
                         if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        if (offline) admin.sendMessage(MM.deserialize("<gold>⚠ " + targetName + " is offline — change writes to DB and takes effect on login."));
                         EconomyAPI.getInstance().addTokensAsync(targetUuid, amount, TransactionType.ADMIN_ADD)
                             .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Gave <white>" + amount + " tokens</white> to " + targetName + "."));
@@ -241,6 +297,7 @@ public class EcoToolsGUI {
                     try {
                         long amount = Long.parseLong(text.trim());
                         if (amount <= 0) { admin.sendMessage(MM.deserialize("<red>Amount must be positive.")); return; }
+                        if (offline) admin.sendMessage(MM.deserialize("<gold>⚠ " + targetName + " is offline — change writes to DB and takes effect on login."));
                         EconomyAPI.getInstance().deductTokensAsync(targetUuid, amount, TransactionType.ADMIN_REMOVE)
                             .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 if (newBal < 0) {
@@ -261,6 +318,7 @@ public class EcoToolsGUI {
                     try {
                         long amount = Long.parseLong(text.trim());
                         if (amount < 0) { admin.sendMessage(MM.deserialize("<red>Amount cannot be negative.")); return; }
+                        if (offline) admin.sendMessage(MM.deserialize("<gold>⚠ " + targetName + " is offline — change writes to DB and takes effect on login."));
                         EconomyAPI.getInstance().setTokensAsync(targetUuid, amount, TransactionType.ADMIN_SET)
                             .thenRun(() -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s tokens to <white>" + amount + "</white>."));

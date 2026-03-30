@@ -389,10 +389,9 @@ public class DatabaseManager {
             // Kit cooldowns
             """
             CREATE TABLE IF NOT EXISTS kit_cooldowns (
-                player_uuid       VARCHAR(36) NOT NULL,
-                kit_id            VARCHAR(64) NOT NULL,
-                last_claimed      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                cooldown_duration BIGINT      NOT NULL,
+                player_uuid  VARCHAR(36) NOT NULL,
+                kit_id       VARCHAR(64) NOT NULL,
+                last_claimed TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (player_uuid, kit_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """,

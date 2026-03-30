@@ -157,6 +157,8 @@ public class AdminToolkitPlugin extends JavaPlugin implements Listener {
         MineEditorGUI.cleanup(uuid);
         RankEditorGUI.cleanup(uuid);
         AnvilInputGUI.cleanup(uuid);
+        PlayerManageGUI.cleanup(uuid);
+        ConfirmDestructiveGUI.cleanup(uuid);
         lastClick.remove(uuid);
     }
 
@@ -198,6 +200,7 @@ public class AdminToolkitPlugin extends JavaPlugin implements Listener {
             || RankEditorGUI.isTitle(title)
             || EcoToolsGUI.isTitle(title)
             || PlayerManageGUI.isTitle(title)
+            || ConfirmDestructiveGUI.isTitle(title)
             || AnnounceGUI.isTitle(title)
             || ServerToolsGUI.isTitle(title)
             || AnvilInputGUI.isAnvilSession(player);
@@ -238,6 +241,9 @@ public class AdminToolkitPlugin extends JavaPlugin implements Listener {
         } else if (PlayerManageGUI.isTitle(title)) {
             event.setCancelled(true);
             PlayerManageGUI.handleClick(player, rawSlot);
+        } else if (ConfirmDestructiveGUI.isTitle(title)) {
+            event.setCancelled(true);
+            ConfirmDestructiveGUI.handleClick(player, rawSlot);
         } else if (AnnounceGUI.isTitle(title)) {
             event.setCancelled(true);
             AnnounceGUI.handleClick(player, rawSlot);

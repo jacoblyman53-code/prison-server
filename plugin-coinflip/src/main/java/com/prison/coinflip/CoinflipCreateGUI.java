@@ -1,0 +1,125 @@
+package com.prison.coinflip;
+
+import com.prison.menu.util.Gui;
+import com.prison.menu.util.Fmt;
+import com.prison.menu.util.Sounds;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * CoinflipCreateGUI — 27-slot amount input GUI.
+ *
+ * The player chooses a preset amount or types a custom amount.
+ * Confirm button (slot 22) submits the bet.
+ */
+public class CoinflipCreateGUI {
+
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><gold>Create Coinflip");
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+
+    private static final Map<UUID, Long> pendingAmounts = new ConcurrentHashMap<>();
+
+    // Preset amount slots (row 1)
+    private static final long[] PRESETS = {1_000L, 5_000L, 10_000L, 50_000L, 100_000L, 500_000L, 1_000_000L};
+    private static final int[]  PRESET_SLOTS = {10, 11, 12, 13, 14, 15, 16};
+
+    private static final int SLOT_CONFIRM = 22;
+    private static final int SLOT_CANCEL  = 24;
+    private static final int SLOT_BACK    = 18;
+
+    public static void open(Player player) {
+        pendingAmounts.put(player.getUniqueId(), 1_000L); // default
+        player.openInventory(build(player));
+    }
+
+    public static void handleClick(Player player, int slot, CoinflipPlugin plugin) {
+        UUID uuid = player.getUniqueId();
+
+        if (slot == SLOT_BACK || slot == SLOT_CANCEL) {
+            Sounds.nav(player);
+            CoinflipBrowserGUI.open(player);
+            return;
+        }
+
+        if (slot == SLOT_CONFIRM) {
+            Long amount = pendingAmounts.get(uuid);
+            if (amount == null || amount <= 0) {
+                Sounds.deny(player);
+                player.sendMessage(MM.deserialize("<red>Invalid bet amount."));
+                return;
+            }
+            String error = CoinflipManager.getInstance().createTicket(player, amount);
+            if (error != null) {
+                Sounds.deny(player);
+                player.sendMessage(MM.deserialize("<red>" + error));
+            } else {
+                Sounds.buy(player);
+                player.closeInventory();
+                pendingAmounts.remove(uuid);
+            }
+            return;
+        }
+
+        // Preset slot?
+        for (int i = 0; i < PRESET_SLOTS.length; i++) {
+            if (PRESET_SLOTS[i] == slot) {
+                pendingAmounts.put(uuid, PRESETS[i]);
+                Sounds.nav(player);
+                player.openInventory(build(player));
+                return;
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------
+
+    private static Inventory build(Player player) {
+        Inventory inv = Bukkit.createInventory(null, 27, TITLE);
+        Gui.fillAll(inv);
+
+        UUID uuid = player.getUniqueId();
+        long selected = pendingAmounts.getOrDefault(uuid, 1_000L);
+        long bal = 0;
+        try {
+            com.prison.economy.EconomyAPI api = com.prison.economy.EconomyAPI.getInstance();
+            if (api != null) bal = api.getBalance(uuid);
+        } catch (Exception ignored) {}
+
+        // Preset buttons
+        for (int i = 0; i < PRESETS.length; i++) {
+            long preset = PRESETS[i];
+            boolean isSelected = preset == selected;
+            boolean canAfford  = bal >= preset;
+            Material mat = isSelected ? Material.LIME_CONCRETE : (canAfford ? Material.GOLD_INGOT : Material.RED_STAINED_GLASS_PANE);
+            String name  = (isSelected ? "<green>✔ " : "") + "<gold>" + Fmt.compact(preset) + " IGC";
+            String hint  = canAfford ? "<green>Click to select" : "<red>Cannot afford";
+            inv.setItem(PRESET_SLOTS[i], Gui.make(mat, name, "<gray>Bet: <gold>" + Fmt.number(preset) + " IGC", hint));
+        }
+
+        // Confirm
+        boolean canAffordSelected = bal >= selected;
+        if (canAffordSelected) {
+            inv.setItem(SLOT_CONFIRM, Gui.make(Material.GREEN_CONCRETE, "<green>Create Flip",
+                "<gray>Bet: <gold>" + Fmt.number(selected) + " IGC",
+                "<gray>Potential win: <green>" + Fmt.number(selected * 2) + " IGC",
+                "",
+                "<green>Click to confirm and lock funds."));
+        } else {
+            inv.setItem(SLOT_CONFIRM, Gui.make(Material.RED_CONCRETE, "<red>Cannot Afford",
+                "<gray>You need <gold>" + Fmt.number(selected) + " IGC<gray>.",
+                "<red>Select a smaller amount."));
+        }
+
+        inv.setItem(SLOT_CANCEL, Gui.make(Material.RED_CONCRETE, "<red>Cancel", "<gray>Return to coinflip browser."));
+        inv.setItem(SLOT_BACK, Gui.back());
+        return inv;
+    }
+}

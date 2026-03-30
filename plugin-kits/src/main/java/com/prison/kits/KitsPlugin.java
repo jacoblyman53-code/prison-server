@@ -78,6 +78,11 @@ public class KitsPlugin extends JavaPlugin implements Listener {
                 "  PRIMARY KEY (player_uuid, kit_id)" +
                 ")"
             );
+            // Migration: drop legacy cooldown_duration column if it exists
+            try {
+                DatabaseManager.getInstance().execute(
+                    "ALTER TABLE kit_cooldowns DROP COLUMN IF EXISTS cooldown_duration");
+            } catch (SQLException ignored) {} // older MySQL without IF EXISTS — column may not exist, ignore
             DatabaseManager.getInstance().execute(
                 "CREATE TABLE IF NOT EXISTS kit_logs (" +
                 "  id           INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY," +

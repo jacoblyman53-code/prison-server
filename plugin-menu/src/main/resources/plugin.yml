@@ -1,0 +1,38 @@
+name: PrisonMenu
+version: 1.0.0
+main: com.prison.menu.MenuPlugin
+api-version: '1.21'
+description: Unified player menu system for the Prison server.
+depend:
+  - PrisonDatabase
+  - PrisonPermissions
+softdepend:
+  - PrisonRanks
+  - PrisonPrestige
+  - PrisonDonor
+  - PrisonEconomy
+  - PrisonMines
+  - PrisonWarps
+  - PrisonPickaxe
+  - PrisonKits
+  - PrisonGangs
+  - PrisonCrates
+  - PrisonShop
+  - PrisonLeaderboards
+  - PrisonEvents
+  - PrisonQuests
+  - PrisonCosmetics
+  - PrisonAuctionHouse
+  - PrisonCoinflip
+commands:
+  menu:
+    description: Open the main server menu.
+    aliases: [m, hub]
+    usage: /menu
+  sell:
+    description: Open the sell center GUI.
+    aliases: [sc, sellcenter]
+    usage: /sell
+  sellmenu:
+    description: Open the sell center GUI.
+    usage: /sellmenu

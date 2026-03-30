@@ -200,20 +200,25 @@ public class PlayerManageGUI {
         // Action buttons row 1 (18-26)
         inv.setItem(18, AdminPanel.makeItem(Material.RED_BANNER,
             "<red>Ban",
-            "<gray>Permanently ban player.",
-            "<dark_gray>Click to enter reason."));
+            "<gray>Permanently ban this player.",
+            "",
+            "<dark_gray>⚠ Requires confirmation."));
         inv.setItem(19, AdminPanel.makeItem(Material.ORANGE_BANNER,
             "<gold>Temp Ban",
-            "<gray>Temporarily ban player.",
-            "<dark_gray>Click to enter duration + reason."));
+            "<gray>Temporarily ban this player.",
+            "<gray>You will enter duration + reason.",
+            "",
+            "<dark_gray>⚠ Requires confirmation."));
         inv.setItem(20, AdminPanel.makeItem(Material.YELLOW_BANNER,
             "<yellow>Mute",
-            "<gray>Permanently mute player.",
-            "<dark_gray>Click to enter reason."));
+            "<gray>Permanently mute this player.",
+            "",
+            "<dark_gray>⚠ Requires confirmation."));
         inv.setItem(21, AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
             "<yellow>Kick",
-            "<gray>Kick player from server.",
-            "<dark_gray>Click to enter reason."));
+            "<gray>Kick this player from the server.",
+            "",
+            "<dark_gray>⚠ Requires confirmation."));
         inv.setItem(22, AdminPanel.makeItem(Material.ICE,
             "<aqua>Freeze / Unfreeze",
             "<gray>Freeze or unfreeze the player.",
@@ -276,34 +281,10 @@ public class PlayerManageGUI {
         Player onlineTarget = EcoToolsGUI.findOnlinePlayer(targetName);
 
         switch (slot) {
-            case 18 -> {
-                // Ban
-                AnvilInputGUI.open(admin, "Reason...", reason ->
-                    Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () ->
-                        Bukkit.dispatchCommand(admin, "ban " + targetName + " " + reason)));
-            }
-            case 19 -> {
-                // Temp ban — first word is duration, rest is reason
-                AnvilInputGUI.open(admin, "30d Cheating", input -> {
-                    String[] parts = input.trim().split(" ", 2);
-                    String duration = parts[0];
-                    String reason   = parts.length > 1 ? parts[1] : "No reason given";
-                    Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () ->
-                        Bukkit.dispatchCommand(admin, "tempban " + targetName + " " + duration + " " + reason));
-                });
-            }
-            case 20 -> {
-                // Mute
-                AnvilInputGUI.open(admin, "Reason...", reason ->
-                    Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () ->
-                        Bukkit.dispatchCommand(admin, "mute " + targetName + " " + reason)));
-            }
-            case 21 -> {
-                // Kick
-                AnvilInputGUI.open(admin, "Reason...", reason ->
-                    Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () ->
-                        Bukkit.dispatchCommand(admin, "kick " + targetName + " " + reason)));
-            }
+            case 18 -> ConfirmDestructiveGUI.open(admin, targetName, ConfirmDestructiveGUI.ActionType.BAN);
+            case 19 -> ConfirmDestructiveGUI.open(admin, targetName, ConfirmDestructiveGUI.ActionType.TEMP_BAN);
+            case 20 -> ConfirmDestructiveGUI.open(admin, targetName, ConfirmDestructiveGUI.ActionType.MUTE);
+            case 21 -> ConfirmDestructiveGUI.open(admin, targetName, ConfirmDestructiveGUI.ActionType.KICK);
             case 22 -> {
                 // Freeze toggle
                 Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () ->

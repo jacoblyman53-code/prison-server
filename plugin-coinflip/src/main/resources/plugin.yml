@@ -1,0 +1,13 @@
+name: PrisonCoinflip
+version: 1.0.0
+main: com.prison.coinflip.CoinflipPlugin
+api-version: '1.21'
+description: Coinflip gambling system for the Prison server.
+depend:
+  - PrisonDatabase
+  - PrisonEconomy
+commands:
+  coinflip:
+    description: Open the coinflip browser or manage your flip.
+    aliases: [cf, flip]
+    usage: /coinflip [create <amount>|cancel|accept <player>]
