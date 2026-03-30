@@ -35,6 +35,7 @@ public class MenuListener {
             CratesHubGUI.TITLE,
             ShopCategoryPickerGUI.TITLE,
             ShopCategoryPageGUI.TITLE,
+            ShopQuantityGUI.TITLE,
             BlackMarketMenuGUI.TITLE,
             QuestsMenuGUI.TITLE,
             GangHomeGUI.TITLE,
@@ -64,6 +65,7 @@ public class MenuListener {
         if (title.equals(CratesHubGUI.TITLE))           { CratesHubGUI.handleClick(player, slot, plugin); return; }
         if (title.equals(ShopCategoryPickerGUI.TITLE))  { ShopCategoryPickerGUI.handleClick(player, slot, plugin); return; }
         if (title.equals(ShopCategoryPageGUI.TITLE))    { ShopCategoryPageGUI.handleClick(player, slot, click, plugin); return; }
+        if (title.equals(ShopQuantityGUI.TITLE))        { ShopQuantityGUI.handleClick(player, slot, plugin); return; }
         if (title.equals(BlackMarketMenuGUI.TITLE))     { BlackMarketMenuGUI.handleClick(player, slot, plugin); return; }
         if (title.equals(QuestsMenuGUI.TITLE))          { QuestsMenuGUI.handleClick(player, slot, plugin); return; }
         if (title.equals(GangHomeGUI.TITLE))            { GangHomeGUI.handleClick(player, slot, plugin); return; }

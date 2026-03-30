@@ -105,10 +105,8 @@ public class ShopCategoryPageGUI {
                     player.sendMessage(MM.deserialize("<red>That item is out of stock."));
                     return;
                 }
-                ShopManager.PurchaseResult result = sm.purchase(player, categoryId, shopItem.id());
-                handlePurchaseResult(player, result, shopItem);
-                // Refresh the GUI to show updated stock
-                open(player, categoryId, page);
+                Sounds.nav(player);
+                ShopQuantityGUI.open(player, categoryId, shopItem.id(), page);
                 return;
             }
         }
@@ -157,18 +155,13 @@ public class ShopCategoryPageGUI {
                     ? shopItem.displayName()
                     : "<white>" + Fmt.mat(shopItem.item().getType().name());
 
-                String stockLine;
-                if (shopItem.stock() == -1) {
-                    stockLine = "<gray>Stock: <white>Unlimited";
-                } else {
-                    stockLine = "<gray>Stock: <white>" + shopItem.stock();
-                }
-
                 List<Component> lore = new ArrayList<>();
-                lore.add(MM.deserialize("<!italic><gray>Price: <gold>" + Fmt.number(shopItem.priceIgc()) + "<gray> IGC"));
-                lore.add(MM.deserialize("<!italic>" + stockLine));
+                lore.add(MM.deserialize("<!italic><gray>Price: <gold>" + Fmt.number(shopItem.priceIgc()) + "<gray> IGC each"));
+                if (shopItem.stock() != -1) {
+                    lore.add(MM.deserialize("<!italic><gray>Stock: <white>" + shopItem.stock()));
+                }
                 lore.add(Component.empty());
-                lore.add(MM.deserialize("<!italic><green>Click to purchase!"));
+                lore.add(MM.deserialize("<!italic><green>Click to choose quantity!"));
 
                 inv.setItem(CONTENT_SLOTS[i], Gui.make(shopItem.item().getType(), displayName, lore));
             }

@@ -94,6 +94,64 @@ crates:
         broadcast: false
         display-name: "<aqua>⚡ 2x Token Boost (5 min)"
 
+  epic:
+    display-name: "Epic Crate"
+    key-material: AMETHYST_SHARD
+    key-color: "<light_purple>"
+    rewards:
+      - type: IGC
+        amount: 150000
+        weight: 25
+        broadcast: false
+        display-name: "$150,000 IGC"
+      - type: IGC
+        amount: 500000
+        weight: 20
+        broadcast: false
+        display-name: "$500,000 IGC"
+      - type: IGC
+        amount: 1000000
+        weight: 10
+        broadcast: true
+        display-name: "$1,000,000 IGC"
+      - type: TOKEN
+        amount: 2500
+        weight: 12
+        broadcast: false
+        display-name: "2,500 Tokens"
+      - type: TOKEN
+        amount: 7500
+        weight: 8
+        broadcast: false
+        display-name: "7,500 Tokens"
+      - type: CRATE_KEY
+        tier: rare
+        key-amount: 3
+        weight: 8
+        broadcast: false
+        display-name: "3x Rare Keys"
+      - type: CRATE_KEY
+        tier: legendary
+        key-amount: 1
+        weight: 5
+        broadcast: true
+        display-name: "Legendary Key"
+      - type: COMMAND
+        command: "boostgive {player} SELL 2.0 600"
+        weight: 6
+        broadcast: false
+        display-name: "<gold>⚡ 2x Sell Boost (10 min)"
+      - type: COMMAND
+        command: "boostgive {player} TOKEN 2.0 600"
+        weight: 5
+        broadcast: false
+        display-name: "<aqua>⚡ 2x Token Boost (10 min)"
+      - type: COMMAND
+        command: "boostgive {player} SELL 3.0 300"
+        weight: 1
+        broadcast: true
+        display-name: "<gold>★ 3x Sell Boost (5 min)"
+
   legendary:
     display-name: "Legendary Crate"
     key-material: NETHER_STAR

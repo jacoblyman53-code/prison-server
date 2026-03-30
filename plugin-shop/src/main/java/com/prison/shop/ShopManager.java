@@ -216,6 +216,86 @@ public class ShopManager {
         return PurchaseResult.OK;
     }
 
+    /**
+     * Purchase {@code qty} copies of an item in one transaction.
+     * Each copy is the full item stack as defined (e.g. "Cobblestone ×64" gives qty×64 cobblestone).
+     * Overflow items drop at the player's feet.
+     */
+    public PurchaseResult purchaseMulti(Player player, String catId, String itemId, int qty) {
+        if (qty <= 0) return PurchaseResult.ITEM_NOT_FOUND;
+        if (qty == 1) return purchase(player, catId, itemId);
+
+        UUID uuid = player.getUniqueId();
+
+        Optional<ShopCategory> catOpt = getCategory(catId);
+        if (catOpt.isEmpty()) return PurchaseResult.ITEM_NOT_FOUND;
+        ShopCategory cat = catOpt.get();
+
+        int itemIdx = -1;
+        ShopItem item = null;
+        List<ShopItem> items = cat.items();
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).id().equals(itemId)) {
+                itemIdx = i;
+                item = items.get(i);
+                break;
+            }
+        }
+        if (item == null) return PurchaseResult.ITEM_NOT_FOUND;
+        if (!item.isInStock()) return PurchaseResult.OUT_OF_STOCK;
+
+        long totalPrice = item.priceIgc() * qty;
+        if (EconomyAPI.getInstance().getBalance(uuid) < totalPrice) {
+            return PurchaseResult.INSUFFICIENT_FUNDS;
+        }
+
+        // Need at least 1 free slot
+        int freeSlots = 0;
+        for (ItemStack slot : player.getInventory().getStorageContents()) {
+            if (slot == null) freeSlots++;
+        }
+        if (freeSlots == 0) return PurchaseResult.INVENTORY_ERROR;
+
+        long result = EconomyAPI.getInstance().deductBalance(uuid, totalPrice, TransactionType.IGC_SHOP_PURCHASE);
+        if (result < 0) return PurchaseResult.INSUFFICIENT_FUNDS;
+
+        // Give items — overflow drops at feet
+        for (int i = 0; i < qty; i++) {
+            ItemStack toGive = item.item().clone();
+            com.prison.permissions.ItemOriginTag.set(toGive, com.prison.permissions.ItemOriginTag.Origin.IN_GAME);
+            java.util.Map<Integer, ItemStack> overflow = player.getInventory().addItem(toGive);
+            if (!overflow.isEmpty()) {
+                player.getWorld().dropItemNaturally(player.getLocation(), overflow.values().iterator().next());
+            }
+        }
+
+        // Log
+        final String logId    = catId + ":" + itemId;
+        final long   logPrice = totalPrice;
+        DatabaseManager.getInstance().queueWrite(
+            "INSERT INTO igc_shop_purchases (player_uuid, item_id, price_igc) VALUES (?, ?, ?)",
+            uuid.toString(), logId, logPrice
+        );
+
+        // Decrement limited stock by qty
+        if (item.stock() != -1) {
+            int newStock = Math.max(0, item.stock() - qty);
+            List<ShopItem> newItems = new ArrayList<>(cat.items());
+            newItems.set(itemIdx, new ShopItem(item.id(), item.displayName(), item.priceIgc(), newStock, item.item()));
+            int catIdx = -1;
+            for (int i = 0; i < categories.size(); i++) {
+                if (categories.get(i).id().equals(catId)) { catIdx = i; break; }
+            }
+            ShopCategory updatedCat = new ShopCategory(cat.id(), cat.displayName(), cat.icon(), newItems);
+            List<ShopCategory> newCats = new ArrayList<>(categories);
+            newCats.set(catIdx, updatedCat);
+            categories = newCats;
+            saveCategories();
+        }
+
+        return PurchaseResult.OK;
+    }
+
     // ----------------------------------------------------------------
     // Admin: Categories
     // ----------------------------------------------------------------
