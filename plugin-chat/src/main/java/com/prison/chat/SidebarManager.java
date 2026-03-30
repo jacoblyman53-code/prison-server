@@ -223,13 +223,13 @@ public class SidebarManager {
         // blank
         lines.add(Component.empty());
 
-        // Mine reset countdown
+        // Mine reset countdown — only shown when player is physically inside a mine region
         try {
             com.prison.mines.MinesAPI minesApi = com.prison.mines.MinesAPI.getInstance();
-            if (minesApi != null && mineRank != null && !mineRank.isEmpty()) {
-                com.prison.mines.MineData playerMine = minesApi.getMineForRank(mineRank);
-                if (playerMine != null) {
-                    long nextReset = minesApi.getNextResetMs(playerMine.id());
+            if (minesApi != null) {
+                com.prison.mines.MineData currentMine = minesApi.getMineAt(player.getLocation());
+                if (currentMine != null) {
+                    long nextReset = minesApi.getNextResetMs(currentMine.id());
                     if (nextReset > 0) {
                         long remainSecs = Math.max(0L, (nextReset - System.currentTimeMillis()) / 1000L);
                         long mins = remainSecs / 60;
