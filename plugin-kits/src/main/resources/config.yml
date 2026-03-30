@@ -4,13 +4,12 @@
 #
 # Kit types:
 #   FREE   — available to all players, timer cooldown
-#   RANK   — requires a minimum mine rank, timer cooldown
 #   DONOR  — requires a donor rank; claimable after server restart
 #            AND min-cooldown-hours must have elapsed since last claim
 #
 # Tier philosophy (OP Prison):
-#   Starter     — iron gear to get going
-#   Rank kits   — gradual upgrades as players progress through mines
+#   Starter     — iron gear to get going (all players, one-time)
+#   Daily       — consumable refill (all players, 24h)
 #   Donor T1    — full diamond, Protection cap 4–5
 #   Top Tier    — netherite, max vanilla enchant +1 ONLY on key stats
 #                 (power comes from custom enchants, not vanilla stacking)
@@ -78,141 +77,6 @@ kits:
         amount: 8
       - material: EXPERIENCE_BOTTLE
         amount: 4
-
-  # ------------------------------------------------------------------
-  # RANK kits — unlocked at the listed mine rank (or higher)
-  # Gradual gear upgrades mirroring progression through A → Z
-  # ------------------------------------------------------------------
-
-  rank_a:
-    display: "<gray>Rank A Kit"
-    type: RANK
-    required-rank: A
-    cooldown-hours: 24
-    contents:
-      - material: IRON_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 2
-          UNBREAKING: 1
-      - material: IRON_SWORD
-        amount: 1
-        enchants:
-          SHARPNESS: 1
-      - material: IRON_CHESTPLATE
-        amount: 1
-        enchants:
-          PROTECTION: 1
-      - material: COOKED_BEEF
-        amount: 32
-
-  rank_e:
-    display: "<aqua>Rank E Kit"
-    type: RANK
-    required-rank: E
-    cooldown-hours: 24
-    contents:
-      - material: IRON_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 2
-          UNBREAKING: 2
-      - material: IRON_SWORD
-        amount: 1
-        enchants:
-          SHARPNESS: 2
-          UNBREAKING: 1
-      - material: IRON_CHESTPLATE
-        amount: 1
-        enchants:
-          PROTECTION: 2
-      - material: COOKED_BEEF
-        amount: 32
-
-  rank_m:
-    display: "<gold>Rank M Kit"
-    type: RANK
-    required-rank: M
-    cooldown-hours: 24
-    contents:
-      - material: GOLDEN_PICKAXE    # high base speed — ideal for prison mining
-        amount: 1
-        enchants:
-          EFFICIENCY: 3
-          UNBREAKING: 2
-          FORTUNE: 1
-      - material: IRON_SWORD
-        amount: 1
-        enchants:
-          SHARPNESS: 2
-          UNBREAKING: 2
-      - material: IRON_CHESTPLATE
-        amount: 1
-        enchants:
-          PROTECTION: 3
-      - material: COOKED_BEEF
-        amount: 64
-      - material: EXPERIENCE_BOTTLE
-        amount: 8
-
-  rank_r:
-    display: "<light_purple>Rank R Kit"
-    type: RANK
-    required-rank: R
-    cooldown-hours: 18
-    contents:
-      - material: DIAMOND_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 4
-          UNBREAKING: 3
-          FORTUNE: 2
-      - material: DIAMOND_SWORD
-        amount: 1
-        enchants:
-          SHARPNESS: 3
-          UNBREAKING: 2
-      - material: DIAMOND_CHESTPLATE
-        amount: 1
-        enchants:
-          PROTECTION: 3
-          UNBREAKING: 2
-      - material: COOKED_BEEF
-        amount: 64
-      - material: EXPERIENCE_BOTTLE
-        amount: 12
-
-  rank_z:
-    display: "<gradient:#b967ff:#01cdfe>Rank Z Kit</gradient>"
-    type: RANK
-    required-rank: Z
-    cooldown-hours: 12
-    contents:
-      - material: DIAMOND_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 4
-          UNBREAKING: 3
-          FORTUNE: 2
-      - material: DIAMOND_SWORD
-        amount: 1
-        enchants:
-          SHARPNESS: 4
-          UNBREAKING: 3
-      - material: DIAMOND_CHESTPLATE
-        amount: 1
-        enchants:
-          PROTECTION: 4
-          UNBREAKING: 3
-      - material: DIAMOND_LEGGINGS
-        amount: 1
-        enchants:
-          PROTECTION: 3
-          UNBREAKING: 2
-      - material: COOKED_BEEF
-        amount: 64
-      - material: EXPERIENCE_BOTTLE
-        amount: 16
 
   # ------------------------------------------------------------------
   # DONOR kits — require donor rank; cooldown resets on server restart
