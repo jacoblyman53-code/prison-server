@@ -23,63 +23,89 @@ auto-save-seconds: 300
 
 # ---- Default sell prices ----
 # Material name (Bukkit enum, UPPERCASE) → IGC per item sold.
-# These defaults apply when the mines plugin is not providing per-mine prices.
-# The admin toolkit will let you set these in-game once it's built.
+# Prices sourced from prison_shop_economy_mines_master_spec.
+# These apply to /sell, /sellall, and mine autosell.
 sell-prices:
-  # ── Blocks ────────────────────────────────────────────
-  DIRT:                   1
-  COBBLESTONE:            2
+  # ── Stone / earth mine blocks (early mines A-E) ──────────
   STONE:                  3
-  SAND:                   4
-  GRAVEL:                 5
-  OAK_LOG:                8
-  BIRCH_LOG:              9
-  SPRUCE_LOG:             10
-  JUNGLE_LOG:             11
-  ACACIA_LOG:             12
-  DARK_OAK_LOG:           12
-  MANGROVE_LOG:           11
-  CHERRY_LOG:             10
-  OAK_PLANKS:             10
-  BIRCH_PLANKS:           11
-  SPRUCE_PLANKS:          12
-  JUNGLE_PLANKS:          13
-  ACACIA_PLANKS:          14
-  DARK_OAK_PLANKS:        14
-  # ── Ore drops (what players actually receive when mining) ──
+  COBBLESTONE:            2
+  TUFF:                   8
+  ANDESITE:               6
+
+  # ── Ore drops (no silk touch) ─────────────────────────────
   COAL:                   8
-  RAW_IRON:               12
-  IRON_INGOT:             15
-  LAPIS_LAZULI:           10
-  REDSTONE:               5
-  RAW_GOLD:               28
-  GOLD_INGOT:             35
-  QUARTZ:                 12
+  RAW_IRON:               15
+  RAW_COPPER:             11
+  COPPER_INGOT:           12
+  LAPIS_LAZULI:           8
+  REDSTONE:               9
+  RAW_GOLD:               35
+  QUARTZ:                 26
   DIAMOND:                120
   EMERALD:                300
   NETHERITE_SCRAP:        600
   NETHERITE_INGOT:        2400
-  ANCIENT_DEBRIS:         800
-  # ── Ore blocks (silk touch) ────────────────────────────
+
+  # ── Processed ingots ──────────────────────────────────────
+  IRON_INGOT:             18
+  GOLD_INGOT:             38
+  RAW_IRON_BLOCK:         140
+
+  # ── Ore blocks (silk touch) ───────────────────────────────
   COAL_ORE:               8
   DEEPSLATE_COAL_ORE:     9
-  IRON_ORE:               12
-  DEEPSLATE_IRON_ORE:     13
-  GOLD_ORE:               28
-  DEEPSLATE_GOLD_ORE:     30
-  LAPIS_ORE:              10
-  DEEPSLATE_LAPIS_ORE:    11
-  REDSTONE_ORE:           5
-  DEEPSLATE_REDSTONE_ORE: 6
+  IRON_ORE:               15
+  DEEPSLATE_IRON_ORE:     16
+  COPPER_ORE:             11
+  DEEPSLATE_COPPER_ORE:   12
+  GOLD_ORE:               35
+  DEEPSLATE_GOLD_ORE:     38
+  NETHER_GOLD_ORE:        24
+  LAPIS_ORE:              50
+  DEEPSLATE_LAPIS_ORE:    54
+  REDSTONE_ORE:           45
+  DEEPSLATE_REDSTONE_ORE: 48
+  NETHER_QUARTZ_ORE:      26
   DIAMOND_ORE:            120
-  DEEPSLATE_DIAMOND_ORE:  125
+  DEEPSLATE_DIAMOND_ORE:  132
   EMERALD_ORE:            300
-  DEEPSLATE_EMERALD_ORE:  310
-  NETHER_QUARTZ_ORE:      12
-  NETHER_GOLD_ORE:        28
-  # ── Other sellable drops ───────────────────────────────
-  GLOWSTONE_DUST:         8
-  NETHERRACK:             2
-  SOUL_SAND:              6
-  GRAVEL:                 5
-  FLINT:                  3
+  DEEPSLATE_EMERALD_ORE:  325
+  ANCIENT_DEBRIS:         600
+
+  # ── Crafted ore blocks (mine compositions J-Z) ───────────
+  GOLD_BLOCK:             315
+  REDSTONE_BLOCK:         405
+  QUARTZ_BLOCK:           108
+  DIAMOND_BLOCK:          900
+  EMERALD_BLOCK:          2500
+  NETHERITE_BLOCK:        6000
+
+  # ── Nether mine blocks (mines H-L) ────────────────────────
+  NETHERRACK:             15
+  BASALT:                 18
+  SMOOTH_BASALT:          22
+  BLACKSTONE:             20
+  POLISHED_BLACKSTONE:    24
+  GILDED_BLACKSTONE:      42
+  RED_NETHER_BRICKS:      45
+
+  # ── Ocean / Prismarine mine blocks (mines M-Z) ───────────
+  PRISMARINE:             70
+  PRISMARINE_BRICKS:      95
+  DARK_PRISMARINE:        130
+  SEA_LANTERN:            150
+
+  # ── Optional sellable crops and mob drops ─────────────────
+  WHEAT:                  6
+  CARROT:                 7
+  POTATO:                 7
+  BEETROOT:               7
+  SUGAR_CANE:             10
+  CACTUS:                 12
+  ROTTEN_FLESH:           5
+  BONE:                   6
+  STRING:                 6
+  GUNPOWDER:              12
+  SLIME_BALL:             18
+  ENDER_PEARL:            25
+  BLAZE_ROD:              32

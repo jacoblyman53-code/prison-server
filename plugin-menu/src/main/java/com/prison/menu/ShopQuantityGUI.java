@@ -149,8 +149,8 @@ public class ShopQuantityGUI {
 
         // ── Slot 4: item preview ────────────────────────────────────
         List<Component> previewLore = new ArrayList<>();
-        previewLore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(unitPrice) + " <gray>each"));
-        previewLore.add(MM.deserialize("<!italic><gray>Your balance: <gold>$" + Fmt.number(balance)));
+        previewLore.add(MM.deserialize("<!italic><gray>Buy Price: <gold>$" + Fmt.number(unitPrice) + "<gray>/ea."));
+        previewLore.add(MM.deserialize("<!italic><gray>Your Balance: <gold>$" + Fmt.number(balance)));
         previewLore.add(Component.empty());
         previewLore.add(MM.deserialize("<!italic><yellow>Pick a quantity below."));
         inv.setItem(SLOT_PREVIEW, Gui.make(shopItem.item().getType(), displayName, previewLore));

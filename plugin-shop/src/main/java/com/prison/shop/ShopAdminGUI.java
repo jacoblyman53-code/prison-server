@@ -323,7 +323,7 @@ public class ShopAdminGUI {
                     state.pendingNewItem = null;
                     state.pendingNewItemPrice = null;
 
-                    ShopManager.getInstance().addItem(catId, finalItem, null, finalPrice, stock);
+                    ShopManager.getInstance().addItem(catId, finalItem, null, finalPrice, stock, false);
                     player.sendMessage(MM.deserialize("<green>Item added to shop."));
                     Bukkit.getScheduler().runTask(ShopPlugin.getInstance(),
                         (Runnable) () -> openCategoryEditor(player, catId));

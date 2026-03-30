@@ -104,6 +104,11 @@ public class ShopCategoryPageGUI {
                 ShopItem shopItem = items.get(itemIndex);
 
                 if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT) {
+                    if (!shopItem.sellable()) {
+                        Sounds.deny(player);
+                        player.sendMessage(MM.deserialize("<red>That item cannot be sold."));
+                        return;
+                    }
                     handleSell(player, shopItem, click == ClickType.SHIFT_RIGHT);
                     return;
                 }
@@ -208,10 +213,18 @@ public class ShopCategoryPageGUI {
                 : "<white>" + Fmt.mat(shopItem.item().getType().name());
 
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(shopItem.priceIgc()) + "<gray> each"));
+            lore.add(MM.deserialize("<!italic><gray>Buy Price: <gold>$" + Fmt.number(shopItem.priceIgc()) + "<gray>/ea."));
+            if (shopItem.sellable()) {
+                lore.add(MM.deserialize("<!italic><gray>Sell Price: <green>$" + Fmt.number(shopItem.priceIgc()) + "<gray>/ea."));
+            } else {
+                lore.add(MM.deserialize("<!italic><gray>Sell Price: <dark_gray>Not Sellable"));
+            }
             lore.add(Component.empty());
-            lore.add(MM.deserialize("<!italic><green>Left-click: Buy  <gray>|  <yellow>Right-click: Sell"));
-            lore.add(MM.deserialize("<!italic><yellow>Shift right-click: Sell all"));
+            lore.add(MM.deserialize("<!italic><green>[LEFT-CLICK] <gray>Buy Items"));
+            if (shopItem.sellable()) {
+                lore.add(MM.deserialize("<!italic><yellow>[RIGHT-CLICK] <gray>Sell Items"));
+                lore.add(MM.deserialize("<!italic><yellow>Shift + [RIGHT-CLICK] <gray>Sell All"));
+            }
 
             inv.setItem(CONTENT_SLOTS[i], Gui.make(shopItem.item().getType(), displayName, lore));
         }

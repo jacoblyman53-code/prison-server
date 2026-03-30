@@ -43,8 +43,8 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 90
-      COAL_ORE: 10
+      STONE: 63
+      COAL_ORE: 37
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -63,9 +63,9 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 80
-      COAL_ORE: 15
-      IRON_ORE: 5
+      STONE: 56
+      COAL_ORE: 29
+      IRON_ORE: 15
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -84,9 +84,10 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 70
-      COAL_ORE: 20
-      IRON_ORE: 10
+      STONE: 48
+      COAL_ORE: 24
+      IRON_ORE: 20
+      ANDESITE: 8
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -105,10 +106,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 60
-      COAL_ORE: 20
-      IRON_ORE: 15
-      GOLD_ORE: 5
+      TUFF: 42
+      STONE: 22
+      IRON_ORE: 18
+      SMOOTH_STONE: 10
+      COPPER_ORE: 8
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -127,10 +129,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 50
-      COAL_ORE: 20
-      IRON_ORE: 20
-      GOLD_ORE: 10
+      TUFF: 33
+      SMOOTH_BASALT: 22
+      POLISHED_BLACKSTONE: 20
+      RAW_IRON_BLOCK: 12
+      BASALT: 10
+      DEEPSLATE_IRON_ORE: 3
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -149,10 +153,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 45
-      IRON_ORE: 25
-      GOLD_ORE: 20
-      LAPIS_ORE: 10
+      BLACKSTONE: 32
+      BASALT: 24
+      RAW_IRON_BLOCK: 16
+      GOLD_ORE: 14
+      DEEPSLATE_COPPER_ORE: 8
+      TUFF: 6
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -171,10 +177,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 40
-      IRON_ORE: 25
-      GOLD_ORE: 20
-      LAPIS_ORE: 15
+      BLACKSTONE: 30
+      BASALT: 18
+      GOLD_ORE: 18
+      RAW_IRON_BLOCK: 14
+      POLISHED_BLACKSTONE: 10
+      DEEPSLATE_GOLD_ORE: 10
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -193,11 +201,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 35
-      IRON_ORE: 25
-      GOLD_ORE: 20
-      LAPIS_ORE: 15
-      REDSTONE_ORE: 5
+      NETHERRACK: 34
+      BASALT: 20
+      GOLD_ORE: 16
+      REDSTONE_ORE: 14
+      BLACKSTONE: 10
+      NETHER_QUARTZ_ORE: 6
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -216,11 +225,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 30
-      IRON_ORE: 25
-      GOLD_ORE: 20
-      LAPIS_ORE: 15
-      REDSTONE_ORE: 10
+      NETHERRACK: 61
+      BASALT: 21
+      REDSTONE_BLOCK: 9
+      DEEPSLATE_REDSTONE_ORE: 4
+      RED_NETHER_BRICKS: 3
+      DEEPSLATE: 2
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -239,11 +249,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 25
-      IRON_ORE: 25
-      GOLD_ORE: 20
-      LAPIS_ORE: 15
-      REDSTONE_ORE: 15
+      NETHERRACK: 38
+      REDSTONE_BLOCK: 20
+      GOLD_BLOCK: 16
+      QUARTZ_BLOCK: 12
+      RED_NETHER_BRICKS: 8
+      DEEPSLATE_REDSTONE_ORE: 6
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -262,12 +273,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 20
-      IRON_ORE: 25
-      GOLD_ORE: 20
-      LAPIS_ORE: 15
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 5
+      RED_NETHER_BRICKS: 30
+      GOLD_BLOCK: 22
+      REDSTONE_BLOCK: 20
+      QUARTZ_BLOCK: 14
+      BLACKSTONE: 8
+      NETHER_GOLD_ORE: 6
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -286,12 +297,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 15
-      IRON_ORE: 25
-      GOLD_ORE: 20
-      LAPIS_ORE: 15
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 10
+      QUARTZ_BLOCK: 24
+      GOLD_BLOCK: 24
+      REDSTONE_BLOCK: 22
+      RED_NETHER_BRICKS: 18
+      GILDED_BLACKSTONE: 12
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -310,13 +320,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 10
-      IRON_ORE: 20
-      GOLD_ORE: 20
-      LAPIS_ORE: 15
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 15
-      EMERALD_ORE: 5
+      PRISMARINE: 34
+      GOLD_BLOCK: 22
+      DIAMOND_ORE: 18
+      SEA_LANTERN: 10
+      PRISMARINE_BRICKS: 10
+      DARK_PRISMARINE: 6
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -335,13 +344,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 10
-      IRON_ORE: 20
-      GOLD_ORE: 15
-      LAPIS_ORE: 10
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 20
-      EMERALD_ORE: 10
+      PRISMARINE: 28
+      PRISMARINE_BRICKS: 26
+      DIAMOND_ORE: 18
+      DIAMOND_BLOCK: 12
+      SEA_LANTERN: 8
+      GOLD_BLOCK: 8
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -360,13 +368,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      STONE: 5
-      IRON_ORE: 20
-      GOLD_ORE: 15
-      LAPIS_ORE: 10
-      REDSTONE_ORE: 10
-      DIAMOND_ORE: 25
-      EMERALD_ORE: 15
+      PRISMARINE_BRICKS: 28
+      DIAMOND_ORE: 20
+      DIAMOND_BLOCK: 20
+      DARK_PRISMARINE: 12
+      SEA_LANTERN: 10
+      PRISMARINE: 10
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -385,12 +392,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      IRON_ORE: 20
-      GOLD_ORE: 15
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 25
-      EMERALD_ORE: 15
-      NETHER_QUARTZ_ORE: 10
+      PRISMARINE_BRICKS: 24
+      DIAMOND_BLOCK: 25
+      DIAMOND_ORE: 18
+      DARK_PRISMARINE: 15
+      PRISMARINE: 10
+      SEA_LANTERN: 8
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -409,12 +416,12 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      IRON_ORE: 15
-      GOLD_ORE: 15
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 30
-      EMERALD_ORE: 15
-      NETHER_QUARTZ_ORE: 10
+      DIAMOND_BLOCK: 30
+      DARK_PRISMARINE: 20
+      PRISMARINE: 18
+      DIAMOND_ORE: 15
+      PRISMARINE_BRICKS: 10
+      SEA_LANTERN: 7
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -433,12 +440,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      IRON_ORE: 10
-      GOLD_ORE: 15
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 30
-      EMERALD_ORE: 20
-      NETHER_QUARTZ_ORE: 10
+      DIAMOND_BLOCK: 34
+      DARK_PRISMARINE: 32
+      DIAMOND_ORE: 16
+      PRISMARINE_BRICKS: 10
+      SEA_LANTERN: 8
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -457,12 +463,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      IRON_ORE: 10
-      GOLD_ORE: 10
-      REDSTONE_ORE: 15
-      DIAMOND_ORE: 35
-      EMERALD_ORE: 20
-      NETHER_QUARTZ_ORE: 10
+      DARK_PRISMARINE: 36
+      DIAMOND_BLOCK: 28
+      EMERALD_ORE: 16
+      PRISMARINE_BRICKS: 10
+      SEA_LANTERN: 10
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -481,12 +486,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      IRON_ORE: 10
-      GOLD_ORE: 10
-      REDSTONE_ORE: 10
-      DIAMOND_ORE: 35
-      EMERALD_ORE: 25
-      NETHER_QUARTZ_ORE: 10
+      DARK_PRISMARINE: 28
+      EMERALD_ORE: 20
+      EMERALD_BLOCK: 20
+      DIAMOND_BLOCK: 20
+      PRISMARINE_BRICKS: 12
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -505,11 +509,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      GOLD_ORE: 10
-      REDSTONE_ORE: 10
-      DIAMOND_ORE: 40
-      EMERALD_ORE: 30
-      NETHER_GOLD_ORE: 10
+      DARK_PRISMARINE: 30
+      EMERALD_BLOCK: 24
+      EMERALD_ORE: 18
+      DIAMOND_BLOCK: 18
+      PRISMARINE_BRICKS: 10
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -528,11 +532,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      GOLD_ORE: 10
-      REDSTONE_ORE: 5
-      DIAMOND_ORE: 40
-      EMERALD_ORE: 35
-      NETHER_GOLD_ORE: 10
+      PRISMARINE: 35
+      PRISMARINE_BRICKS: 30
+      DIAMOND_BLOCK: 23
+      DEEPSLATE_DIAMOND_ORE: 11
+      SEA_LANTERN: 1
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -551,11 +555,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      GOLD_ORE: 5
-      REDSTONE_ORE: 5
-      DIAMOND_ORE: 45
-      EMERALD_ORE: 35
-      NETHER_GOLD_ORE: 10
+      DARK_PRISMARINE: 34
+      EMERALD_BLOCK: 24
+      DIAMOND_BLOCK: 18
+      EMERALD_ORE: 14
+      ANCIENT_DEBRIS: 10
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -574,10 +578,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      GOLD_ORE: 5
-      DIAMOND_ORE: 50
-      EMERALD_ORE: 35
-      NETHER_GOLD_ORE: 10
+      DARK_PRISMARINE: 36
+      EMERALD_BLOCK: 22
+      ANCIENT_DEBRIS: 16
+      DIAMOND_BLOCK: 14
+      BLACKSTONE: 12
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -596,9 +601,11 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      DIAMOND_ORE: 60
-      EMERALD_ORE: 35
-      NETHER_GOLD_ORE: 5
+      DARK_PRISMARINE: 34
+      EMERALD_BLOCK: 26
+      DIAMOND_BLOCK: 18
+      ANCIENT_DEBRIS: 14
+      NETHERITE_BLOCK: 8
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80
@@ -617,8 +624,9 @@ mines:
     spawn-yaw: 0.0
     spawn-pitch: 0.0
     composition:
-      DIAMOND_ORE: 60
-      EMERALD_ORE: 40
+      DARK_PRISMARINE: 78
+      NETHERITE_BLOCK: 12
+      EMERALD_BLOCK: 10
     sell-prices: {}
     reset-timer-mins: 15
     reset-threshold: 0.80

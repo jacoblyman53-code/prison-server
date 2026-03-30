@@ -77,6 +77,7 @@ public class ShopManager {
                             String itemDisplay = itemSec.getString("display"); // nullable
                             long price = itemSec.getLong("price", 0L);
                             int stock = itemSec.getInt("stock", -1);
+                            boolean sellable = itemSec.getBoolean("sellable", false);
                             String b64 = itemSec.getString("item-data");
 
                             if (b64 == null || b64.isEmpty()) {
@@ -87,7 +88,7 @@ public class ShopManager {
                             byte[] bytes = Base64.getDecoder().decode(b64);
                             ItemStack stack = ItemStack.deserializeBytes(bytes);
 
-                            items.add(new ShopItem(itemKey, itemDisplay, price, stock, stack));
+                            items.add(new ShopItem(itemKey, itemDisplay, price, stock, stack, sellable));
                         } catch (Exception e) {
                             logger.warning("[Shop] Failed to load item '" + itemKey + "' in category '" + catKey + "': " + e.getMessage());
                         }
@@ -116,6 +117,7 @@ public class ShopManager {
                 plugin.getConfig().set(itemPath + ".display", item.displayName());
                 plugin.getConfig().set(itemPath + ".price", item.priceIgc());
                 plugin.getConfig().set(itemPath + ".stock", item.stock());
+                plugin.getConfig().set(itemPath + ".sellable", item.sellable());
                 plugin.getConfig().set(itemPath + ".item-data",
                     Base64.getEncoder().encodeToString(item.item().serializeAsBytes()));
             }
@@ -196,7 +198,7 @@ public class ShopManager {
         // Decrement limited stock
         if (item.stock() != -1) {
             List<ShopItem> newItems = new ArrayList<>(cat.items());
-            ShopItem updated = new ShopItem(item.id(), item.displayName(), item.priceIgc(), item.stock() - 1, item.item());
+            ShopItem updated = new ShopItem(item.id(), item.displayName(), item.priceIgc(), item.stock() - 1, item.item(), item.sellable());
             newItems.set(itemIdx, updated);
 
             int catIdx = -1;
@@ -281,7 +283,7 @@ public class ShopManager {
         if (item.stock() != -1) {
             int newStock = Math.max(0, item.stock() - qty);
             List<ShopItem> newItems = new ArrayList<>(cat.items());
-            newItems.set(itemIdx, new ShopItem(item.id(), item.displayName(), item.priceIgc(), newStock, item.item()));
+            newItems.set(itemIdx, new ShopItem(item.id(), item.displayName(), item.priceIgc(), newStock, item.item(), item.sellable()));
             int catIdx = -1;
             for (int i = 0; i < categories.size(); i++) {
                 if (categories.get(i).id().equals(catId)) { catIdx = i; break; }
@@ -322,7 +324,7 @@ public class ShopManager {
     // Admin: Items
     // ----------------------------------------------------------------
 
-    public boolean addItem(String catId, ItemStack stack, String displayName, long price, int stock) {
+    public boolean addItem(String catId, ItemStack stack, String displayName, long price, int stock, boolean sellable) {
         Optional<ShopCategory> catOpt = getCategory(catId);
         if (catOpt.isEmpty()) return false;
         ShopCategory cat = catOpt.get();
@@ -348,7 +350,7 @@ public class ShopManager {
             id = base + "_" + suffix++;
         }
 
-        ShopItem newItem = new ShopItem(id, displayName, price, stock, stack.clone());
+        ShopItem newItem = new ShopItem(id, displayName, price, stock, stack.clone(), sellable);
 
         List<ShopItem> newItems = new ArrayList<>(cat.items());
         newItems.add(newItem);
@@ -373,7 +375,7 @@ public class ShopManager {
             for (int i = 0; i < newItems.size(); i++) {
                 if (newItems.get(i).id().equals(itemId)) {
                     ShopItem old = newItems.get(i);
-                    newItems.set(i, new ShopItem(old.id(), old.displayName(), newPrice, old.stock(), old.item()));
+                    newItems.set(i, new ShopItem(old.id(), old.displayName(), newPrice, old.stock(), old.item(), old.sellable()));
                     break;
                 }
             }
@@ -388,7 +390,7 @@ public class ShopManager {
             for (int i = 0; i < newItems.size(); i++) {
                 if (newItems.get(i).id().equals(itemId)) {
                     ShopItem old = newItems.get(i);
-                    newItems.set(i, new ShopItem(old.id(), old.displayName(), old.priceIgc(), newStock, old.item()));
+                    newItems.set(i, new ShopItem(old.id(), old.displayName(), old.priceIgc(), newStock, old.item(), old.sellable()));
                     break;
                 }
             }
