@@ -20,19 +20,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MineBrowserGUI — shows all 26 A-Z mines in a grid.
+ * MineBrowserGUI — shows all 26 A-Z mines in a compact grid.
  *
- * Layout (54 slots):
- *   Row 0  (0-8):  TopBand, back at slot 8
- *   Rows 1-4: mine grid (7 per row, border-padded)
- *   Row 5: bottom filler
+ * Layout (36 slots, 4 rows):
+ *   Row 0 (0-8):   TopBand, back at slot 8
+ *   Row 1 (9-17):  Mines A-I
+ *   Row 2 (18-26): Mines J-R
+ *   Row 3 (27-35): Mines S-Z + 1 filler at slot 35
  *
- * Each mine button shows:
- *   - Mine letter and tier-colored name
- *   - Avg. Inventory Value (calculated from composition × sell prices)
- *   - Block composition breakdown with percentages
- *   - Reset timer
- *   - Lock/unlock/current state
+ * No border columns — mines fill every slot in rows 1-3.
  */
 public class MineBrowserGUI {
 
@@ -40,12 +36,11 @@ public class MineBrowserGUI {
         .deserialize("<!italic><dark_gray>[ <green>Mines <dark_gray>]");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    // 26 mine grid slots: 7 across, 4 rows, centred with 1-column borders
+    // 26 consecutive slots — rows 1-3, all 9 columns, no border gaps
     private static final int[] MINE_SLOTS = {
-        10, 11, 12, 13, 14, 15, 16,   // A-G
-        19, 20, 21, 22, 23, 24, 25,   // H-N
-        28, 29, 30, 31, 32, 33, 34,   // O-U
-        37, 38, 39, 40, 41            // V-Z
+         9, 10, 11, 12, 13, 14, 15, 16, 17,  // A-I
+        18, 19, 20, 21, 22, 23, 24, 25, 26,  // J-R
+        27, 28, 29, 30, 31, 32, 33, 34       // S-Z
     };
 
     private static final String[] MINE_IDS = RankConfig.RANK_ORDER; // A-Z
@@ -101,7 +96,7 @@ public class MineBrowserGUI {
     }
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
-        if (slot == SLOT_BACK || slot == 45) {
+        if (slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
             return;
@@ -156,7 +151,7 @@ public class MineBrowserGUI {
     // ----------------------------------------------------------------
 
     private static Inventory build(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54, TITLE);
+        Inventory inv = Bukkit.createInventory(null, 36, TITLE);
         Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(SLOT_BACK, Gui.back());
