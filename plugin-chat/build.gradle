@@ -2,4 +2,5 @@ dependencies {
     compileOnly project(':core-permissions')
     compileOnly project(':plugin-economy')
     compileOnly project(':plugin-ranks')
+    compileOnly project(':plugin-mines')
 }

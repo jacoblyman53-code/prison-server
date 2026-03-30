@@ -79,6 +79,18 @@ public class MinesAPI implements SellPriceProvider {
         manager.triggerReset(mineId);
     }
 
+    /**
+     * Returns the epoch-millisecond timestamp when the given mine will next reset,
+     * or -1 if the mine doesn't exist, has no timer, or is currently resetting.
+     */
+    public long getNextResetMs(String mineId) {
+        MineData mine = manager.getMine(mineId);
+        if (mine == null || mine.resetTimerMins() <= 0) return -1L;
+        MineState state = manager.getState(mineId);
+        if (state == null || state.isResetting()) return -1L;
+        return state.getLastResetMs() + (mine.resetTimerMins() * 60_000L);
+    }
+
     // ----------------------------------------------------------------
     // SellPriceProvider implementation
     // ----------------------------------------------------------------

@@ -1,5 +1,6 @@
 package com.prison.chat;
 
+import com.prison.economy.BoostManager;
 import com.prison.economy.EconomyAPI;
 import com.prison.permissions.PermissionEngine;
 import com.prison.ranks.RanksAPI;
@@ -221,6 +222,43 @@ public class SidebarManager {
 
         // blank
         lines.add(Component.empty());
+
+        // Mine reset countdown
+        try {
+            com.prison.mines.MinesAPI minesApi = com.prison.mines.MinesAPI.getInstance();
+            if (minesApi != null && mineRank != null && !mineRank.isEmpty()) {
+                com.prison.mines.MineData playerMine = minesApi.getMineForRank(mineRank);
+                if (playerMine != null) {
+                    long nextReset = minesApi.getNextResetMs(playerMine.id());
+                    if (nextReset > 0) {
+                        long remainSecs = Math.max(0L, (nextReset - System.currentTimeMillis()) / 1000L);
+                        long mins = remainSecs / 60;
+                        long secs = remainSecs % 60;
+                        String timeStr = mins > 0
+                            ? mins + "m " + String.format("%02d", secs) + "s"
+                            : secs + "s";
+                        lines.add(mm.deserialize(
+                            "<gray>Mine Reset: <aqua>" + timeStr + "</aqua>"
+                        ));
+                    }
+                }
+            }
+        } catch (NoClassDefFoundError ignored) {}
+
+        // Active sell boost
+        try {
+            BoostManager boosts = BoostManager.getInstance();
+            if (boosts != null && boosts.hasBoost(uuid, BoostManager.BoostType.SELL)) {
+                double mult = boosts.getSellMultiplier(uuid);
+                String remaining = boosts.formatRemaining(uuid, BoostManager.BoostType.SELL);
+                String multStr = (mult == Math.floor(mult))
+                    ? String.valueOf((int) mult)
+                    : String.format("%.1f", mult);
+                lines.add(mm.deserialize(
+                    "<gray>Sell Boost: <green>" + multStr + "x <dark_green>(" + remaining + ")</dark_green>"
+                ));
+            }
+        } catch (NoClassDefFoundError ignored) {}
 
         // Online players
         lines.add(mm.deserialize(
