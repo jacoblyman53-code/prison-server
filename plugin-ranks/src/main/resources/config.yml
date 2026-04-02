@@ -5,7 +5,7 @@
 # All values are configurable — no hardcoded costs anywhere.
 #
 # cost:        IGC balance required to rank up FROM this rank
-# display:     Name shown in GUIs and chat
+# display:     Egyptian name shown in GUIs and chat
 # prefix:      MiniMessage format string used in chat
 # ================================================================
 
@@ -14,142 +14,149 @@ autoteleport-default: true
 
 # Message sent on successful rankup. Supports MiniMessage.
 # {rank} = the new rank letter, {display} = the rank display name
-rankup-message: "<green>You ranked up to <gold><bold>{display}</bold></gold>! Keep mining."
-rankup-broadcast: ""   # Leave blank to not broadcast rankups to the server
+rankup-message: "<green>You have ascended to <gold><bold>{display}</bold></gold>! Keep mining."
+rankup-broadcast: "<gold><bold>{player}</bold></gold> <yellow>has risen to <gold><bold>{display}</bold></gold><yellow>!"
+# Ranks to broadcast (leave empty to broadcast all, or list specific letters)
+rankup-broadcast-ranks:
+  - G
+  - J
+  - O
+  - T
+  - Z
 
 # Message when player can't afford rankup
-cannot-afford-message: "<red>You need <gold>{cost} IGC</gold> to rank up. You have <gold>{balance} IGC</gold>."
+cannot-afford-message: "<red>You need <gold>{cost} Coins</gold> to rank up. You have <gold>{balance} Coins</gold>."
 
-# Message when player is already max rank (Z) and prestige isn't available
-max-rank-message: "<gold>You are rank Z — the highest mine rank! Prestige coming soon."
+# Message when player is already max rank (Z) — directs them to Ascension
+max-rank-message: "<gold>You are <bold>Pharaoh</bold> — the highest mine rank! <light_purple>Type <bold>/prestige</bold> to begin your Ascension."
 
 ranks:
   A:
     cost: 0
-    display: "Rank A"
-    prefix: "<dark_gray>[<gray>A</gray>]</dark_gray>"
+    display: "Slave"
+    prefix: "<dark_gray>[<gray>Slave</gray>]</dark_gray>"
 
   B:
     cost: 5000
-    display: "Rank B"
-    prefix: "<dark_gray>[<gray>B</gray>]</dark_gray>"
+    display: "Serf"
+    prefix: "<dark_gray>[<gray>Serf</gray>]</dark_gray>"
 
   C:
     cost: 15000
-    display: "Rank C"
-    prefix: "<dark_gray>[<gray>C</gray>]</dark_gray>"
+    display: "Laborer"
+    prefix: "<dark_gray>[<gray>Laborer</gray>]</dark_gray>"
 
   D:
     cost: 35000
-    display: "Rank D"
-    prefix: "<dark_gray>[<white>D</white>]</dark_gray>"
+    display: "Craftsman"
+    prefix: "<dark_gray>[<white>Craftsman</white>]</dark_gray>"
 
   E:
     cost: 75000
-    display: "Rank E"
-    prefix: "<dark_gray>[<white>E</white>]</dark_gray>"
+    display: "Merchant"
+    prefix: "<dark_gray>[<white>Merchant</white>]</dark_gray>"
 
   F:
     cost: 150000
-    display: "Rank F"
-    prefix: "<dark_gray>[<white>F</white>]</dark_gray>"
+    display: "Scribe"
+    prefix: "<dark_gray>[<white>Scribe</white>]</dark_gray>"
 
   G:
     cost: 275000
-    display: "Rank G"
-    prefix: "<dark_gray>[<yellow>G</yellow>]</dark_gray>"
+    display: "Soldier"
+    prefix: "<dark_gray>[<yellow>Soldier</yellow>]</dark_gray>"
 
   H:
     cost: 450000
-    display: "Rank H"
-    prefix: "<dark_gray>[<yellow>H</yellow>]</dark_gray>"
+    display: "Officer"
+    prefix: "<dark_gray>[<yellow>Officer</yellow>]</dark_gray>"
 
   I:
     cost: 700000
-    display: "Rank I"
-    prefix: "<dark_gray>[<yellow>I</yellow>]</dark_gray>"
+    display: "Embalmer"
+    prefix: "<dark_gray>[<yellow>Embalmer</yellow>]</dark_gray>"
 
   J:
     cost: 1000000
-    display: "Rank J"
-    prefix: "<dark_gray>[<gold>J</gold>]</dark_gray>"
+    display: "Architect"
+    prefix: "<dark_gray>[<gold>Architect</gold>]</dark_gray>"
 
   K:
     cost: 1500000
-    display: "Rank K"
-    prefix: "<dark_gray>[<gold>K</gold>]</dark_gray>"
+    display: "Physician"
+    prefix: "<dark_gray>[<gold>Physician</gold>]</dark_gray>"
 
   L:
     cost: 2250000
-    display: "Rank L"
-    prefix: "<dark_gray>[<gold>L</gold>]</dark_gray>"
+    display: "Vizier"
+    prefix: "<dark_gray>[<gold>Vizier</gold>]</dark_gray>"
 
   M:
     cost: 3500000
-    display: "Rank M"
-    prefix: "<dark_gray>[<green>M</green>]</dark_gray>"
+    display: "Nomarch"
+    prefix: "<dark_gray>[<green>Nomarch</green>]</dark_gray>"
 
   N:
     cost: 5000000
-    display: "Rank N"
-    prefix: "<dark_gray>[<green>N</green>]</dark_gray>"
+    display: "High Priest"
+    prefix: "<dark_gray>[<green>High Priest</green>]</dark_gray>"
 
   O:
     cost: 7500000
-    display: "Rank O"
-    prefix: "<dark_gray>[<green>O</green>]</dark_gray>"
+    display: "Sage"
+    prefix: "<dark_gray>[<green>Sage</green>]</dark_gray>"
 
   P:
     cost: 11000000
-    display: "Rank P"
-    prefix: "<dark_gray>[<aqua>P</aqua>]</dark_gray>"
+    display: "Sorcerer"
+    prefix: "<dark_gray>[<aqua>Sorcerer</aqua>]</dark_gray>"
 
   Q:
     cost: 16000000
-    display: "Rank Q"
-    prefix: "<dark_gray>[<aqua>Q</aqua>]</dark_gray>"
+    display: "Oracle"
+    prefix: "<dark_gray>[<aqua>Oracle</aqua>]</dark_gray>"
 
   R:
     cost: 23000000
-    display: "Rank R"
-    prefix: "<dark_gray>[<aqua>R</aqua>]</dark_gray>"
+    display: "Djed"
+    prefix: "<dark_gray>[<aqua>Djed</aqua>]</dark_gray>"
 
   S:
     cost: 33000000
-    display: "Rank S"
-    prefix: "<dark_gray>[<light_purple>S</light_purple>]</dark_gray>"
+    display: "Anubite"
+    prefix: "<dark_gray>[<light_purple>Anubite</light_purple>]</dark_gray>"
 
   T:
     cost: 48000000
-    display: "Rank T"
-    prefix: "<dark_gray>[<light_purple>T</light_purple>]</dark_gray>"
+    display: "Horus-Born"
+    prefix: "<dark_gray>[<light_purple>Horus-Born</light_purple>]</dark_gray>"
 
   U:
     cost: 70000000
-    display: "Rank U"
-    prefix: "<dark_gray>[<light_purple>U</light_purple>]</dark_gray>"
+    display: "Champion"
+    prefix: "<dark_gray>[<light_purple>Champion</light_purple>]</dark_gray>"
 
   V:
     cost: 100000000
-    display: "Rank V"
-    prefix: "<dark_gray>[<red>V</red>]</dark_gray>"
+    display: "Demigod"
+    prefix: "<dark_gray>[<red>Demigod</red>]</dark_gray>"
 
   W:
     cost: 150000000
-    display: "Rank W"
-    prefix: "<dark_gray>[<red>W</red>]</dark_gray>"
+    display: "Immortal"
+    prefix: "<dark_gray>[<red>Immortal</red>]</dark_gray>"
 
   X:
     cost: 225000000
-    display: "Rank X"
-    prefix: "<dark_gray>[<red>X</red>]</dark_gray>"
+    display: "Reborn"
+    prefix: "<dark_gray>[<red>Reborn</red>]</dark_gray>"
 
   Y:
     cost: 350000000
-    display: "Rank Y"
-    prefix: "<dark_gray>[<dark_red>Y</dark_red>]</dark_gray>"
+    display: "Ascendant"
+    prefix: "<dark_gray>[<dark_red>Ascendant</dark_red>]</dark_gray>"
 
   Z:
     cost: 500000000
-    display: "Rank Z"
-    prefix: "<dark_gray>[<dark_red><bold>Z</bold></dark_red>]</dark_gray>"
+    display: "Pharaoh"
+    prefix: "<dark_gray>[<gold><bold>Pharaoh</bold></gold>]</dark_gray>"

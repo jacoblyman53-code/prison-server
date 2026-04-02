@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class PickaxeEnchantsGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Pickaxe Enchants");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>DIVINE ENCHANTMENTS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_SPEED       = 10;

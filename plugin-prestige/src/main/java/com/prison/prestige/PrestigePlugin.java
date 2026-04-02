@@ -93,8 +93,21 @@ public class PrestigePlugin extends JavaPlugin implements Listener {
     }
 
     private void handlePrestige(Player player) {
-        if (!manager.canPrestige(player.getUniqueId())) {
-            player.sendMessage(mm.deserialize("<red>You must be <white>Rank Z</white> to prestige."));
+        String reason = manager.getCannotPrestigeReason(player.getUniqueId());
+        if (reason != null) {
+            if (reason.equals("rank")) {
+                player.sendMessage(mm.deserialize("<red>You must reach <white>Rank Z</white> before you can Ascend."));
+            } else if (reason.startsWith("coins:")) {
+                long needed = Long.parseLong(reason.substring(6));
+                player.sendMessage(mm.deserialize(
+                    "<red>You cannot afford the Ascension. You need <gold>" +
+                    String.format("%,d", needed) + " Coins</gold><red>."));
+            } else if (reason.startsWith("tokens:")) {
+                long needed = Long.parseLong(reason.substring(7));
+                player.sendMessage(mm.deserialize(
+                    "<red>You cannot afford the Ascension. You need <light_purple>" +
+                    String.format("%,d", needed) + " Relics</light_purple><red>."));
+            }
             return;
         }
         gui.openConfirm(player);
@@ -263,15 +276,44 @@ public class PrestigePlugin extends JavaPlugin implements Listener {
                 }
             }
 
-            getLogger().info("[Prestige] Config loaded — " + rewards.size() + " tier rewards defined.");
-            return new PrestigeConfig(multiplier, broadcast, prefix, rewards, maxPerms);
+            // ---- Ascension costs ----
+            long defaultCoins  = 100_000_000L;
+            long defaultTokens = 50_000L;
+            Map<Integer, long[]> perLevelCosts = new HashMap<>();
+            Object costObj = root.get("ascension-cost");
+            if (costObj instanceof Map<?, ?> costMap) {
+                Object dc = costMap.get("default-coins");
+                Object dt = costMap.get("default-tokens");
+                if (dc instanceof Number n) defaultCoins  = n.longValue();
+                if (dt instanceof Number n) defaultTokens = n.longValue();
+                Object plObj = costMap.get("per-level");
+                if (plObj instanceof Map<?, ?> plMap) {
+                    for (Map.Entry<?, ?> entry : plMap.entrySet()) {
+                        int level = ((Number) entry.getKey()).intValue();
+                        if (entry.getValue() instanceof Map<?, ?> lvlData) {
+                            long c = defaultCoins;
+                            long t = defaultTokens;
+                            Object cv = lvlData.get("coins");
+                            Object tv = lvlData.get("tokens");
+                            if (cv instanceof Number n) c = n.longValue();
+                            if (tv instanceof Number n) t = n.longValue();
+                            perLevelCosts.put(level, new long[]{c, t});
+                        }
+                    }
+                }
+            }
+
+            getLogger().info("[Prestige] Config loaded — " + rewards.size() + " tier rewards, "
+                + perLevelCosts.size() + " per-level cost overrides.");
+            return new PrestigeConfig(multiplier, broadcast, prefix, rewards, maxPerms,
+                defaultCoins, defaultTokens, perLevelCosts);
 
         } catch (Exception e) {
             getLogger().severe("[Prestige] Failed to load config: " + e.getMessage() + " — using defaults.");
             return new PrestigeConfig(0.02,
                 "<gold><bold>{player}</bold> prestiged to P{prestige}!",
                 "<dark_purple>[<light_purple>P{level}</light_purple>]</dark_purple>",
-                Map.of(), 50);
+                Map.of(), 50, 100_000_000L, 50_000L, Map.of());
         }
     }
 }

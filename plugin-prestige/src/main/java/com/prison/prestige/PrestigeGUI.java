@@ -30,7 +30,7 @@ import java.util.UUID;
 public class PrestigeGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    public static final String TITLE_STRING = "Confirm Prestige";
+    public static final String TITLE_STRING = "<!italic>ASCEND?";
 
     public static final int SLOT_CONFIRM = 13;
     public static final int SLOT_CANCEL  = 11;

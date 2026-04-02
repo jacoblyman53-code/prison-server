@@ -38,6 +38,24 @@ rewards:
 # Players can prestige beyond this — they just won't get new perm nodes.
 max-prestige-perms: 50
 
+# ---- Ascension Costs ----
+# The price to ascend (prestige). Players must pay BOTH costs upfront.
+# IGC (Coins) is wiped on prestige anyway — this is the "entry fee" deducted first.
+# Relics (Tokens) persist across prestige — this is the meaningful cost gate.
+#
+# Per-level costs let you scale difficulty as players prestige further.
+# If a level is not listed, the default-coins / default-tokens values apply.
+ascension-cost:
+  default-coins: 100000000       # 100M Coins (on top of the rank ladder ~1.548B earned)
+  default-tokens: 50000          # 50K Relics
+  per-level:
+    1:  { coins: 50000000,  tokens: 25000  }   # First Awakening  — easier on-ramp
+    2:  { coins: 75000000,  tokens: 35000  }   # Second Awakening
+    3:  { coins: 100000000, tokens: 50000  }   # Third Awakening
+    5:  { coins: 150000000, tokens: 75000  }   # Fifth Awakening
+    10: { coins: 250000000, tokens: 125000 }   # Tenth Awakening
+    25: { coins: 500000000, tokens: 250000 }   # Elder God tier
+
 # ---- Prestige Shop ----
 # Points awarded each time a player prestiges. Use /prestigeshop to spend them.
 # Upgrade costs: Mine Profit / Token Mastery tiers cost 5 / 15 / 30 pts.

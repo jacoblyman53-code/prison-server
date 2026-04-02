@@ -56,11 +56,35 @@ public class PrestigeManager {
     }
 
     /**
-     * Returns true if the player is eligible to prestige (must be rank Z).
+     * Returns true if the player is eligible to prestige (must be rank Z and can afford the cost).
      */
     public boolean canPrestige(UUID uuid) {
         String rank = PermissionEngine.getInstance().getMineRank(uuid);
-        return "Z".equalsIgnoreCase(rank);
+        if (!"Z".equalsIgnoreCase(rank)) return false;
+        // Check affordability
+        int targetLevel = getPrestigeLevel(uuid) + 1;
+        long coinCost  = config.getCoinCost(targetLevel);
+        long tokenCost = config.getTokenCost(targetLevel);
+        com.prison.economy.EconomyAPI eco = com.prison.economy.EconomyAPI.getInstance();
+        if (eco == null) return true; // economy not loaded — allow (dev/test mode)
+        return eco.getBalance(uuid) >= coinCost && eco.getTokens(uuid) >= tokenCost;
+    }
+
+    /**
+     * Returns the reason a player cannot prestige, or null if they can.
+     * Used to show specific "can't afford" messages.
+     */
+    public String getCannotPrestigeReason(UUID uuid) {
+        String rank = PermissionEngine.getInstance().getMineRank(uuid);
+        if (!"Z".equalsIgnoreCase(rank)) return "rank";
+        int targetLevel = getPrestigeLevel(uuid) + 1;
+        long coinCost  = config.getCoinCost(targetLevel);
+        long tokenCost = config.getTokenCost(targetLevel);
+        com.prison.economy.EconomyAPI eco = com.prison.economy.EconomyAPI.getInstance();
+        if (eco == null) return null;
+        if (eco.getBalance(uuid) < coinCost) return "coins:" + coinCost;
+        if (eco.getTokens(uuid) < tokenCost) return "tokens:" + tokenCost;
+        return null;
     }
 
     /**
@@ -75,17 +99,37 @@ public class PrestigeManager {
         int  newPrestige = currentP + 1;
 
         try {
-            // Atomic DB update: reset rank + IGC, increment prestige
+            // Deduct costs via EconomyAPI (in-memory wallet — atomic CAS)
+            com.prison.economy.EconomyAPI eco = com.prison.economy.EconomyAPI.getInstance();
+            if (eco != null) {
+                long coinCost  = config.getCoinCost(newPrestige);
+                long tokenCost = config.getTokenCost(newPrestige);
+                // Deduct tokens first (they persist — real cost gate)
+                if (tokenCost > 0) {
+                    long tokResult = eco.deductTokens(uuid, tokenCost, com.prison.economy.TransactionType.PRESTIGE);
+                    if (tokResult < 0) {
+                        logger.warning("[Prestige] Token deduct failed for " + player.getName() + " (insufficient?)");
+                        return -1;
+                    }
+                }
+                // Deduct coins (wallet will be overwritten to 0 by DB update below, but we log it)
+                if (coinCost > 0) {
+                    eco.deductBalance(uuid, coinCost, com.prison.economy.TransactionType.PRESTIGE);
+                    // Note: even if this returns -1 (shouldn't happen after canPrestige check),
+                    // the DB update below sets igc_balance = 0 which is the desired end state.
+                }
+            }
+
+            // Atomic DB update: reset rank + IGC to 0, increment prestige
             DatabaseManager.getInstance().execute(
                 "UPDATE players SET mine_rank = 'A', igc_balance = 0, prestige = ? WHERE uuid = ?",
                 newPrestige, uuid.toString()
             );
 
-            // Log transaction
-            DatabaseManager.getInstance().execute(
-                "INSERT INTO transactions (player_uuid, currency_type, type, amount, balance_after) VALUES (?, 'IGC', 'prestige', 0, 0)",
-                uuid.toString()
-            );
+            // Sync in-memory wallet IGC to 0 (deduct already reduced it, but DB is authoritative)
+            if (eco != null) {
+                eco.setBalance(uuid, 0L, com.prison.economy.TransactionType.PRESTIGE);
+            }
 
             // Rebuild permission cache (updates mine_rank + prestige node)
             PermissionEngine.getInstance().setPrestige(uuid, newPrestige).join();

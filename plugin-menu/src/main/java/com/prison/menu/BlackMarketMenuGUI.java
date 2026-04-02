@@ -15,7 +15,7 @@ import java.util.List;
 
 public class BlackMarketMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Black Market");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>SHADOW BAZAAR");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // 27-slot layout: row 1 = slots 9-17, content items at slots 10-15 (6 items max)

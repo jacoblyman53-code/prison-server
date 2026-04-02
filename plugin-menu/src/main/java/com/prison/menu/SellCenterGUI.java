@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class SellCenterGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Sell Center");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>MERCHANT SELL");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_INV_VALUE  = 10;

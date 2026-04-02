@@ -6,10 +6,10 @@ pending-message: "<green>Pending purchase delivered: <white>{product}</white></g
 # Valid donor rank IDs — must match keys in plugin-donor config.
 # Used for validation only; the actual rank data lives in plugin-donor.
 valid-donor-ranks:
-  - donor
-  - donorplus
-  - elite
-  - eliteplus
+  - devotee
+  - acolyte
+  - high_priest
+  - pharaohs_chosen
 
 # Valid crate tier IDs — must match keys in plugin-crates config.
 valid-crate-tiers:

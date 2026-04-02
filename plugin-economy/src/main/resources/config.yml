@@ -46,7 +46,7 @@ sell-prices:
   DIAMOND:                120
   EMERALD:                300
   NETHERITE_SCRAP:        600
-  NETHERITE_INGOT:        2400
+  NETHERITE_INGOT:        3500   # Must be above 4x Scrap + 4x Gold (2400+152=2552) — TD-009
 
   # ── Processed ingots ──────────────────────────────────────
   IRON_INGOT:             18
@@ -72,7 +72,7 @@ sell-prices:
   DEEPSLATE_DIAMOND_ORE:  132
   EMERALD_ORE:            300
   DEEPSLATE_EMERALD_ORE:  325
-  ANCIENT_DEBRIS:         600
+  ANCIENT_DEBRIS:         1200   # Rarer than Netherite Scrap; 2× Scrap price — TD-008
 
   # ── Crafted ore blocks (mine compositions J-Z) ───────────
   GOLD_BLOCK:             315

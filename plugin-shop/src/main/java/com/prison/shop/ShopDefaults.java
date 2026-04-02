@@ -132,7 +132,7 @@ public class ShopDefaults {
         add(mgr, "ores", Material.DIAMOND,        "Diamond",        120L,  true);
         add(mgr, "ores", Material.EMERALD,        "Emerald",        300L,  true);
         add(mgr, "ores", Material.NETHERITE_SCRAP,"Netherite Scrap",600L,  true);
-        add(mgr, "ores", Material.NETHERITE_INGOT,"Netherite Ingot",2400L, true);
+        add(mgr, "ores", Material.NETHERITE_INGOT,"Netherite Ingot",3500L, true);
 
         // ── Ore blocks (silk-touch sellable mine blocks) ─────────────
         add(mgr, "ores", Material.COAL_ORE,                "Coal Ore",               8L,   true);
@@ -152,7 +152,7 @@ public class ShopDefaults {
         add(mgr, "ores", Material.DIAMOND_ORE,             "Diamond Ore",            120L, true);
         add(mgr, "ores", Material.DEEPSLATE_DIAMOND_ORE,   "Deepslate Diamond Ore",  132L, true);
         add(mgr, "ores", Material.EMERALD_ORE,             "Emerald Ore",            300L, true);
-        add(mgr, "ores", Material.ANCIENT_DEBRIS,          "Ancient Debris",         600L, true);
+        add(mgr, "ores", Material.ANCIENT_DEBRIS,          "Ancient Debris",         1200L, true);
     }
 
     // ----------------------------------------------------------------

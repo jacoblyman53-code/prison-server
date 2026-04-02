@@ -3,6 +3,8 @@ package com.prison.kits;
 import com.prison.database.DatabaseManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,6 +19,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -104,7 +107,89 @@ public class KitsPlugin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        manager.loadPlayer(event.getPlayer().getUniqueId());
+        Player player = event.getPlayer();
+        boolean firstJoin = !player.hasPlayedBefore();
+
+        // Load kit cooldowns async, then run onboarding on main thread
+        getServer().getScheduler().runTaskAsynchronously(this, () -> {
+            manager.loadPlayer(player.getUniqueId());
+            // Once loaded, run the welcome sequence on the main thread
+            getServer().getScheduler().runTaskLater(this, () -> {
+                if (!player.isOnline()) return;
+                if (firstJoin) {
+                    runFirstJoinSequence(player);
+                } else {
+                    runReturnVisitGreeting(player);
+                }
+            }, 20L); // 1 second delay — enough for permissions + economy to load
+        });
+    }
+
+    /** Fired only on the very first time a player joins the server. */
+    private void runFirstJoinSequence(Player player) {
+        // 1 — Welcome title
+        player.showTitle(Title.title(
+            MM.deserialize("<gradient:#FFD700:#FF8C00><bold>The Pharaoh's Prison</bold></gradient>"),
+            MM.deserialize("<gray>Your soul has been claimed by the sands of Egypt"),
+            Title.Times.times(Duration.ofMillis(800), Duration.ofMillis(4000), Duration.ofMillis(800))
+        ));
+        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.8f, 0.6f);
+
+        // 2 — Staggered chat welcome messages (ticks: 40, 60, 80, 100, 120)
+        scheduleMsg(player, 40L,
+            "<gold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        scheduleMsg(player, 42L,
+            "<gold><bold>Welcome to The Pharaoh's Prison!</bold></gold> <gray>A new soul awakens.");
+        scheduleMsg(player, 50L,
+            "<gray>● <white>Mine blocks to earn <gold>Coins</gold>. Use <gold>/sell all</gold> to cash in.");
+        scheduleMsg(player, 60L,
+            "<gray>● <white>Rank up with <gold>/ranks</gold>. Reach <gold>Rank Z</gold> to <light_purple>Ascend</light_purple>.");
+        scheduleMsg(player, 70L,
+            "<gray>● <white>Open the main menu with <gold>/menu</gold>. Your journey begins <aqua>/warp pit</aqua>.");
+        scheduleMsg(player, 80L,
+            "<gold>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+        // 3 — Auto-deliver starter kit (at tick 25 so inventory is open)
+        getServer().getScheduler().runTaskLater(this, () -> {
+            if (!player.isOnline()) return;
+            KitData starterKit = manager.getKit("starter");
+            if (starterKit == null) {
+                getLogger().warning("[Kits] No 'starter' kit found — skipping first-join delivery.");
+                return;
+            }
+            KitsManager.ClaimResult result = manager.claimKit(player, starterKit);
+            if (result == KitsManager.ClaimResult.SUCCESS) {
+                player.sendMessage(MM.deserialize(
+                    "<green>✦ <white>Your <gold>Starter Kit</gold> has been delivered to your inventory!"));
+                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.5f);
+            } else if (result == KitsManager.ClaimResult.INVENTORY_FULL) {
+                player.sendMessage(MM.deserialize(
+                    "<yellow>⚠ <white>Your inventory is full — type <gold>/kit starter</gold> when you have space."));
+            }
+            // ONE_TIME_CLAIMED means the kit was already given (shouldn't happen on first join, but handle gracefully)
+        }, 25L);
+    }
+
+    /** Fired on every join EXCEPT the very first. */
+    private void runReturnVisitGreeting(Player player) {
+        com.prison.economy.EconomyAPI eco = com.prison.economy.EconomyAPI.getInstance();
+        com.prison.permissions.PermissionEngine perms = com.prison.permissions.PermissionEngine.getInstance();
+        if (eco == null || perms == null) return;
+
+        String rank      = perms.getMineRank(player.getUniqueId());
+        long   balance   = eco.getBalance(player.getUniqueId());
+        int    prestige  = perms.getPrestige(player.getUniqueId());
+
+        String prestigeStr = prestige > 0 ? " <dark_purple>[P" + prestige + "]" : "";
+        player.sendMessage(MM.deserialize(
+            "<gold>Welcome back, <white>" + player.getName() + prestigeStr + "<gold>! " +
+            "<gray>Rank: <white>" + rank + " <dark_gray>| <gray>Coins: <gold>" + String.format("%,d", balance)));
+    }
+
+    private void scheduleMsg(Player player, long ticks, String msg) {
+        getServer().getScheduler().runTaskLater(this, () -> {
+            if (player.isOnline()) player.sendMessage(MM.deserialize(msg));
+        }, ticks);
     }
 
     @EventHandler

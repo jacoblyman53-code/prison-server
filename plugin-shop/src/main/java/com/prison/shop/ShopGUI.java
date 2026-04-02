@@ -133,11 +133,11 @@ public class ShopGUI {
             // Lore — spec Section 8 shop item format
             List<Component> lore = new ArrayList<>();
 
-            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Buy: <white>" + fmt(shopItem.priceIgc()) + " <gold>tokens"));
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Buy: <white>" + fmt(shopItem.priceIgc()) + " <gold>Coins"));
 
             if (shopItem.sellable() && eco != null) {
                 long sp = eco.getSellPrice(shopItem.item().getType(), player);
-                if (sp > 0) lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Sell: <white>" + fmt(sp) + " <gold>tokens"));
+                if (sp > 0) lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Sell: <white>" + fmt(sp) + " <gold>Coins"));
                 else        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Sell: <red>Not Sellable"));
             } else {
                 lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Sell: <red>Not Sellable"));
@@ -215,7 +215,7 @@ public class ShopGUI {
         }
         List<Component> pLore = new ArrayList<>();
         pLore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Buy: <white>" + fmt(shopItem.priceIgc()) + " <gold>tokens <gray>each"));
-        pLore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Balance: <white>" + fmt(balance) + " <gold>tokens"));
+        pLore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Balance: <white>" + fmt(balance) + " <gold>Coins"));
         pmeta.lore(pLore);
         pmeta.addItemFlags(
             org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
@@ -236,7 +236,7 @@ public class ShopGUI {
             Material btnMat = afford ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
             String nameTag  = "<!italic>" + (afford ? "<green>" : "<red>") + qtyLabel;
             String costTag  = afford
-                ? "<!italic><gold>$ <gold>Cost: <white>" + fmt(cost) + " tokens"
+                ? "<!italic><gold>$ <gold>Cost: <white>" + fmt(cost) + " Coins"
                 : "<!italic><red>\u2717 Cannot afford <dark_gray>(" + fmt(cost) + " tokens)";
 
             inv.setItem(QTY_SLOTS[i], makeItem(btnMat, nameTag, costTag));

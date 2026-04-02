@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class PickaxeHomeGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Pickaxe");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>KHOPESH");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_OVERVIEW    = 4;

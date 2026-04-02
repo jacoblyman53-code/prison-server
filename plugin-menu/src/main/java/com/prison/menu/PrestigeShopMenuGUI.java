@@ -25,7 +25,7 @@ import java.util.*;
 public class PrestigeShopMenuGUI {
 
     public static final Component TITLE =
-        MiniMessage.miniMessage().deserialize("<!italic>Prestige Shop");
+        MiniMessage.miniMessage().deserialize("<!italic>ASCENSION SHOP");
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 

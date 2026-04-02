@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class MainMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Main Menu");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>PHARAOH'S PRISON");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final String[] TIPS = {

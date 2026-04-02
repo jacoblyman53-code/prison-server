@@ -23,7 +23,7 @@ import java.util.*;
 public class PrestigeConfirmGUI {
 
     public static final Component TITLE =
-        MiniMessage.miniMessage().deserialize("<!italic>Confirm Prestige");
+        MiniMessage.miniMessage().deserialize("<!italic>ASCEND?");
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 

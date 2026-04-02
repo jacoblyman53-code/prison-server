@@ -22,7 +22,7 @@ import java.util.UUID;
 
 public class KitsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Kits");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>DIVINE KITS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Content slots — three rows of 7 (mirrors plugin-kits KitsGUI layout)

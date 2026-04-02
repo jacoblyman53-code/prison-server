@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WarpsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>WARPS");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>SACRED WARPS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int[] CONTENT_SLOTS = {

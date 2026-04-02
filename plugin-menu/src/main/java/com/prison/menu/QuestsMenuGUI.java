@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class QuestsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Quest Log");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>SACRED QUESTS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_BACK = 45;

@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CosmeticsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Your Tags");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>DIVINE ADORNMENTS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Content slots — four rows of 7

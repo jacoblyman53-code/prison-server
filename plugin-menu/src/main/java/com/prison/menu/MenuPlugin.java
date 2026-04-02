@@ -29,6 +29,7 @@ public class MenuPlugin extends JavaPlugin implements Listener {
         menuListener    = new MenuListener(this);
 
         getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(new OnboardingListener(this), this);
         getLogger().info("[Menu] Plugin enabled — unified GUI layer ready.");
     }
 
@@ -101,6 +102,7 @@ public class MenuPlugin extends JavaPlugin implements Listener {
                 Sounds.nav(player);
                 MineBrowserGUI.open(player);
             }
+            case "guide", "howto" -> OnboardingListener.sendGuide(player);
             default -> { return false; }
         }
         return true;

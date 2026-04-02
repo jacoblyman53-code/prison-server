@@ -1,50 +1,52 @@
 # ================================================================
 # Prison Server — Donor Rank Configuration
 # ================================================================
-# Donor ranks are assigned by the Tebex delivery plugin (build #21).
+# Donor ranks are assigned by the Tebex delivery plugin.
 # This file controls display, multipliers, and perk descriptions.
+# Egyptian theme: Devotee → Acolyte → High Priest → Pharaoh's Chosen
 # ================================================================
 
 ranks:
-  donor:
-    display: "Donor"
-    prefix: "<blue>[<aqua>Donor</aqua>]</blue>"
+  devotee:
+    display: "Devotee"
+    prefix: "<dark_aqua>[<aqua>Devotee</aqua>]</dark_aqua>"
     token-multiplier: 1.25
     perks:
-      - "1.25x token earn multiplier"
-      - "Access to donor mine"
+      - "1.25x Relic earn multiplier"
+      - "Access to the Sanctum of Amun mine"
       - "Auto-sell toggle (/autosell)"
-      - "Kit: /kit donor (resets daily)"
+      - "Kit: /kit devotee (resets daily)"
 
-  donorplus:
-    display: "Donor+"
-    prefix: "<blue>[<aqua>Donor<white>+</white></aqua>]</blue>"
+  acolyte:
+    display: "Acolyte"
+    prefix: "<gold>[<yellow>Acolyte</yellow>]</gold>"
     token-multiplier: 1.5
     perks:
-      - "1.5x token earn multiplier"
-      - "Access to donor mine"
+      - "1.5x Relic earn multiplier"
+      - "Access to the Sanctum of Amun mine"
       - "Auto-sell toggle (/autosell)"
-      - "Kit: /kit donorplus (resets daily)"
-      - "All Donor perks"
+      - "Kit: /kit acolyte (resets daily)"
+      - "All Devotee perks"
 
-  elite:
-    display: "Elite"
-    prefix: "<dark_aqua>[<aqua><bold>Elite</bold></aqua>]</dark_aqua>"
+  high_priest:
+    display: "High Priest"
+    prefix: "<light_purple>[<white>High Priest</white>]</light_purple>"
     token-multiplier: 1.75
     perks:
-      - "1.75x token earn multiplier"
-      - "Access to elite mine"
+      - "1.75x Relic earn multiplier"
+      - "Access to the Chamber of the Gods mine"
       - "Auto-sell toggle (/autosell)"
-      - "Kit: /kit elite (resets daily)"
-      - "All Donor+ perks"
+      - "Kit: /kit high_priest (resets daily)"
+      - "All Acolyte perks"
 
-  eliteplus:
-    display: "Elite+"
-    prefix: "<dark_aqua>[<aqua><bold>Elite<white>+</white></bold></aqua>]</dark_aqua>"
+  pharaohs_chosen:
+    display: "Pharaoh's Chosen"
+    prefix: "<gold>[<gradient:#FFD700:#FF6600>Pharaoh's Chosen</gradient>]</gold>"
     token-multiplier: 2.0
     perks:
-      - "2.0x token earn multiplier"
-      - "Access to elite mine"
+      - "2.0x Relic earn multiplier"
+      - "Access to the Chamber of the Gods mine"
       - "Auto-sell toggle (/autosell)"
-      - "Kit: /kit eliteplus (resets daily)"
-      - "All Elite perks"
+      - "Kit: /kit pharaohs_chosen (resets daily)"
+      - "Exclusive cosmetic particle effect: Ra's Aura"
+      - "All High Priest perks"

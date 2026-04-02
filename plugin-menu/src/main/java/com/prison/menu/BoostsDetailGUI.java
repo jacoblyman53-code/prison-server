@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class BoostsDetailGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Active Boosts");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>DIVINE BLESSINGS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_STREAK   = 10;

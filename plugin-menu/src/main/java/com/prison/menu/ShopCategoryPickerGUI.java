@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ShopCategoryPickerGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Shop");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>MERCHANT'S BAZAAR");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Three rows of 7 content slots

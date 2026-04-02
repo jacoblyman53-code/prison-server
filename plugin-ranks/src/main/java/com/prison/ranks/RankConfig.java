@@ -3,6 +3,7 @@ package com.prison.ranks;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * RankConfig — holds the cost, display name, and chat prefix for every mine rank.
@@ -25,6 +26,8 @@ public class RankConfig {
     private final boolean autoteleportDefault;
     private final String rankupMessage;
     private final String rankupBroadcast;
+    /** Rank letters that trigger a server-wide broadcast. Empty = broadcast all. */
+    private final Set<String> rankupBroadcastRanks;
     private final String cannotAffordMessage;
     private final String maxRankMessage;
 
@@ -32,14 +35,16 @@ public class RankConfig {
                       boolean autoteleportDefault,
                       String rankupMessage,
                       String rankupBroadcast,
+                      Set<String> rankupBroadcastRanks,
                       String cannotAffordMessage,
                       String maxRankMessage) {
-        this.ranks               = Collections.unmodifiableMap(new LinkedHashMap<>(ranks));
-        this.autoteleportDefault = autoteleportDefault;
-        this.rankupMessage       = rankupMessage;
-        this.rankupBroadcast     = rankupBroadcast;
-        this.cannotAffordMessage = cannotAffordMessage;
-        this.maxRankMessage      = maxRankMessage;
+        this.ranks                 = Collections.unmodifiableMap(new LinkedHashMap<>(ranks));
+        this.autoteleportDefault   = autoteleportDefault;
+        this.rankupMessage         = rankupMessage;
+        this.rankupBroadcast       = rankupBroadcast;
+        this.rankupBroadcastRanks  = Collections.unmodifiableSet(rankupBroadcastRanks);
+        this.cannotAffordMessage   = cannotAffordMessage;
+        this.maxRankMessage        = maxRankMessage;
     }
 
     public RankData getRank(String letter) {
@@ -83,6 +88,16 @@ public class RankConfig {
     public boolean isAutoteleportDefault() { return autoteleportDefault; }
     public String  getRankupMessage()       { return rankupMessage; }
     public String  getRankupBroadcast()     { return rankupBroadcast; }
+
+    /**
+     * Returns true if a broadcast should fire for this rank letter.
+     * If rankupBroadcastRanks is empty, broadcasts fire for every rank.
+     */
+    public boolean shouldBroadcast(String rankLetter) {
+        if (rankupBroadcastRanks.isEmpty()) return true;
+        return rankupBroadcastRanks.contains(rankLetter.toUpperCase());
+    }
+
     public String  getCannotAffordMessage() { return cannotAffordMessage; }
     public String  getMaxRankMessage()      { return maxRankMessage; }
 }

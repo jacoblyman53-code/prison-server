@@ -40,3 +40,7 @@ commands:
     description: Open the mine browser.
     aliases: [mine]
     usage: /mines
+  guide:
+    description: View the beginner's guide to the server.
+    aliases: [howto]
+    usage: /guide

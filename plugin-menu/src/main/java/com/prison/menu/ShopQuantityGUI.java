@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ShopQuantityGUI {
 
     public static final Component TITLE =
-        MiniMessage.miniMessage().deserialize("<!italic>How Many?");
+        MiniMessage.miniMessage().deserialize("<!italic>PURCHASE");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int   SLOT_PREVIEW = 4;

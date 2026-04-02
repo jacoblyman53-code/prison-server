@@ -30,41 +30,17 @@ kits:
   # ------------------------------------------------------------------
 
   starter:
-    display: "<green>Starter Kit"
+    display: "<color:#E8C87A>Condemned Soul's Rations"
     type: FREE
     cooldown-hours: 0       # 0 = one-time only
     contents:
-      - material: IRON_SWORD
+      - material: STONE_PICKAXE
         amount: 1
-        enchants:
-          SHARPNESS: 1
-          UNBREAKING: 1
-      - material: IRON_PICKAXE
-        amount: 1
-        enchants:
-          EFFICIENCY: 1
-          UNBREAKING: 1
-      - material: IRON_HELMET
-        amount: 1
-        enchants:
-          PROTECTION: 1
-      - material: IRON_CHESTPLATE
-        amount: 1
-        enchants:
-          PROTECTION: 1
-      - material: IRON_LEGGINGS
-        amount: 1
-        enchants:
-          PROTECTION: 1
-      - material: IRON_BOOTS
-        amount: 1
-        enchants:
-          PROTECTION: 1
-          FEATHER_FALLING: 1
-      - material: COOKED_BEEF
-        amount: 32
+        display: "<!italic><gray>Worn Chisel"
+      - material: BREAD
+        amount: 16
       - material: TORCH
-        amount: 64
+        amount: 8
 
   daily:
     display: "<yellow>Daily Kit"

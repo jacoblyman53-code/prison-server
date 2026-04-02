@@ -179,7 +179,35 @@ Players who find it are confused.
 
 ## Resolved Items
 
-*(None yet — this will fill as items are addressed)*
+### TD-001: Prestige Cost Not Configured — ✅ RESOLVED 2026-04-02
+Added `ascension-cost` map to `plugin-prestige/config.yml`. Updated `PrestigeConfig`, `PrestigeManager.canPrestige()`, and `executePrestige()` to enforce Coin + Relic cost before Ascension. Added `getCannotPrestigeReason()` for specific "can't afford" messages.
+
+### TD-002: Shop System (BETA) — ✅ RESOLVED 2026-04-02
+Audited plugin-shop — core is complete. Fixed currency label bug ("tokens" → "Coins" in ShopGUI). Updated Ancient Debris price (600→1200) and Netherite Ingot price (2400→3500) in both economy config and ShopDefaults.
+
+### TD-003: Tebex Webhook Handler — ✅ RESOLVED 2026-04-02
+The existing `/tebexdeliver` RCON command IS the standard Tebex integration. System was already complete with idempotency, offline queue, and full delivery. Updated donor rank IDs and Tebex config to Egyptian names (devotee/acolyte/high_priest/pharaohs_chosen).
+
+### TD-004: New Player Onboarding — ✅ RESOLVED 2026-04-02
+Added first-join sequence to `KitsPlugin`: welcome title, staggered chat messages (5 lines over 4 seconds), auto-deliver starter kit. Added return-visit greeting with rank + balance display. Uses `player.hasPlayedBefore()` for first-join detection.
+
+### TD-005: Generic Rank Names — ✅ RESOLVED 2026-04-02
+All 26 ranks updated with Egyptian names (Slave → Serf → … → Pharaoh) in `plugin-ranks/config.yml`.
+
+### TD-006: Rank-Up Broadcast Empty — ✅ RESOLVED 2026-04-02
+Broadcast message set. `rankup-broadcast-ranks` list added (G, J, O, T, Z). Updated `RankConfig.shouldBroadcast()` and both broadcast call sites in `RankPlugin`.
+
+### TD-007: Stale max-rank-message — ✅ RESOLVED 2026-04-02
+Updated to reference Ascension: "You are Pharaoh — the highest mine rank! Type /prestige to begin your Ascension."
+
+### TD-008: Ancient Debris Pricing — ✅ RESOLVED 2026-04-02
+Ancient Debris: 600 → 1200 Coins/block (2× Netherite Scrap, correct rarity ratio).
+
+### TD-009: Netherite Ingot Pricing — ✅ RESOLVED 2026-04-02
+Netherite Ingot: 2400 → 3500 Coins. Now above crafting cost (4×Scrap + 4×Gold = 2552).
+
+### Phase 6 GUI Theme — ✅ RESOLVED 2026-04-02
+All 22 GUI titles updated with Egyptian names across plugin-menu and plugin-prestige.
 
 ---
 
@@ -187,15 +215,15 @@ Players who find it are confused.
 
 | ID | Description | Severity | Status |
 |---|---|---|---|
-| TD-001 | Prestige cost not configured | HIGH | OPEN |
-| TD-002 | Shop system BETA | HIGH | OPEN |
-| TD-003 | Tebex webhook missing | HIGH | OPEN |
-| TD-004 | No onboarding | HIGH | OPEN |
-| TD-005 | Generic rank names | MEDIUM | OPEN |
-| TD-006 | Rank-up broadcast empty | MEDIUM | OPEN |
-| TD-007 | Stale max-rank-message | MEDIUM | OPEN |
-| TD-008 | Ancient Debris pricing | MEDIUM | OPEN |
-| TD-009 | Netherite Ingot pricing | MEDIUM | OPEN |
+| TD-001 | Prestige cost not configured | HIGH | ✅ RESOLVED |
+| TD-002 | Shop system BETA | HIGH | ✅ RESOLVED |
+| TD-003 | Tebex webhook missing | HIGH | ✅ RESOLVED |
+| TD-004 | No onboarding | HIGH | ✅ RESOLVED |
+| TD-005 | Generic rank names | MEDIUM | ✅ RESOLVED |
+| TD-006 | Rank-up broadcast empty | MEDIUM | ✅ RESOLVED |
+| TD-007 | Stale max-rank-message | MEDIUM | ✅ RESOLVED |
+| TD-008 | Ancient Debris pricing | MEDIUM | ✅ RESOLVED |
+| TD-009 | Netherite Ingot pricing | MEDIUM | ✅ RESOLVED |
 | TD-010 | No unit tests | LOW | OPEN (v2) |
 | TD-011 | core-regions undocumented | LOW | OPEN |
 | TD-012 | Config comments missing | LOW | OPEN (partial) |

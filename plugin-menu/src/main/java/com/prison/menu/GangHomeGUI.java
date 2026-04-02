@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class GangHomeGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Gang Home");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>DYNASTY");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_BACK = 45;

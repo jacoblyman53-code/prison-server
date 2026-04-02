@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class CratesHubGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Crates Hub");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>PHARAOH'S RELICS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Content slots: rows 1-3, columns 1-7 (up to 21 tiers max across 3 rows)

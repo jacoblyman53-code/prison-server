@@ -23,7 +23,7 @@ import java.util.UUID;
  */
 public class PrestigeShopGUI {
 
-    public static final String TITLE_STRING = "Prestige Shop";
+    public static final String TITLE_STRING = "<!italic>ASCENSION SHOP";
 
     // Upgrade slots (row 1 and 2)
     private static final int SLOT_MINE_PROFIT_1   = 11;

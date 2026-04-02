@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public class RankProgressionGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Rank Progression");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>DIVINE RANKS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Rank slots A-Z in order, avoiding slots 4, 13, 22, 31, 49

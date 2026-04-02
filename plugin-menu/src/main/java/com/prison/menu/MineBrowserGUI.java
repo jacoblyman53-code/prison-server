@@ -31,7 +31,7 @@ import java.util.Map;
 public class MineBrowserGUI {
 
     public static final Component TITLE = MiniMessage.miniMessage()
-        .deserialize("<!italic>MINES");
+        .deserialize("<!italic>SACRED TOMBS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Slot 0 = back/close, mines start at slot 1

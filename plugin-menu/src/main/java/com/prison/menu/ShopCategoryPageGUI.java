@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ShopCategoryPageGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Shop: Browse");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>BAZAAR: Browse");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // 28 content slots across 4 rows of 7

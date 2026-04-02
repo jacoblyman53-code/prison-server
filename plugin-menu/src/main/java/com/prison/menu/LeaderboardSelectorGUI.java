@@ -10,7 +10,7 @@ import org.bukkit.inventory.Inventory;
 
 public class LeaderboardSelectorGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>LEADERBOARDS");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>HALL OF LEGENDS");
 
     private static final int SLOT_RICHEST  = 10;
     private static final int SLOT_PRESTIGE = 11;

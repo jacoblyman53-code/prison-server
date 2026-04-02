@@ -18,6 +18,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -173,17 +175,17 @@ public class RankPlugin extends JavaPlugin implements Listener {
                 // Title screen
                 String displayName = data != null ? data.display() : newRank;
                 player.showTitle(Title.title(
-                    mm.deserialize("<gold><bold>RANK UP!</bold></gold>"),
-                    mm.deserialize("<yellow>You are now " + displayName),
+                    mm.deserialize("<gold><bold>⚡ RANK UP</bold></gold>"),
+                    mm.deserialize("<gray>You have risen to <gold>" + displayName),
                     Title.Times.times(
-                        Duration.ofMillis(300),
+                        Duration.ofMillis(500),
                         Duration.ofMillis(2500),
-                        Duration.ofMillis(700)
+                        Duration.ofMillis(750)
                     )
                 ));
 
                 // Sound + particle burst
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.2f);
+                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                 player.getWorld().spawnParticle(
                     org.bukkit.Particle.TOTEM_OF_UNDYING,
                     player.getLocation().add(0, 1, 0),
@@ -193,9 +195,12 @@ public class RankPlugin extends JavaPlugin implements Listener {
                 // Reset ready-notification so it fires again for the next rank
                 rankupReadyNotified.remove(player.getUniqueId());
 
-                // Broadcast if configured
+                // Milestone message for special ranks
+                sendMilestoneMessage(player, newRank);
+
+                // Broadcast for milestone ranks if configured
                 String broadcast = config.getRankupBroadcast();
-                if (broadcast != null && !broadcast.isBlank()) {
+                if (broadcast != null && !broadcast.isBlank() && config.shouldBroadcast(newRank)) {
                     String bMsg = broadcast.replace("{player}", player.getName())
                                            .replace("{rank}", newRank)
                                            .replace("{display}", data != null ? data.display() : newRank);
@@ -236,9 +241,9 @@ public class RankPlugin extends JavaPlugin implements Listener {
                 finalRank = result.newRank();
                 rankupReadyNotified.remove(player.getUniqueId());
 
-                // Broadcast each rankup if configured
+                // Broadcast for milestone ranks if configured
                 String broadcast = config.getRankupBroadcast();
-                if (broadcast != null && !broadcast.isBlank()) {
+                if (broadcast != null && !broadcast.isBlank() && config.shouldBroadcast(finalRank)) {
                     RankConfig.RankData data = config.getRank(finalRank);
                     String bMsg = broadcast.replace("{player}", player.getName())
                                            .replace("{rank}", finalRank)
@@ -309,6 +314,40 @@ public class RankPlugin extends JavaPlugin implements Listener {
                 if (spawn != null) player.teleport(spawn);
             }
         }
+
+        // Milestone message for the highest rank reached in the max chain
+        sendMilestoneMessage(player, finalRank);
+    }
+
+    // ----------------------------------------------------------------
+    // Milestone messages — fire for landmark ranks E, J, N, Z
+    // ----------------------------------------------------------------
+
+    private void sendMilestoneMessage(Player player, String rank) {
+        String msg = switch (rank.toUpperCase()) {
+            case "E" -> "<gold>✦ You are now a Merchant. The Pharaoh's bazaars are open to you.";
+            case "J" -> "<gold>✦ You are now an Architect. The Khopesh's higher secrets are within reach.";
+            case "N" -> "<gold>✦ You are now a High Priest. You may speak with the gods... for a price.";
+            case "Z" -> "<gold>⚡ YOU HAVE REACHED PHARAOH RANK. The highest mortal honor.";
+            default  -> null;
+        };
+
+        if (msg == null) return;
+
+        player.sendMessage(mm.deserialize(msg));
+
+        if ("Z".equalsIgnoreCase(rank)) {
+            // Extra dramatic title for Pharaoh rank
+            player.showTitle(Title.title(
+                mm.deserialize("<gold><bold>⚡ PHARAOH</bold></gold>"),
+                mm.deserialize("<yellow>The highest mortal honor is yours."),
+                Title.Times.times(
+                    Duration.ofMillis(500),
+                    Duration.ofMillis(4000),
+                    Duration.ofMillis(1000)
+                )
+            ));
+        }
     }
 
     // ----------------------------------------------------------------
@@ -374,6 +413,14 @@ public class RankPlugin extends JavaPlugin implements Listener {
             String cantAfford  = (String) root.getOrDefault("cannot-afford-message", "<red>Not enough $.");
             String maxRank     = (String) root.getOrDefault("max-rank-message",  "<gold>You are rank Z!");
 
+            Set<String> broadcastRanks = new HashSet<>();
+            Object bRanksObj = root.get("rankup-broadcast-ranks");
+            if (bRanksObj instanceof List<?> bRanksList) {
+                for (Object item : bRanksList) {
+                    if (item != null) broadcastRanks.add(item.toString().toUpperCase());
+                }
+            }
+
             Map<String, Object> ranksSection = (Map<String, Object>) root.get("ranks");
             Map<String, RankConfig.RankData> rankMap = new LinkedHashMap<>();
 
@@ -390,7 +437,7 @@ public class RankPlugin extends JavaPlugin implements Listener {
             }
 
             getLogger().info("[Ranks] Loaded " + rankMap.size() + " rank definitions from config.");
-            return new RankConfig(rankMap, autoTp, rankupMsg, broadcast, cantAfford, maxRank);
+            return new RankConfig(rankMap, autoTp, rankupMsg, broadcast, broadcastRanks, cantAfford, maxRank);
 
         } catch (Exception e) {
             getLogger().severe("[Ranks] Failed to load config: " + e.getMessage() + " — using defaults.");
@@ -411,7 +458,7 @@ public class RankPlugin extends JavaPlugin implements Listener {
         }
         return new RankConfig(rankMap, true,
             "<green>You ranked up to <gold>{display}</gold>!",
-            "", "<red>You need <gold>${cost}</gold>. You have <gold>${balance}</gold>.",
+            "", new HashSet<>(), "<red>You need <gold>${cost}</gold>. You have <gold>${balance}</gold>.",
             "<gold>You are rank Z — the highest mine rank!");
     }
 }
