@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class SettingsGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <gray>Settings <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>SETTINGS");
 
     private static final int SLOT_SOUNDS        = 10;
     private static final int SLOT_NOTIFICATIONS = 11;
@@ -59,101 +59,113 @@ public class SettingsGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
 
         PlayerSettingsManager psm = PlayerSettingsManager.getInstance();
         PlayerSettingsManager.PlayerSettings settings = psm != null
             ? psm.get(uuid)
             : new PlayerSettingsManager.PlayerSettings();
 
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
+
         // ---- Sounds ----
         boolean sounds = settings.isSounds();
         if (sounds) {
             inv.setItem(SLOT_SOUNDS, Gui.make(Material.NOTE_BLOCK,
-                "<yellow>Sounds: <green>ON",
-                "<gray>Play sound effects for GUI interactions.",
+                "<aqua>Sounds",
+                "<gray>✦ Status: <green>✓ Enabled",
+                "<gray>✦ Play <aqua>sound effects<gray> for GUI interactions.",
                 "",
-                "<green>Currently enabled. Click to disable."));
+                "<green>→ Click to toggle this setting!"));
         } else {
             inv.setItem(SLOT_SOUNDS, Gui.make(Material.NOTE_BLOCK,
-                "<yellow>Sounds: <red>OFF",
-                "<gray>Play sound effects for GUI interactions.",
+                "<aqua>Sounds",
+                "<gray>✦ Status: <red>✗ Disabled",
+                "<gray>✦ Play <aqua>sound effects<gray> for GUI interactions.",
                 "",
-                "<red>Currently disabled. Click to enable."));
+                "<green>→ Click to toggle this setting!"));
         }
 
         // ---- Notifications ----
         boolean notifications = settings.isNotifications();
         if (notifications) {
             inv.setItem(SLOT_NOTIFICATIONS, Gui.make(Material.BELL,
-                "<yellow>Notifications: <green>ON",
-                "<gray>Receive in-chat alerts for rankups,",
-                "<gray>quest completions, and server events.",
+                "<aqua>Notifications",
+                "<gray>✦ Status: <green>✓ Enabled",
+                "<gray>✦ Receive in-chat alerts for <aqua>rankups<gray>,",
+                "<gray>  quest completions, and server events.",
                 "",
-                "<green>Currently enabled. Click to disable."));
+                "<green>→ Click to toggle this setting!"));
         } else {
             inv.setItem(SLOT_NOTIFICATIONS, Gui.make(Material.BELL,
-                "<yellow>Notifications: <red>OFF",
-                "<gray>Receive in-chat alerts for rankups,",
-                "<gray>quest completions, and server events.",
+                "<aqua>Notifications",
+                "<gray>✦ Status: <red>✗ Disabled",
+                "<gray>✦ Receive in-chat alerts for <aqua>rankups<gray>,",
+                "<gray>  quest completions, and server events.",
                 "",
-                "<red>Currently disabled. Click to enable."));
+                "<green>→ Click to toggle this setting!"));
         }
 
         // ---- Auto-Sell Default ----
         boolean autosell = settings.isAutosellDefault();
         if (autosell) {
             inv.setItem(SLOT_AUTOSELL, Gui.make(Material.HOPPER,
-                "<yellow>Auto-Sell: <green>ON",
-                "<gray>Automatically enable auto-sell when",
-                "<gray>you log in or enter a mine.",
+                "<aqua>Auto-Sell",
+                "<gray>✦ Status: <green>✓ Enabled",
+                "<gray>✦ Automatically enable <aqua>auto-sell<gray> when",
+                "<gray>  you log in or enter a mine.",
                 "",
-                "<green>Currently enabled. Click to disable."));
+                "<green>→ Click to toggle this setting!"));
         } else {
             inv.setItem(SLOT_AUTOSELL, Gui.make(Material.HOPPER,
-                "<yellow>Auto-Sell: <red>OFF",
-                "<gray>Automatically enable auto-sell when",
-                "<gray>you log in or enter a mine.",
+                "<aqua>Auto-Sell",
+                "<gray>✦ Status: <red>✗ Disabled",
+                "<gray>✦ Automatically enable <aqua>auto-sell<gray> when",
+                "<gray>  you log in or enter a mine.",
                 "",
-                "<red>Currently disabled. Click to enable."));
+                "<green>→ Click to toggle this setting!"));
         }
 
         // ---- Rankup Auto-Teleport ----
         boolean rankupTp = settings.isRankupAutoteleport();
         if (rankupTp) {
             inv.setItem(SLOT_RANKUP_TP, Gui.make(Material.COMPASS,
-                "<yellow>Rankup Teleport: <green>ON",
-                "<gray>Automatically teleport to your new mine",
-                "<gray>after purchasing a rank.",
+                "<aqua>Rankup Teleport",
+                "<gray>✦ Status: <green>✓ Enabled",
+                "<gray>✦ Automatically <aqua>teleport<gray> to your new mine",
+                "<gray>  after purchasing a rank.",
                 "",
-                "<green>Currently enabled. Click to disable."));
+                "<green>→ Click to toggle this setting!"));
         } else {
             inv.setItem(SLOT_RANKUP_TP, Gui.make(Material.COMPASS,
-                "<yellow>Rankup Teleport: <red>OFF",
-                "<gray>Automatically teleport to your new mine",
-                "<gray>after purchasing a rank.",
+                "<aqua>Rankup Teleport",
+                "<gray>✦ Status: <red>✗ Disabled",
+                "<gray>✦ Automatically <aqua>teleport<gray> to your new mine",
+                "<gray>  after purchasing a rank.",
                 "",
-                "<red>Currently disabled. Click to enable."));
+                "<green>→ Click to toggle this setting!"));
         }
 
         // ---- UI Detail Mode ----
         boolean detail = settings.isUiDetailMode();
         if (detail) {
             inv.setItem(SLOT_DETAIL_MODE, Gui.make(Material.BOOK,
-                "<yellow>Detail Mode: <green>ON",
-                "<gray>Show extra tooltip info in menus.",
-                "<dark_gray>Includes stat breakdowns, raw values,",
-                "<dark_gray>and extended descriptions.",
+                "<aqua>Detail Mode",
+                "<gray>✦ Status: <green>✓ Enabled",
+                "<gray>✦ Show extra <aqua>tooltip info<gray> in menus.",
+                "<gray>  ◆ Stat breakdowns, raw values,",
+                "<gray>  ◆ Extended descriptions.",
                 "",
-                "<green>Currently enabled. Click to disable."));
+                "<green>→ Click to toggle this setting!"));
         } else {
             inv.setItem(SLOT_DETAIL_MODE, Gui.make(Material.BOOK,
-                "<yellow>Detail Mode: <red>OFF",
-                "<gray>Show extra tooltip info in menus.",
-                "<dark_gray>Includes stat breakdowns, raw values,",
-                "<dark_gray>and extended descriptions.",
+                "<aqua>Detail Mode",
+                "<gray>✦ Status: <red>✗ Disabled",
+                "<gray>✦ Show extra <aqua>tooltip info<gray> in menus.",
+                "<gray>  ◆ Stat breakdowns, raw values,",
+                "<gray>  ◆ Extended descriptions.",
                 "",
-                "<red>Currently disabled. Click to enable."));
+                "<green>→ Click to toggle this setting!"));
         }
 
         inv.setItem(SLOT_BACK, Gui.back());

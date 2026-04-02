@@ -2,6 +2,11 @@
 # Prison Server — Mines Configuration
 # ================================================================
 
+# Default session length (in minutes) for DONOR type mines.
+# Players are teleported out when this timer expires. 0 = no limit.
+# Can be overridden per-mine with donor-session-mins in the mine section.
+default-donor-session-mins: 30
+
 # Blocks processed per tick during a mine reset.
 # 1000 = ~25 ticks (1.25s) for a 50x50x10 mine. Raise for faster resets,
 # lower if you notice TPS drops during resets.
@@ -51,6 +56,7 @@ mines:
     permission-node: "prison.mine.a"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 9500
   B:
     enabled: false
     display: "<gray>[<white>B</white>]</gray>"
@@ -72,6 +78,7 @@ mines:
     permission-node: "prison.mine.b"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 11500
   C:
     enabled: false
     display: "<gray>[<white>C</white>]</gray>"
@@ -94,6 +101,7 @@ mines:
     permission-node: "prison.mine.c"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 14500
   D:
     enabled: false
     display: "<gray>[<white>D</white>]</gray>"
@@ -117,6 +125,7 @@ mines:
     permission-node: "prison.mine.d"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 26500
   E:
     enabled: false
     display: "<gray>[<white>E</white>]</gray>"
@@ -141,6 +150,7 @@ mines:
     permission-node: "prison.mine.e"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 53166
   F:
     enabled: false
     display: "<yellow>[<white>F</white>]</yellow>"
@@ -165,6 +175,7 @@ mines:
     permission-node: "prison.mine.f"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 61000
   G:
     enabled: false
     display: "<yellow>[<white>G</white>]</yellow>"
@@ -189,6 +200,7 @@ mines:
     permission-node: "prison.mine.g"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 72500
   H:
     enabled: false
     display: "<yellow>[<white>H</white>]</yellow>"
@@ -213,6 +225,7 @@ mines:
     permission-node: "prison.mine.h"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 82000
   I:
     enabled: false
     display: "<yellow>[<white>I</white>]</yellow>"
@@ -237,6 +250,7 @@ mines:
     permission-node: "prison.mine.i"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 56196
   J:
     enabled: false
     display: "<yellow>[<white>J</white>]</yellow>"
@@ -261,6 +275,7 @@ mines:
     permission-node: "prison.mine.j"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 94500
   K:
     enabled: false
     display: "<gold>[<white>K</white>]</gold>"
@@ -285,6 +300,7 @@ mines:
     permission-node: "prison.mine.k"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 108000
   L:
     enabled: false
     display: "<gold>[<white>L</white>]</gold>"
@@ -308,6 +324,7 @@ mines:
     permission-node: "prison.mine.l"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 126000
   M:
     enabled: false
     display: "<gold>[<white>M</white>]</gold>"
@@ -332,6 +349,7 @@ mines:
     permission-node: "prison.mine.m"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 146000
   N:
     enabled: false
     display: "<gold>[<white>N</white>]</gold>"
@@ -356,6 +374,7 @@ mines:
     permission-node: "prison.mine.n"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 168000
   O:
     enabled: false
     display: "<gold>[<white>O</white>]</gold>"
@@ -380,6 +399,7 @@ mines:
     permission-node: "prison.mine.o"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 191000
   P:
     enabled: false
     display: "<aqua>[<white>P</white>]</aqua>"
@@ -404,6 +424,7 @@ mines:
     permission-node: "prison.mine.p"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 214000
   Q:
     enabled: false
     display: "<aqua>[<white>Q</white>]</aqua>"
@@ -428,6 +449,7 @@ mines:
     permission-node: "prison.mine.q"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 237000
   R:
     enabled: false
     display: "<aqua>[<white>R</white>]</aqua>"
@@ -451,6 +473,7 @@ mines:
     permission-node: "prison.mine.r"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 251000
   S:
     enabled: false
     display: "<aqua>[<white>S</white>]</aqua>"
@@ -474,6 +497,7 @@ mines:
     permission-node: "prison.mine.s"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 266000
   T:
     enabled: false
     display: "<aqua>[<white>T</white>]</aqua>"
@@ -497,6 +521,7 @@ mines:
     permission-node: "prison.mine.t"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 283000
   U:
     enabled: false
     display: "<light_purple>[<white>U</white>]</light_purple>"
@@ -520,6 +545,7 @@ mines:
     permission-node: "prison.mine.u"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 298000
   V:
     enabled: false
     display: "<light_purple>[<white>V</white>]</light_purple>"
@@ -543,6 +569,7 @@ mines:
     permission-node: "prison.mine.v"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 261150
   W:
     enabled: false
     display: "<light_purple>[<white>W</white>]</light_purple>"
@@ -566,6 +593,7 @@ mines:
     permission-node: "prison.mine.w"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 326000
   X:
     enabled: false
     display: "<dark_purple>[<white>X</white>]</dark_purple>"
@@ -589,6 +617,7 @@ mines:
     permission-node: "prison.mine.x"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 349000
   Y:
     enabled: false
     display: "<dark_purple>[<white>Y</white>]</dark_purple>"
@@ -612,6 +641,7 @@ mines:
     permission-node: "prison.mine.y"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 378000
   Z:
     enabled: false
     display: "<dark_purple>[<white>Z</white>]</dark_purple>"
@@ -633,3 +663,4 @@ mines:
     permission-node: "prison.mine.z"
     mine-type: "STANDARD"
     prestige-required: 0
+    target-avg-inventory: 412836

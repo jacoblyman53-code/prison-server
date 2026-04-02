@@ -20,33 +20,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MineBrowserGUI — 54-slot mine warp and info panel.
+ * MineBrowserGUI — 27-slot (3x9) mine warp and info panel.
  *
  * Layout:
- *   Slot  0      : Red X — back to main menu
+ *   Slot  0      : Red X — close
  *   Slots 1-8    : Mines A–H  (row 0, right of X)
  *   Slots 9-17   : Mines I–Q  (row 1)
  *   Slots 18-26  : Mines R–Z  (row 2)
- *   Slots 27-53  : Black glass filler
- *
- * Icons: EMERALD = unlocked/current, DIAMOND = not yet unlocked
- *
- * Tooltip format (matches reference screenshot):
- *   [Mine X]
- *   Click to warp to the X Mine.
- *
- *   Average Inventory: $X,XXX
- *
- *   Vote Crate: ✔ / ✗
- *
- *   Blocks:
- *   ◆ Block Name (XX%)
- *   ...
  */
 public class MineBrowserGUI {
 
     public static final Component TITLE = MiniMessage.miniMessage()
-        .deserialize("<!italic>Mines");
+        .deserialize("<!italic>MINES");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Slot 0 = back/close, mines start at slot 1
@@ -120,7 +105,7 @@ public class MineBrowserGUI {
         player.closeInventory();
         player.teleport(loc);
         player.sendMessage(MM.deserialize(
-            "<green>Teleported to <white>Mine " + mineId + "<green>."));
+            "<green>Teleported to <white>" + mineId + " Mine<green>."));
     }
 
     // ----------------------------------------------------------------
@@ -128,12 +113,12 @@ public class MineBrowserGUI {
     // ----------------------------------------------------------------
 
     private static Inventory build(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
+        // 27 slots = 3 rows × 9: slot 0 = barrier, slots 1-26 = mines A-Z, no empty rows
+        Inventory inv = Bukkit.createInventory(null, 27, TITLE);
 
-        // Red X back button (BARRIER)
-        inv.setItem(SLOT_BACK, Gui.make(Material.BARRIER, "<red>Close",
-            "<!italic><dark_gray>Return to the main menu."));
+        // Slot 0: close/back button (BARRIER) per spec
+        inv.setItem(SLOT_BACK, Gui.make(Material.BARRIER, "<red>✗ Close",
+            "<gray>Click to close this menu."));
 
         String playerRank    = getPlayerRank(player);
         int    playerRankIdx = rankIndex(playerRank);
@@ -161,45 +146,47 @@ public class MineBrowserGUI {
 
         Material icon = isUnlocked ? Material.EMERALD : Material.DIAMOND;
 
-        // Name: "Mine A" through "Mine Z", green if current, white if unlocked, gray if locked
-        String nameColor = isCurrent ? "<green>" : (isUnlocked ? "<white>" : "<gray>");
-        String itemName  = nameColor + "Mine " + id;
+        // Name: "Mine A" through "Mine Z"
+        String nameColor = isCurrent ? "<green>" : (isUnlocked ? "<aqua>" : "<gray>");
+        String itemName  = nameColor + id + " Mine";
 
         // ── Lore ────────────────────────────────────────────────────
         List<Component> lore = new ArrayList<>();
 
-        // Click instruction
-        if (isUnlocked) {
-            lore.add(MM.deserialize("<!italic><gray>Click to warp to the " + id + " Mine."));
+        if (isCurrent) {
+            lore.add(MM.deserialize("<!italic><green>✓ Current mine."));
+        } else if (isUnlocked) {
+            lore.add(MM.deserialize("<!italic><gray>✦ Unlocked mine."));
         } else {
-            lore.add(MM.deserialize("<!italic><red>Requires rank <white>" + id + "<red> to unlock."));
+            lore.add(MM.deserialize("<!italic><red>✗ Requires rank <yellow>" + id + "<red> to unlock."));
         }
 
         lore.add(Component.empty());
 
         // Average inventory value
         long avgValue = calcAvgInventoryValue(player, data, eco);
-        lore.add(MM.deserialize("<!italic><gray>Average Inventory: <white>$" + Fmt.number(avgValue)));
-
-        lore.add(Component.empty());
-
-        // Vote crate indicator
-        boolean voteCrate = (data != null) && data.voteCrate();
-        lore.add(MM.deserialize("<!italic><gray>Vote Crate: " + (voteCrate ? "<green>✔" : "<red>✗")));
+        lore.add(MM.deserialize("<!italic><gray>✦ Avg. Inventory Value: <gold>$" + Fmt.number(avgValue)));
 
         lore.add(Component.empty());
 
         // Block composition
-        lore.add(MM.deserialize("<!italic><white>Blocks:"));
+        lore.add(MM.deserialize("<!italic><aqua>✦ Blocks:"));
         if (data != null && data.composition() != null && !data.composition().isEmpty()) {
             for (Map.Entry<Material, Double> entry : data.composition().entrySet()) {
                 String blockName = Fmt.mat(entry.getKey().name());
                 int    pct       = (int) Math.round(entry.getValue());
                 lore.add(MM.deserialize(
-                    "<!italic><green>◆ <white>" + blockName + " <gray>(" + pct + "%)"));
+                    "<!italic><gray>  ◆ <white>" + blockName + " <gray>(" + pct + "%)"));
             }
         } else {
-            lore.add(MM.deserialize("<!italic><dark_gray>Not configured yet."));
+            lore.add(MM.deserialize("<!italic><gray>  ◆ Not configured yet."));
+        }
+
+        lore.add(Component.empty());
+        if (isUnlocked) {
+            lore.add(MM.deserialize("<!italic><green>→ Click to warp to this mine!"));
+        } else {
+            lore.add(MM.deserialize("<!italic><gray>→ Reach rank <yellow>" + id + "<gray> to unlock."));
         }
 
         return Gui.make(icon, itemName, lore);
@@ -210,7 +197,12 @@ public class MineBrowserGUI {
     // ----------------------------------------------------------------
 
     private static long calcAvgInventoryValue(Player player, MineData data, EconomyAPI eco) {
-        if (data == null || data.composition() == null || data.composition().isEmpty()) return 0L;
+        if (data == null) return 0L;
+
+        // Use spec target value if configured
+        if (data.targetAvgInventory() > 0) return data.targetAvgInventory();
+
+        if (data.composition() == null || data.composition().isEmpty()) return 0L;
         if (eco == null) return 0L;
 
         double total = data.composition().values().stream().mapToDouble(Double::doubleValue).sum();

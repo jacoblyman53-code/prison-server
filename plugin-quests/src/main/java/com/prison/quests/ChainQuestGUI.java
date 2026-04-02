@@ -17,25 +17,24 @@ import java.util.UUID;
  * ChainQuestGUI — 45-slot GUI showing the 5-stage chain questline.
  *
  * Layout (45 slots, 5 rows):
- *   Row 0 (0-8):   border
- *   Row 1 (9-17):  border, S1, border, S2, border, S3, border, border, border
- *   Row 2 (18-26): border (spacer row)
- *   Row 3 (27-35): border, border, border, S4, border, S5, border, border, border
- *   Row 4 (36-44): border x4, info, border x3, border, close
+ *   Row 0 (0-8):   empty
+ *   Row 1 (9-17):  empty, S1, empty, S2, empty, S3, empty, empty, empty
+ *   Row 2 (18-26): empty (spacer row)
+ *   Row 3 (27-35): empty, empty, empty, S4, empty, S5, empty, empty, empty
+ *   Row 4 (36-44): empty x4, info, empty x3, empty, close
  *
  * Stage slots: 10, 12, 14, 30, 32
  * Info slot: 40   Close slot: 44
  */
 public class ChainQuestGUI {
 
-    public static final String TITLE_STRING = "<!italic><dark_aqua>[ <aqua>Chain Quests</aqua> ]";
+    public static final String TITLE_STRING = "Chain Quests";
 
     private static final int[] STAGE_SLOTS = {10, 12, 14, 30, 32};
 
     private static final int SLOT_INFO  = 40;
     private static final int SLOT_CLOSE = 44;
 
-    private static final Material BORDER   = Material.GRAY_STAINED_GLASS_PANE;
     private static final MiniMessage MM    = MiniMessage.miniMessage();
 
     // Stage icons
@@ -76,10 +75,6 @@ public class ChainQuestGUI {
 
         Inventory inv = Bukkit.createInventory(null, 45, MM.deserialize(TITLE_STRING));
 
-        // Fill with border
-        ItemStack border = border();
-        for (int i = 0; i < 45; i++) inv.setItem(i, border);
-
         // Place stage items
         for (int i = 0; i < ChainQuestManager.TOTAL_STAGES; i++) {
             int stageNum = i + 1;
@@ -98,7 +93,7 @@ public class ChainQuestGUI {
 
     private static ItemStack makeStageItem(UUID uuid, int stageNum, ChainQuestManager cqm) {
         ChainQuestManager.ChainStage def = ChainQuestManager.getStageDefinition(stageNum);
-        if (def == null) return border();
+        if (def == null) return new ItemStack(Material.AIR);
 
         int  currentStage = cqm.getCurrentStage(uuid);
         long progress     = (currentStage == stageNum) ? cqm.getCurrentProgress(uuid) : 0L;
@@ -119,25 +114,33 @@ public class ChainQuestGUI {
         ItemMeta meta  = item.getItemMeta();
 
         String titleColor = done ? "<green>" : (active ? "<yellow>" : "<dark_gray>");
-        String prefix     = done ? "✔ " : (active ? "▶ " : "✖ ");
-        meta.displayName(MM.deserialize("<!italic>" + titleColor + prefix + "Stage " + stageNum + ": " + def.title()));
+        String prefix     = done ? "✓ " : (active ? "▶ " : "✗ ");
+        meta.displayName(MM.deserialize("<!italic>" + titleColor + "<bold>" + prefix + "Stage " + stageNum + ": " + def.title()));
 
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>" + def.desc()));
-        lore.add(MM.deserialize("<!italic>"));
 
+        // Description
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>" + def.desc()));
+
+        lore.add(Component.empty());
+
+        // Progress / status
         if (done) {
-            lore.add(MM.deserialize("<!italic><green><bold>COMPLETED"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <green>✓ Completed!"));
         } else if (active) {
             long pct = (progress * 100) / def.goal();
-            lore.add(MM.deserialize("<!italic><white>Progress: <aqua>" + fmt(progress) + " <dark_gray>/ <aqua>" + fmt(def.goal())));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Progress: <white>" + fmt(progress) + " <dark_gray>/ <white>" + fmt(def.goal())));
             lore.add(MM.deserialize("<!italic>" + progressBar(progress, def.goal()) + " <yellow>" + pct + "%"));
         } else {
-            lore.add(MM.deserialize("<!italic><dark_gray>Complete Stage " + (stageNum - 1) + " first"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <red>✗ <gray>Complete Stage " + (stageNum - 1) + " first"));
         }
 
-        lore.add(MM.deserialize("<!italic>"));
-        lore.add(MM.deserialize("<!italic><gray>Reward: <gold>$" + fmt(def.igcReward()) + " <dark_gray>+ <aqua>" + def.tokenReward() + " tokens"));
+        lore.add(Component.empty());
+
+        // Reward
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Reward:"));
+        lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gold>$" + fmt(def.igcReward()) + " <gray>IGC"));
+        lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>" + def.tokenReward() + " <green>Tokens"));
 
         meta.lore(lore);
         item.setItemMeta(meta);
@@ -147,16 +150,16 @@ public class ChainQuestGUI {
     private static ItemStack makeInfoItem(UUID uuid, ChainQuestManager cqm) {
         ItemStack item = new ItemStack(Material.BOOK);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><aqua>Chain Quest Progress"));
+        meta.displayName(MM.deserialize("<!italic><aqua>✦ Chain Quest Progress"));
 
         List<Component> lore = new ArrayList<>();
         if (cqm.isComplete(uuid)) {
-            lore.add(MM.deserialize("<!italic><green><bold>★ All stages complete! ★"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <green>✓ All stages complete!"));
         } else {
             int stage = cqm.getCurrentStage(uuid);
-            lore.add(MM.deserialize("<!italic><gray>Current stage: <yellow>" + stage + " <dark_gray>/ " + ChainQuestManager.TOTAL_STAGES));
-            lore.add(MM.deserialize("<!italic><gray>Complete each stage in order"));
-            lore.add(MM.deserialize("<!italic><gray>to unlock the next one."));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Current Stage: <white>" + stage + " <dark_gray>/ " + ChainQuestManager.TOTAL_STAGES));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Complete each stage in <green>order</green>"));
+            lore.add(MM.deserialize("<!italic><gray>  to unlock the next one."));
         }
 
         meta.lore(lore);
@@ -167,15 +170,8 @@ public class ChainQuestGUI {
     private static ItemStack makeCloseItem() {
         ItemStack item = new ItemStack(Material.BARRIER);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><red>Close"));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private static ItemStack border() {
-        ItemStack item = new ItemStack(BORDER);
-        ItemMeta meta  = item.getItemMeta();
-        meta.displayName(Component.empty());
+        meta.displayName(MM.deserialize("<!italic><red>✗ Close"));
+        meta.lore(List.of(MM.deserialize("<!italic><gray>Click to close this menu.")));
         item.setItemMeta(meta);
         return item;
     }

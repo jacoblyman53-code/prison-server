@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class QuestsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <aqua>Quests <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Quest Log");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_BACK = 45;
@@ -53,9 +53,11 @@ public class QuestsMenuGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         QuestManager qm;
         try {
@@ -66,8 +68,8 @@ public class QuestsMenuGUI {
 
         if (qm == null) {
             // System unavailable — show a single info item in the center
-            inv.setItem(22, Gui.make(Material.BARRIER, "<gray>Quest System Unavailable",
-                "<gray>Quest system not available."));
+            inv.setItem(22, Gui.make(Material.BARRIER, "<red>✗ Quest System Unavailable",
+                "<gray>✦ Quest system not available."));
             inv.setItem(SLOT_BACK, Gui.back());
             return inv;
         }
@@ -93,30 +95,30 @@ public class QuestsMenuGUI {
 
             // Slot 46: Daily summary
             inv.setItem(46, Gui.make(Material.SUNFLOWER, "<yellow>Daily Quests",
-                "<gray>Total: <white>" + daily.size(),
-                "<gray>Completed today: <green>" + dailyCompleted + "<gray>/<white>" + daily.size()));
+                "<gray>✦ Total: <white>" + daily.size(),
+                "<gray>✦ Completed today: <green>" + dailyCompleted + "<gray>/<white>" + daily.size()));
 
             // Slot 47: Weekly summary
             inv.setItem(47, Gui.make(Material.GLOWSTONE, "<aqua>Weekly Quests",
-                "<gray>Total: <white>" + weekly.size(),
-                "<gray>Completed this week: <green>" + weeklyCompleted + "<gray>/<white>" + weekly.size()));
+                "<gray>✦ Total: <white>" + weekly.size(),
+                "<gray>✦ Completed this week: <green>" + weeklyCompleted + "<gray>/<white>" + weekly.size()));
 
             // Slot 48: Milestones summary
             inv.setItem(48, Gui.make(Material.NETHER_STAR, "<light_purple>Milestones",
-                "<gray>Total: <white>" + milestones.size(),
-                "<gray>Completed: <green>" + milestoneCompleted + "<gray>/<white>" + milestones.size()));
+                "<gray>✦ Total: <white>" + milestones.size(),
+                "<gray>✦ Completed: <green>" + milestoneCompleted + "<gray>/<white>" + milestones.size()));
 
             // Slot 50: Overall info
             Collection<QuestDefinition> all = questMgr.getAllDefinitions();
             long totalCompleted = all.stream()
                 .filter(d -> { PlayerQuestData pd = safeGetData(questMgr, playerUuid, d.getId()); return pd != null && pd.isCompleted(); })
                 .count();
-            inv.setItem(50, Gui.make(Material.BOOK, "<white>Quest Overview",
-                "<gray>Total quests: <white>" + all.size(),
-                "<gray>Completed: <green>" + totalCompleted + "<gray>/<white>" + all.size(),
+            inv.setItem(50, Gui.make(Material.BOOK, "<aqua>✦ Quest Overview",
+                "<gray>✦ Total quests: <white>" + all.size(),
+                "<gray>✦ Completed: <green>" + totalCompleted + "<gray>/<white>" + all.size(),
                 "",
-                "<dark_gray>Daily and weekly quests reset periodically.",
-                "<dark_gray>Milestones are permanent achievements."));
+                "<gray>✦ Daily and weekly quests <aqua>reset<gray> periodically.",
+                "<gray>✦ Milestones are <aqua>permanent<gray> achievements."));
 
             // ---- Quest items in content slots ----
             // Order: daily → weekly → milestones
@@ -144,11 +146,12 @@ public class QuestsMenuGUI {
     // ----------------------------------------------------------------
 
     private static ItemStack buildQuestItem(QuestDefinition def, UUID uuid, QuestManager qm) {
-        String color;
+        String tierColor;
+        String tierLabel;
         switch (def.getTier()) {
-            case WEEKLY    -> color = "<aqua>";
-            case MILESTONE -> color = "<light_purple>";
-            default        -> color = "<yellow>"; // DAILY
+            case WEEKLY    -> { tierColor = "<aqua>";         tierLabel = "Weekly"; }
+            case MILESTONE -> { tierColor = "<light_purple>"; tierLabel = "Milestone"; }
+            default        -> { tierColor = "<yellow>";       tierLabel = "Daily"; }
         }
 
         PlayerQuestData data = safeGetData(qm, uuid, def.getId());
@@ -158,30 +161,33 @@ public class QuestsMenuGUI {
 
         List<Component> lore = new ArrayList<>();
 
+        // Tier label
+        lore.add(MM.deserialize("<!italic><gray>✦ Type: " + tierColor + tierLabel));
+
         // Description
         String desc = def.getDescription();
         if (desc != null && !desc.isBlank()) {
-            lore.add(MM.deserialize("<!italic><gray>" + desc));
+            lore.add(MM.deserialize("<!italic><gray>✦ " + desc));
         }
         lore.add(Component.empty());
 
         // Progress bar
         String bar = progressBar(progress, goal, 10);
-        lore.add(MM.deserialize("<!italic><gray>Progress: <white>" + progress + "<gray>/<white>" + goal));
-        lore.add(MM.deserialize("<!italic><dark_gray>[" + bar + "<dark_gray>]"));
+        lore.add(MM.deserialize("<!italic><gray>✦ Progress: <white>" + progress + "<gray>/<white>" + goal));
+        lore.add(MM.deserialize("<!italic><gray>[" + bar + "<gray>]"));
 
         // Status
         if (completed) {
-            lore.add(MM.deserialize("<!italic><green>\u2714 Completed!"));
+            lore.add(MM.deserialize("<!italic><green>✓ Completed!"));
             // Reset countdown for time-limited tiers
             if (def.getTier() == QuestTier.DAILY || def.getTier() == QuestTier.WEEKLY) {
                 try {
                     long secsUntilReset = qm.secondsUntilReset(uuid, def.getId());
-                    lore.add(MM.deserialize("<!italic><gray>Resets in: <white>" + Fmt.duration(secsUntilReset * 1000L)));
+                    lore.add(MM.deserialize("<!italic><gray>✦ Resets in: <white>" + Fmt.duration(secsUntilReset * 1000L)));
                 } catch (Exception ignored) {}
             }
         } else {
-            lore.add(MM.deserialize("<!italic><yellow>In progress"));
+            lore.add(MM.deserialize("<!italic><yellow>✦ In progress..."));
         }
 
         // Rewards
@@ -189,13 +195,13 @@ public class QuestsMenuGUI {
         long igcReward = def.getIgcReward();
         long tokenReward = def.getTokenReward();
         if (igcReward > 0) {
-            lore.add(MM.deserialize("<!italic><gold>Reward: $" + Fmt.number(igcReward)));
+            lore.add(MM.deserialize("<!italic><green>+ Reward: <gold>$" + Fmt.number(igcReward)));
         }
         if (tokenReward > 0) {
-            lore.add(MM.deserialize("<!italic><aqua>Reward: " + tokenReward + "<aqua> Tokens"));
+            lore.add(MM.deserialize("<!italic><green>+ Reward: <aqua>" + tokenReward + " Tokens"));
         }
 
-        return Gui.make(def.getIcon(), color + def.getTitle(), lore);
+        return Gui.make(def.getIcon(), tierColor + def.getTitle(), lore);
     }
 
     // ----------------------------------------------------------------

@@ -28,7 +28,7 @@ public class RankEditorGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    private static final Component TITLE_LIST = MM.deserialize("<gold><bold>Rank Editor — All Ranks");
+    private static final Component TITLE_LIST = MM.deserialize("RANK EDITOR");
 
     // ----------------------------------------------------------------
     // Mutable state for a rank edit session
@@ -75,11 +75,12 @@ public class RankEditorGUI {
             if (data == null) continue;
 
             ItemStack item = AdminPanel.makeItem(Material.PAPER,
-                data.display(),   // raw MiniMessage string used as name
-                "<gray>Letter: <white>" + letter,
-                "<gray>Cost: <white>" + data.cost() + " IGC",
-                "<gray>Prefix: <white>" + data.prefix(),
-                "<dark_gray>Click to edit");
+                "<aqua>Rank <yellow>" + letter,
+                "<aqua>✦ <gray>Letter: <yellow>" + letter,
+                "<aqua>✦ <gray>Cost: <white>" + data.cost() + " <gold>IGC",
+                "<aqua>✦ <gray>Prefix: <white>" + data.prefix(),
+                "",
+                "<green>→ <green>Click to <green><underlined>edit</underlined> this rank!");
             // Override the display with parsed MiniMessage for proper rendering
             var meta = item.getItemMeta();
             meta.displayName(MM.deserialize("<!italic>" + data.display()));
@@ -87,7 +88,7 @@ public class RankEditorGUI {
             inv.setItem(i, item);
         }
 
-        inv.setItem(45, AdminPanel.makeItem(Material.BARRIER, "<red>Close", "<gray>Close the rank editor."));
+        inv.setItem(45, AdminPanel.makeItem(Material.BARRIER, "<red>✗ Close", "<gray>Click to close this menu."));
 
         player.openInventory(inv);
     }
@@ -109,46 +110,46 @@ public class RankEditorGUI {
     }
 
     static void renderRankEditor(Player player, RankEditorState state) {
-        Component title = MM.deserialize("<gold><bold>Edit Rank: " + state.rankLetter());
+        Component title = MM.deserialize("Edit Rank: " + state.rankLetter());
         Inventory inv = Bukkit.createInventory(null, 54, title);
-
-        // Fill border
-        ItemStack filler = AdminPanel.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 9; i++)   inv.setItem(i, filler);
-        for (int i = 45; i < 54; i++) inv.setItem(i, filler);
-        for (int i = 9; i < 45; i += 9) {
-            inv.setItem(i, filler);
-            inv.setItem(i + 8, filler);
-        }
 
         // Slot 10 — Cost
         inv.setItem(10, AdminPanel.makeItem(Material.GOLD_NUGGET,
-            "<gold>Rankup Cost",
-            "<gray>Current cost: <white>" + state.pendingCost() + " IGC",
-            "<dark_gray>Click to change.",
-            "<yellow>Enter new amount in chat-style anvil."));
+            "<aqua>Rankup Cost",
+            "<aqua>✦ <gray>Current cost: <white>" + state.pendingCost() + " <gold>IGC",
+            "",
+            "<green>→ <green>Click to <green><underlined>change</underlined> this cost!"));
 
         // Slot 12 — Display Name
         inv.setItem(12, AdminPanel.makeItem(Material.NAME_TAG,
-            "<gold>Display Name",
-            "<gray>Current: ",
+            "<aqua>Display Name",
+            "<aqua>✦ <gray>Current display:",
             "<!italic>" + state.pendingDisplay(),
-            "<dark_gray>Click to change (MiniMessage format)."));
+            "",
+            "<green>→ <green>Click to <green><underlined>edit</underlined> display name! <gray>(MiniMessage format)"));
 
         // Slot 14 — Prefix
         inv.setItem(14, AdminPanel.makeItem(Material.PAPER,
-            "<gold>Chat Prefix",
-            "<gray>Current: " + state.pendingPrefix(),
-            "<dark_gray>Click to change (MiniMessage format)."));
+            "<aqua>Chat Prefix",
+            "<aqua>✦ <gray>Current prefix: <white>" + state.pendingPrefix(),
+            "",
+            "<green>→ <green>Click to <green><underlined>edit</underlined> prefix! <gray>(MiniMessage format)"));
 
         // Slot 22 — Save
         inv.setItem(22, AdminPanel.makeItem(Material.EMERALD,
-            "<green>Save Changes",
-            "<gray>Saves cost, display, and prefix.",
-            "<yellow>⚠ Changes apply immediately — no restart."));
+            "<aqua>Save Changes",
+            "<gray>Saves <green>cost<gray>, <green>display<gray>, and <green>prefix<gray>.",
+            "",
+            "<red>✗ Changes apply immediately — no restart.",
+            "",
+            "<green>→ <green>Click to <green><underlined>save</underlined> this rank!"));
 
         // Slot 45 — Back
-        inv.setItem(45, AdminPanel.makeItem(Material.ARROW, "<gray>← Back to All Ranks"));
+        inv.setItem(45, AdminPanel.makeItem(Material.ARROW,
+            "<red>← Back to RANK EDITOR",
+            "<gray>Return to Rank Editor.",
+            "",
+            "<green>→ <green>Click to <green><underlined>go back</underlined>."));
 
         player.openInventory(inv);
     }
@@ -159,7 +160,7 @@ public class RankEditorGUI {
 
     public static boolean isTitle(Component title) {
         String plain = PlainTextComponentSerializer.plainText().serialize(title);
-        return plain.equals("Rank Editor — All Ranks") || plain.startsWith("Edit Rank:");
+        return plain.equals("Rank Editor — All Ranks") || plain.equals("RANK EDITOR") || plain.startsWith("Edit Rank:");
     }
 
     // ----------------------------------------------------------------
@@ -169,7 +170,7 @@ public class RankEditorGUI {
     public static void handleClick(Player player, int slot, Component viewTitle) {
         String plain = PlainTextComponentSerializer.plainText().serialize(viewTitle);
 
-        if (plain.equals("Rank Editor — All Ranks")) {
+        if (plain.equals("Rank Editor — All Ranks") || plain.equals("RANK EDITOR")) {
             handleRankListClick(player, slot);
         } else if (plain.startsWith("Edit Rank:")) {
             handleRankEditorClick(player, slot);

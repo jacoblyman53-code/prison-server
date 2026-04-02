@@ -27,7 +27,7 @@ public class BlackMarketGUI {
     // Constants
     // ----------------------------------------------------------------
 
-    private static final String TITLE_RAW = "<dark_red><bold>☠ Black Market";
+    private static final String TITLE_RAW = "BLACK MARKET";
     private static final Component TITLE = MiniMessage.miniMessage().deserialize(TITLE_RAW);
 
     private static final int SIZE = 54;
@@ -125,14 +125,7 @@ public class BlackMarketGUI {
 
     /** Rebuilds the inventory contents in-place (used for refresh). */
     private static void populate(Inventory inv) {
-        MiniMessage mm = MiniMessage.miniMessage();
         BlackMarketManager mgr = BlackMarketManager.getInstance();
-
-        // --- Filler ---
-        ItemStack filler = buildFiller();
-        for (int i = 0; i < SIZE; i++) {
-            inv.setItem(i, filler);
-        }
 
         // --- Info clock (slot 4) ---
         long msLeft = mgr.getTimeUntilRefresh();
@@ -148,9 +141,8 @@ public class BlackMarketGUI {
             int slot = ITEM_SLOTS[i];
             if (i < items.size()) {
                 inv.setItem(slot, buildItemStack(items.get(i)));
-            } else {
-                inv.setItem(slot, buildEmptySlot());
             }
+            // Empty slots stay empty — no filler
         }
     }
 
@@ -173,26 +165,14 @@ public class BlackMarketGUI {
     // Item builders
     // ----------------------------------------------------------------
 
-    private static ItemStack buildFiller() {
-        ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(MiniMessage.miniMessage().deserialize("<!italic><dark_gray> "));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private static ItemStack buildEmptySlot() {
-        ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(MiniMessage.miniMessage().deserialize("<!italic><dark_gray>—"));
-        item.setItemMeta(meta);
-        return item;
-    }
-
     private static ItemStack buildCloseItem() {
+        MiniMessage mm = MiniMessage.miniMessage();
         ItemStack item = new ItemStack(Material.BARRIER);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(MiniMessage.miniMessage().deserialize("<!italic><red>Close"));
+        meta.displayName(mm.deserialize("<!italic><red>\u2717 Close"));
+        List<Component> lore = new ArrayList<>();
+        lore.add(mm.deserialize("<!italic><gray>Click to close this menu."));
+        meta.lore(lore);
         item.setItemMeta(meta);
         return item;
     }
@@ -202,12 +182,13 @@ public class BlackMarketGUI {
         ItemStack item = new ItemStack(Material.CLOCK);
         ItemMeta meta = item.getItemMeta();
 
-        meta.displayName(mm.deserialize("<!italic><dark_red>☠ Black Market"));
+        meta.displayName(mm.deserialize("<!italic><aqua>Black Market"));
 
         List<Component> lore = new ArrayList<>();
-        lore.add(mm.deserialize("<!italic><gray>Refreshes in: <white>" + countdown));
-        lore.add(mm.deserialize("<!italic><dark_gray>Items rotate every 6 hours"));
-        lore.add(mm.deserialize("<!italic><dark_gray>Limited stock — buy before it's gone!"));
+        lore.add(mm.deserialize("<!italic><gray>Exclusive items with <green>limited stock</green>."));
+        lore.add(Component.empty());
+        lore.add(mm.deserialize("<!italic><aqua>\u2756 <gray>Refreshes in: <white>" + countdown));
+        lore.add(mm.deserialize("<!italic><aqua>\u2756 <gray>Rotation: <white>every 6 hours"));
         meta.lore(lore);
 
         item.setItemMeta(meta);
@@ -224,9 +205,6 @@ public class BlackMarketGUI {
 
         List<Component> lore = new ArrayList<>();
 
-        // Header
-        lore.add(mm.deserialize("<!italic><dark_gray>☠ Exclusive"));
-
         // Original lore lines
         for (String line : bmi.getLore()) {
             lore.add(mm.deserialize(line));
@@ -235,20 +213,18 @@ public class BlackMarketGUI {
         // Blank separator
         lore.add(Component.empty());
 
-        // Price
-        lore.add(mm.deserialize("<!italic><yellow>Price: <gold>$" + formatPrice(bmi.getPriceIgc())));
-
-        // Stock
-        lore.add(mm.deserialize("<!italic><gray>Stock: <white>" + bmi.getCurrentStock()));
+        // Metadata section
+        lore.add(mm.deserialize("<!italic><aqua>\u2756 <gray>Price: <gold>" + formatPrice(bmi.getPriceIgc()) + " tokens"));
+        lore.add(mm.deserialize("<!italic><aqua>\u2756 <gray>Stock: <white>" + bmi.getCurrentStock()));
 
         // Blank separator
         lore.add(Component.empty());
 
         // Call to action
         if (bmi.isInStock()) {
-            lore.add(mm.deserialize("<!italic><green>Click to purchase"));
+            lore.add(mm.deserialize("<!italic><green>\u2192 Click to purchase this item!"));
         } else {
-            lore.add(mm.deserialize("<!italic><red>Sold Out"));
+            lore.add(mm.deserialize("<!italic><red>\u2717 Sold Out"));
         }
 
         meta.lore(lore);

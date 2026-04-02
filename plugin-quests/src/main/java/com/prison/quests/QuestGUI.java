@@ -43,7 +43,7 @@ public class QuestGUI {
     private static final int CONTENT_END   = 44; // inclusive
     private static final int BOTTOM_START  = 45;
 
-    public static final String TITLE_STRING = "<gold><bold>⚑ Quests";
+    public static final String TITLE_STRING = "QUEST LOG";
 
     private final QuestManager manager;
 
@@ -68,7 +68,6 @@ public class QuestGUI {
     public void open(Player player, QuestTier activeTab) {
         Inventory inv = Bukkit.createInventory(null, SIZE, MM.deserialize(TITLE_STRING));
 
-        fillGray(inv);         // background
         buildTabRow(inv, activeTab, player.getUniqueId());
         buildContentArea(inv, activeTab, player.getUniqueId());
         buildBottomRow(inv);
@@ -118,15 +117,16 @@ public class QuestGUI {
         meta.displayName(MM.deserialize("<!italic>" + nameColor + "<bold>" + prefix + tierLabel));
 
         List<Component> lore = new ArrayList<>();
+
+        // Description line
         if (active) {
-            lore.add(MM.deserialize("<!italic><yellow>Currently viewing"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Currently <green>viewing</green> this tab"));
         } else {
-            lore.add(MM.deserialize("<!italic><gray>Click to view " + tierLabel.toLowerCase() + " quests"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>" + tierLabel + " quests"));
         }
 
-        // Add reset countdown for resettable tiers
+        // Reset countdown for resettable tiers
         if (tier.isResettable()) {
-            // Find the smallest seconds-until-reset across this tier's quests for this player
             List<QuestDefinition> defs = manager.getDefinitionsByTier(tier);
             long minReset = Long.MAX_VALUE;
             for (QuestDefinition def : defs) {
@@ -134,18 +134,24 @@ public class QuestGUI {
                 if (secs < minReset) minReset = secs;
             }
             if (minReset == Long.MAX_VALUE || minReset == 0) {
-                lore.add(MM.deserialize("<!italic><gray>Resets: <red>Now"));
+                lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Resets: <red>Now"));
             } else {
-                lore.add(MM.deserialize("<!italic><gray>Resets in: <white>" + formatDuration(minReset)));
+                lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Resets in: <white>" + formatDuration(minReset)));
             }
         } else {
-            lore.add(MM.deserialize("<!italic><gray>Permanent challenges"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Permanent challenges"));
         }
 
         // Quest count summary
         int total     = manager.getDefinitionsByTier(tier).size();
         int completed = countCompleted(uuid, tier);
-        lore.add(MM.deserialize("<!italic><gray>Progress: <white>" + completed + "/" + total + " complete"));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Progress: <white>" + completed + "/" + total + " <green>complete"));
+
+        lore.add(Component.empty());
+
+        if (!active) {
+            lore.add(MM.deserialize("<!italic><green>→ <green>Click to view <green>" + tierLabel.toLowerCase() + "</green> quests!"));
+        }
 
         meta.lore(lore);
         item.setItemMeta(meta);
@@ -175,7 +181,7 @@ public class QuestGUI {
             inv.setItem(slot, buildQuestItem(def, data, uuid));
             slot++;
         }
-        // Remaining content slots stay as gray glass (filled in fillGray)
+        // Remaining content slots stay empty
     }
 
     private ItemStack buildQuestItem(QuestDefinition def, PlayerQuestData data, UUID uuid) {
@@ -198,7 +204,7 @@ public class QuestGUI {
         ItemMeta  meta = item.getItemMeta();
 
         // Display name
-        String checkmark = completed ? "✔ " : "";
+        String checkmark = completed ? "✓ " : "";
         meta.displayName(MM.deserialize("<!italic>" + titleColor + "<bold>" + checkmark + def.getTitle()));
 
         // Lore
@@ -206,31 +212,31 @@ public class QuestGUI {
 
         // Description
         if (!def.getDescription().isEmpty()) {
-            lore.add(MM.deserialize("<!italic><gray>" + def.getDescription()));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>" + def.getDescription()));
         }
 
         lore.add(Component.empty());
 
-        // Progress bar
+        // Progress
         if (!completed) {
             long capped = Math.min(progress, goal);
-            lore.add(MM.deserialize("<!italic>" + buildProgressBar(capped, goal)));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Progress: " + buildProgressBar(capped, goal)));
         } else {
-            lore.add(MM.deserialize("<!italic><green>✔ Completed!"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <green>✓ Completed!"));
         }
 
         lore.add(Component.empty());
 
         // Rewards
-        lore.add(MM.deserialize("<!italic><gold>Rewards:"));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Rewards:"));
         if (def.hasIgcReward()) {
-            lore.add(MM.deserialize("<!italic>  <gold>" + QuestManager.formatAmount(def.getIgcReward()) + " IGC"));
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>" + QuestManager.formatAmount(def.getIgcReward()) + " <green>IGC"));
         }
         if (def.hasTokenReward()) {
-            lore.add(MM.deserialize("<!italic>  <aqua>" + QuestManager.formatAmount(def.getTokenReward()) + " Tokens"));
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>" + QuestManager.formatAmount(def.getTokenReward()) + " <green>Tokens"));
         }
         if (!def.hasIgcReward() && !def.hasTokenReward()) {
-            lore.add(MM.deserialize("<!italic>  <gray>No rewards configured"));
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <red>✗ None"));
         }
 
         // Reset info (only for resettable tiers)
@@ -238,8 +244,17 @@ public class QuestGUI {
             long secsLeft = manager.secondsUntilReset(uuid, def.getId());
             if (secsLeft > 0) {
                 lore.add(Component.empty());
-                lore.add(MM.deserialize("<!italic><gray>Resets in: <white>" + formatDuration(secsLeft)));
+                lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Resets: <white>" + formatDuration(secsLeft)));
             }
+        }
+
+        lore.add(Component.empty());
+
+        // CTA
+        if (completed) {
+            lore.add(MM.deserialize("<!italic><green>→ <green>Click to <green>claim</green> reward!"));
+        } else {
+            lore.add(MM.deserialize("<!italic><green>→ <green>Click to <green>track</green> this quest!"));
         }
 
         meta.lore(lore);
@@ -274,28 +289,10 @@ public class QuestGUI {
         // Close button
         ItemStack close = new ItemStack(Material.BARRIER);
         ItemMeta  meta  = close.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><red><bold>Close"));
-        meta.lore(List.of(MM.deserialize("<!italic><gray>Click to close the quest menu")));
+        meta.displayName(MM.deserialize("<!italic><red>✗ Close"));
+        meta.lore(List.of(MM.deserialize("<!italic><gray>Click to close this menu.")));
         close.setItemMeta(meta);
         inv.setItem(SLOT_CLOSE, close);
-    }
-
-    // ----------------------------------------------------------------
-    // Background Fill
-    // ----------------------------------------------------------------
-
-    /**
-     * Fill all 54 slots with a gray glass pane filler.
-     * Individual slots are then overwritten by their real items.
-     */
-    private void fillGray(Inventory inv) {
-        ItemStack filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta  meta   = filler.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic> "));
-        filler.setItemMeta(meta);
-        for (int i = 0; i < SIZE; i++) {
-            inv.setItem(i, filler);
-        }
     }
 
     // ----------------------------------------------------------------

@@ -18,10 +18,10 @@ import java.util.UUID;
  * KitsGUI — 54-slot GUI showing all kits with their status.
  *
  * Layout:
- *   Row 0 (0-8):   border
- *   Rows 1-3 (9-35): kit items in columns 1-7; columns 0 and 8 are border
- *   Row 4 (36-44): border
- *   Row 5 (45-53): border + close at slot 49
+ *   Row 0 (0-8):   empty
+ *   Rows 1-3 (9-35): kit items in columns 1-7; columns 0 and 8 are empty
+ *   Row 4 (36-44): empty
+ *   Row 5 (45-53): empty + close at slot 49
  *
  * Available kit slots (up to 21): 10-16, 19-25, 28-34
  *
@@ -33,9 +33,8 @@ import java.util.UUID;
  */
 public class KitsGUI {
 
-    public static final String TITLE_STRING = "<!italic><gold>[ <white>Kits</white> ]";
+    public static final String TITLE_STRING = "KITS";
 
-    private static final Material BORDER        = Material.BLACK_STAINED_GLASS_PANE;
     private static final Material READY_MAT     = Material.LIME_CONCRETE;
     private static final Material COOLDOWN_MAT  = Material.YELLOW_STAINED_GLASS_PANE;
     private static final Material DONE_MAT      = Material.RED_STAINED_GLASS_PANE;
@@ -134,10 +133,6 @@ public class KitsGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, MM.deserialize(TITLE_STRING));
 
-        // Fill all with border
-        ItemStack border = border();
-        for (int i = 0; i < 54; i++) inv.setItem(i, border);
-
         // Close button
         inv.setItem(SLOT_CLOSE, makeCloseItem());
 
@@ -159,10 +154,10 @@ public class KitsGUI {
         boolean hasAccess = manager.meetsRequirements(player, kit);
         long remaining    = hasAccess ? manager.getRemainingMs(uuid, kit) : -1L;
 
-        boolean ready     = hasAccess && remaining == 0;
-        boolean onCooldown = hasAccess && remaining > 0 && remaining != Long.MAX_VALUE;
+        boolean ready       = hasAccess && remaining == 0;
+        boolean onCooldown  = hasAccess && remaining > 0 && remaining != Long.MAX_VALUE;
         boolean doneClaimed = hasAccess && remaining == Long.MAX_VALUE;
-        boolean locked    = !hasAccess;
+        boolean locked      = !hasAccess;
 
         // Pick material
         Material mat;
@@ -182,44 +177,59 @@ public class KitsGUI {
         ItemMeta meta = item.getItemMeta();
 
         // Display name
-        String namePrefix = ready ? "<green>✔ " : (onCooldown ? "<yellow>⏳ " : (doneClaimed ? "<red>✖ " : "<dark_gray>🔒 "));
-        meta.displayName(MM.deserialize("<!italic>" + namePrefix + stripTags(kit.display())));
+        String namePrefix = ready ? "<green>✓ " : (onCooldown ? "<yellow>⏳ " : (doneClaimed ? "<red>✗ " : "<dark_gray>✗ "));
+        meta.displayName(MM.deserialize("<!italic>" + namePrefix + "<bold>" + stripTags(kit.display())));
 
         // Lore
         List<Component> lore = new ArrayList<>();
 
         // Requirement line
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Access:"));
         switch (kit.type()) {
-            case RANK  -> lore.add(MM.deserialize("<!italic><gray>Requires rank: <white>" + kit.requiredRank()));
-            case DONOR -> lore.add(MM.deserialize("<!italic><gray>Requires: <gold>" + kit.requiredDonorRank()));
-            default    -> lore.add(MM.deserialize("<!italic><gray>Available to all players"));
+            case RANK  -> lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>Requires rank: <yellow>" + kit.requiredRank()));
+            case DONOR -> lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>Requires: <yellow>" + kit.requiredDonorRank()));
+            default    -> lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <green>Available to all players"));
         }
-        lore.add(MM.deserialize("<!italic>"));
+
+        lore.add(Component.empty());
 
         // Contents preview (up to 4 items)
-        lore.add(MM.deserialize("<!italic><dark_gray>Contents:"));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Contents:"));
         int shown = 0;
         for (KitItem ki : kit.contents()) {
-            if (shown++ >= 4) { lore.add(MM.deserialize("<!italic><dark_gray>  ...")); break; }
-            lore.add(MM.deserialize("<!italic><gray>  " + ki.amount() + "x <white>" + formatMat(ki.material().name())));
+            if (shown++ >= 4) { lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>...")); break; }
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>" + ki.amount() + "x <white>" + formatMat(ki.material().name())));
         }
-        lore.add(MM.deserialize("<!italic>"));
 
-        // Status line
+        lore.add(Component.empty());
+
+        // Cooldown / status
         if (ready) {
-            lore.add(MM.deserialize("<!italic><green><bold>Click to claim!"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <green>✓ Ready to claim!"));
         } else if (onCooldown) {
-            lore.add(MM.deserialize("<!italic><yellow>Ready in: <white>" + KitsPlugin.formatDuration(remaining)));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Cooldown: <white>" + KitsPlugin.formatDuration(remaining)));
         } else if (doneClaimed) {
-            lore.add(MM.deserialize("<!italic><red>Already claimed <dark_gray>(one-time)"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Cooldown: <red>✗ Already claimed <dark_gray>(one-time)"));
         } else {
-            // locked
             String req = kit.type() == KitData.KitType.RANK
-                ? "Requires mine rank " + kit.requiredRank()
+                ? "Requires mine rank <yellow>" + kit.requiredRank()
                 : kit.type() == KitData.KitType.DONOR
-                    ? "Requires " + kit.requiredDonorRank()
+                    ? "Requires <yellow>" + kit.requiredDonorRank()
                     : "No access";
-            lore.add(MM.deserialize("<!italic><dark_gray>" + req));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <red>✗ <gray>" + req));
+        }
+
+        lore.add(Component.empty());
+
+        // CTA
+        if (ready) {
+            lore.add(MM.deserialize("<!italic><green>→ <green>Click to <green>claim</green> this kit!"));
+        } else if (onCooldown) {
+            lore.add(MM.deserialize("<!italic><red>✗ On cooldown — ready in <white>" + KitsPlugin.formatDuration(remaining)));
+        } else if (doneClaimed) {
+            lore.add(MM.deserialize("<!italic><red>✗ One-time kit already claimed."));
+        } else {
+            lore.add(MM.deserialize("<!italic><red>✗ You do not meet the requirements."));
         }
 
         meta.lore(lore);
@@ -231,18 +241,11 @@ public class KitsGUI {
     // Utility items
     // ----------------------------------------------------------------
 
-    private static ItemStack border() {
-        ItemStack item = new ItemStack(BORDER);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.empty());
-        item.setItemMeta(meta);
-        return item;
-    }
-
     private static ItemStack makeCloseItem() {
         ItemStack item = new ItemStack(Material.BARRIER);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><red>Close"));
+        meta.displayName(MM.deserialize("<!italic><red>✗ Close"));
+        meta.lore(List.of(MM.deserialize("<!italic><gray>Click to close this menu.")));
         item.setItemMeta(meta);
         return item;
     }

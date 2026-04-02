@@ -28,7 +28,7 @@ public final class EventInfoGUI {
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     /** Title component used to recognise this GUI in click events. */
-    private static final Component TITLE = MM.deserialize("<!italic><gold><bold>Active Events");
+    private static final Component TITLE = MM.deserialize("<!italic>ACTIVE EVENTS");
 
     private EventInfoGUI() {}
 
@@ -43,21 +43,18 @@ public final class EventInfoGUI {
     }
 
     private static void populate(Inventory inv, Collection<ActiveEvent> active) {
-        // Border: fill all slots with black glass
-        ItemStack border = makeItem(Material.BLACK_STAINED_GLASS_PANE,
-                "<!italic><dark_gray> ", List.of());
-        for (int i = 0; i < 27; i++) {
-            inv.setItem(i, border);
-        }
-
         // Content area: slots 10-16 (row 2, columns 2-8 of a 27-slot chest)
         int[] contentSlots = {10, 11, 12, 13, 14, 15, 16};
 
         if (active.isEmpty()) {
             ItemStack noEvents = makeItem(
                     Material.GRAY_STAINED_GLASS_PANE,
-                    "<!italic><gray>No events active",
-                    List.of("<!italic><dark_gray>Check back later!")
+                    "<!italic><gray>No Events Active",
+                    List.of(
+                        "<!italic><gray>Check back <green>later<gray>!",
+                        "<!italic>",
+                        "<!italic><gray>→ No events are currently running."
+                    )
             );
             for (int slot : contentSlots) {
                 inv.setItem(slot, noEvents);
@@ -68,19 +65,19 @@ public final class EventInfoGUI {
                 if (i < list.size()) {
                     inv.setItem(contentSlots[i], buildEventItem(list.get(i)));
                 } else {
-                    // Remaining slots stay as border
+                    // Remaining slots stay empty
                     break;
                 }
             }
         }
 
-        // Close button — slot 26 (bottom-right)
+        // Close button — slot 0 (top-left)
         ItemStack close = makeItem(
-                Material.RED_STAINED_GLASS_PANE,
-                "<!italic><red><bold>Close",
+                Material.BARRIER,
+                "<!italic><red>✗ Close",
                 List.of("<!italic><gray>Click to close this menu.")
         );
-        inv.setItem(26, close);
+        inv.setItem(0, close);
     }
 
     // -------------------------------------------------------------------------
@@ -122,11 +119,13 @@ public final class EventInfoGUI {
 
         // Build lore
         List<String> lore = new ArrayList<>();
-        lore.add("<!italic><gray>Type: <white>" + cfg.type().name());
-        lore.add("<!italic><gray>Multiplier: <white>x" + cfg.multiplier());
-        lore.add("<!italic><gray>Time remaining: <yellow>" + mins + " minute" + (mins == 1 ? "" : "s"));
+        lore.add("<!italic><aqua>✦ <gray>Type: <gray>" + cfg.type().name());
+        lore.add("<!italic><aqua>✦ <gray>Multiplier: <green>" + cfg.multiplier() + "x");
+        lore.add("<!italic><aqua>✦ <gray>Ends in: <gray>" + mins + " minute" + (mins == 1 ? "" : "s"));
+        lore.add("<!italic>");
+        lore.add("<!italic><green>→ Click for event details.");
 
-        return makeItem(mat, "<!italic>" + cfg.displayName(), lore);
+        return makeItem(mat, "<!italic><aqua>" + cfg.displayName(), lore);
     }
 
     /**

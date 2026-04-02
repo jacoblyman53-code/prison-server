@@ -23,7 +23,7 @@ import java.util.UUID;
  */
 public class PrestigeShopGUI {
 
-    public static final String TITLE_STRING = "<!italic><dark_purple>[ <light_purple>Prestige Shop</light_purple> ]";
+    public static final String TITLE_STRING = "Prestige Shop";
 
     // Upgrade slots (row 1 and 2)
     private static final int SLOT_MINE_PROFIT_1   = 11;
@@ -47,7 +47,6 @@ public class PrestigeShopGUI {
     }
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    private static final Material BORDER = Material.GRAY_STAINED_GLASS_PANE;
 
     private final PrestigeShopManager manager;
 
@@ -58,10 +57,6 @@ public class PrestigeShopGUI {
     public void open(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 27, MM.deserialize(TITLE_STRING));
-
-        // Fill borders
-        ItemStack border = borderPane();
-        for (int i = 0; i < 27; i++) inv.setItem(i, border);
 
         // Points info item (center top)
         inv.setItem(SLOT_POINTS_INFO, buildPointsItem(uuid));
@@ -77,7 +72,8 @@ public class PrestigeShopGUI {
         // Close button
         ItemStack closeItem = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.displayName(MM.deserialize("<!italic><red>Close"));
+        closeMeta.displayName(MM.deserialize("<!italic><red>✗ Close"));
+        closeMeta.lore(List.of(MM.deserialize("<!italic><gray>Click to close this menu.")));
         closeItem.setItemMeta(closeMeta);
         inv.setItem(SLOT_CLOSE, closeItem);
 
@@ -102,11 +98,12 @@ public class PrestigeShopGUI {
         int pts = manager.getPoints(uuid);
         ItemStack item = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><light_purple>Prestige Points"));
+        meta.displayName(MM.deserialize("<!italic><aqua>Prestige Points"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>Available: <white><bold>" + pts + " pts"));
-        lore.add(MM.deserialize("<!italic><dark_gray>Earned by prestiging."));
-        lore.add(MM.deserialize("<!italic><dark_gray>+" + manager.getPointsPerPrestige() + " pts per prestige."));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Spend points on <green>permanent upgrades<gray>."));
+        lore.add(MM.deserialize("<!italic>"));
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Available Points: <white>" + pts + " pts"));
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Earned: <white>+" + manager.getPointsPerPrestige() + " pts <gray>per prestige"));
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -128,45 +125,40 @@ public class PrestigeShopGUI {
         ItemStack item = new ItemStack(icon);
         ItemMeta meta = item.getItemMeta();
 
-        String statusColor = owned ? "<green>" : (prereqMet ? "<aqua>" : "<dark_gray>");
-        meta.displayName(MM.deserialize("<!italic>" + statusColor + def.display()));
+        String nameColor = owned ? "<green>" : (prereqMet ? "<aqua>" : "<dark_gray>");
+        meta.displayName(MM.deserialize("<!italic>" + nameColor + def.display()));
 
         List<Component> lore = new ArrayList<>();
 
+        // Section: what this upgrade does
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Upgrade effects:"));
         if (def.sellBonus() > 1.0) {
-            lore.add(MM.deserialize("<!italic><gray>Sell bonus: <white>+" + pct(def.sellBonus()) + "%"));
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <green>+ <gray>Sell bonus: <green>+" + pct(def.sellBonus()) + "%"));
         }
         if (def.tokenBonus() > 1.0) {
-            lore.add(MM.deserialize("<!italic><gray>Token bonus: <white>+" + pct(def.tokenBonus()) + "%"));
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <green>+ <gray>Token bonus: <green>+" + pct(def.tokenBonus()) + "%"));
         }
 
-        lore.add(MM.deserialize("<!italic><gray>Cost: <light_purple>" + def.cost() + " pts"));
+        lore.add(MM.deserialize("<!italic>"));
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>" + def.cost() + " pts"));
 
         if (owned) {
             lore.add(MM.deserialize("<!italic>"));
-            lore.add(MM.deserialize("<!italic><green><bold>PURCHASED"));
+            lore.add(MM.deserialize("<!italic><green>✓ <green>Purchased"));
         } else if (!prereqMet) {
             String reqDisplay = manager.getUpgrade(def.requiredUpgrade()) != null
                 ? manager.getUpgrade(def.requiredUpgrade()).display() : def.requiredUpgrade();
             lore.add(MM.deserialize("<!italic>"));
-            lore.add(MM.deserialize("<!italic><red>Requires: " + reqDisplay));
+            lore.add(MM.deserialize("<!italic><red>✗ <gray>Requires: <yellow>" + reqDisplay));
         } else if (!canAfford) {
             lore.add(MM.deserialize("<!italic>"));
-            lore.add(MM.deserialize("<!italic><red>Not enough points <dark_gray>(" + pts + "/" + def.cost() + ")"));
+            lore.add(MM.deserialize("<!italic><red>✗ <gray>Not enough points <dark_gray>(" + pts + "/" + def.cost() + ")"));
         } else {
             lore.add(MM.deserialize("<!italic>"));
-            lore.add(MM.deserialize("<!italic><yellow>Click to purchase"));
+            lore.add(MM.deserialize("<!italic><green>→ <green>Click to <underlined>purchase</underlined> this upgrade!"));
         }
 
         meta.lore(lore);
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private ItemStack borderPane() {
-        ItemStack item = new ItemStack(BORDER);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.empty());
         item.setItemMeta(meta);
         return item;
     }

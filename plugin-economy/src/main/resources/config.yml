@@ -29,8 +29,10 @@ sell-prices:
   # ── Stone / earth mine blocks (early mines A-E) ──────────
   STONE:                  3
   COBBLESTONE:            2
+  SMOOTH_STONE:           5
   TUFF:                   8
   ANDESITE:               6
+  DEEPSLATE:              5
 
   # ── Ore drops (no silk touch) ─────────────────────────────
   COAL:                   8

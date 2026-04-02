@@ -21,5 +21,3 @@ commands:
     usage: /warp <name> | /warp create <name> | /warp delete <name> | /warp list
   warps:
     description: Browse available warps in a GUI
-  mines:
-    description: Browse all mines in a GUI and teleport

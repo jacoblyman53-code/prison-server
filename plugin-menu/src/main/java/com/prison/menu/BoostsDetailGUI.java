@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class BoostsDetailGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <green>Active Boosts <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Active Boosts");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_STREAK   = 10;
@@ -48,7 +48,9 @@ public class BoostsDetailGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         // ---- Gather data safely ----
 
@@ -137,12 +139,12 @@ public class BoostsDetailGUI {
             else                   nextBreak = "MAX (1.50x)";
 
             inv.setItem(SLOT_STREAK, Gui.make(Material.BLAZE_POWDER,
-                "<yellow>Sell Streak",
-                "<gray>Current streak: <yellow>" + streak + " sells",
-                "<gray>Streak bonus: <green>" + Fmt.multiplier(streakMult),
+                "<aqua>Sell Streak",
+                "<gray>✦ Current streak: <yellow>" + streak + " sells",
+                "<gray>✦ Streak bonus: <green>" + Fmt.multiplier(streakMult),
                 "",
-                "<dark_gray>Next threshold: <white>" + nextBreak,
-                "<dark_gray>Sell within 60s to maintain streak."));
+                "<gray>✦ Next threshold: <white>" + nextBreak,
+                "<gray>✦ Sell within <aqua>60s<gray> to maintain streak."));
         }
 
         // ================================================================
@@ -151,18 +153,19 @@ public class BoostsDetailGUI {
         {
             if (gangName != null) {
                 inv.setItem(SLOT_GANG, Gui.make(Material.SHIELD,
-                    "<green>Gang Bonus",
-                    "<gray>Gang: <white>" + gangName,
+                    "<aqua>Gang Bonus",
+                    "<gray>✦ Gang: <yellow>" + gangName,
                     "",
-                    "<gray>Sell bonus:  <green>" + Fmt.multiplier(gangSell),
-                    "<gray>Token bonus: <green>" + Fmt.multiplier(gangToken)));
+                    "<gray>✦ Sell bonus:  <green>" + Fmt.multiplier(gangSell),
+                    "<gray>✦ Token bonus: <green>" + Fmt.multiplier(gangToken)));
             } else {
                 inv.setItem(SLOT_GANG, Gui.make(Material.SHIELD,
-                    "<green>Gang Bonus",
-                    "<gray>You are not in a gang.",
+                    "<aqua>Gang Bonus",
+                    "<gray>✦ Status: <red>✗ None",
+                    "<gray>✦ You are not in a gang.",
                     "",
-                    "<dark_gray>Join a gang for passive sell",
-                    "<dark_gray>and token bonuses."));
+                    "<gray>✦ Join a gang for passive <aqua>sell<gray>",
+                    "<gray>  and <aqua>token bonuses<gray>."));
             }
         }
 
@@ -171,15 +174,15 @@ public class BoostsDetailGUI {
         // ================================================================
         {
             String prestigeLabel = prestige > 0
-                ? "<light_purple>\u2746 Prestige " + prestige
-                : "<gray>No prestige yet";
+                ? "<gray>✦ Prestige: <light_purple>✦" + prestige
+                : "<gray>✦ Prestige: <red>✗ None";
             inv.setItem(SLOT_PRESTIGE, Gui.make(Material.FIREWORK_STAR,
-                "<light_purple>Prestige Bonus",
+                "<aqua>Prestige Bonus",
                 prestigeLabel,
                 "",
-                "<gray>Sell bonus: <green>" + Fmt.multiplier(prestigeSell),
+                "<gray>✦ Sell bonus: <green>" + Fmt.multiplier(prestigeSell),
                 "",
-                "<dark_gray>Prestige at rank Z to earn more."));
+                "<gray>✦ Prestige at rank <yellow>Z<gray> to earn more."));
         }
 
         // ================================================================
@@ -189,17 +192,18 @@ public class BoostsDetailGUI {
             if (hasActiveEvent && activeEventCount > 0) {
                 inv.setItem(SLOT_EVENT, Gui.make(Material.TOTEM_OF_UNDYING,
                     "<aqua>Event Bonus",
-                    "<green>" + activeEventCount + " event(s) currently active.",
+                    "<gray>✦ Active events: <green>" + activeEventCount,
                     "",
-                    "<gray>Sell multiplier:  <green>" + Fmt.multiplier(eventSell),
-                    "<gray>Token multiplier: <green>" + Fmt.multiplier(eventToken)));
+                    "<gray>✦ Sell multiplier:  <green>" + Fmt.multiplier(eventSell),
+                    "<gray>✦ Token multiplier: <green>" + Fmt.multiplier(eventToken)));
             } else {
                 inv.setItem(SLOT_EVENT, Gui.make(Material.TOTEM_OF_UNDYING,
                     "<aqua>Event Bonus",
-                    "<gray>No active event.",
+                    "<gray>✦ Status: <red>✗ None",
+                    "<gray>✦ No active event.",
                     "",
-                    "<dark_gray>Events are announced in chat",
-                    "<dark_gray>and grant temporary multipliers."));
+                    "<gray>✦ Events are announced in chat",
+                    "<gray>  and grant temporary multipliers."));
             }
         }
 
@@ -209,19 +213,20 @@ public class BoostsDetailGUI {
         {
             if (boostSell > 1.0) {
                 inv.setItem(SLOT_DONOR, Gui.make(Material.DIAMOND,
-                    "<gold>Donor Boost",
-                    "<green>Active boost detected.",
+                    "<aqua>Donor Boost",
+                    "<gray>✦ Status: <green>✓ Active boost detected.",
                     "",
-                    "<gray>Sell bonus: <green>" + Fmt.multiplier(boostSell),
+                    "<gray>✦ Sell bonus: <green>" + Fmt.multiplier(boostSell),
                     "",
-                    "<dark_gray>Boosts can be purchased from the store."));
+                    "<gray>✦ Boosts can be purchased from the store."));
             } else {
                 inv.setItem(SLOT_DONOR, Gui.make(Material.DIAMOND,
-                    "<gold>Donor Boost",
-                    "<gray>No active donor boost.",
+                    "<aqua>Donor Boost",
+                    "<gray>✦ Status: <red>✗ None",
+                    "<gray>✦ No active donor boost.",
                     "",
-                    "<dark_gray>Purchase boosts from the store",
-                    "<dark_gray>for a temporary sell bonus."));
+                    "<gray>✦ Purchase <aqua>boosts<gray> from the store",
+                    "<gray>  for a temporary sell bonus."));
             }
         }
 
@@ -231,15 +236,15 @@ public class BoostsDetailGUI {
         {
             List<Component> totalLore = new ArrayList<>();
             totalLore.add(Component.empty());
-            totalLore.add(MM.deserialize("<!italic><dark_gray>Breakdown:"));
-            totalLore.add(MM.deserialize("<!italic><dark_gray>  Streak:   <gray>" + Fmt.multiplier(streakMult)));
-            totalLore.add(MM.deserialize("<!italic><dark_gray>  Gang:     <gray>" + Fmt.multiplier(gangSell)));
-            totalLore.add(MM.deserialize("<!italic><dark_gray>  Event:    <gray>" + Fmt.multiplier(eventSell)));
-            totalLore.add(MM.deserialize("<!italic><dark_gray>  Prestige: <gray>" + Fmt.multiplier(prestigeSell)));
-            totalLore.add(MM.deserialize("<!italic><dark_gray>  Boost:    <gray>" + Fmt.multiplier(boostSell)));
+            totalLore.add(MM.deserialize("<!italic><gray>✦ Breakdown:"));
+            totalLore.add(MM.deserialize("<!italic><gray>  ◆ Streak:   <white>" + Fmt.multiplier(streakMult)));
+            totalLore.add(MM.deserialize("<!italic><gray>  ◆ Gang:     <white>" + Fmt.multiplier(gangSell)));
+            totalLore.add(MM.deserialize("<!italic><gray>  ◆ Event:    <white>" + Fmt.multiplier(eventSell)));
+            totalLore.add(MM.deserialize("<!italic><gray>  ◆ Prestige: <white>" + Fmt.multiplier(prestigeSell)));
+            totalLore.add(MM.deserialize("<!italic><gray>  ◆ Boost:    <white>" + Fmt.multiplier(boostSell)));
             totalLore.add(Component.empty());
-            totalLore.add(MM.deserialize("<!italic><white>Total: <green>" + Fmt.multiplier(totalSell)));
-            inv.setItem(SLOT_TOTAL, Gui.make(Material.SUNFLOWER, "<gold>Total Sell Multiplier", totalLore));
+            totalLore.add(MM.deserialize("<!italic><gray>✦ Total: <green>" + Fmt.multiplier(totalSell)));
+            inv.setItem(SLOT_TOTAL, Gui.make(Material.SUNFLOWER, "<aqua>Total Sell Multiplier", totalLore));
         }
 
         inv.setItem(SLOT_BACK, Gui.back());

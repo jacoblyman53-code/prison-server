@@ -53,9 +53,7 @@ public class RanksGUI {
 
     public void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54,
-            MM.deserialize("<gold><bold>Mine Rank Progression"));
-
-        fillBorder(inv);
+            MM.deserialize("RANKS"));
 
         RankConfig config    = manager.getConfig();
         String currentRank   = PermissionEngine.getInstance().getMineRank(player.getUniqueId());
@@ -78,7 +76,8 @@ public class RanksGUI {
         // Close button
         ItemStack close = new ItemStack(Material.BARRIER);
         ItemMeta cm = close.getItemMeta();
-        cm.displayName(MM.deserialize("<!italic><red>Close"));
+        cm.displayName(MM.deserialize("<!italic><red>✗ Close"));
+        cm.lore(List.of(MM.deserialize("<!italic><gray>Click to close this menu.")));
         close.setItemMeta(cm);
         inv.setItem(45, close);
 
@@ -88,39 +87,54 @@ public class RanksGUI {
     private ItemStack buildRankItem(String letter, RankConfig.RankData data,
                                     int index, int currentIndex, boolean canAffordNext) {
         Material mat;
-        String statusLine;
 
         if (index < currentIndex) {
             // Completed rank
             mat = Material.LIME_STAINED_GLASS_PANE;
-            statusLine = "<green>✔ Unlocked";
         } else if (index == currentIndex) {
             // Current rank
             mat = Material.GOLD_BLOCK;
-            statusLine = "<gold>★ Current Rank";
         } else if (index == currentIndex + 1 && canAffordNext) {
             // Next rank, affordable
             mat = Material.YELLOW_STAINED_GLASS_PANE;
-            statusLine = "<yellow>★ Click to rank up! Cost: <white>$" + RankManager.formatNumber(data.cost());
         } else if (index == currentIndex + 1) {
             // Next rank, not yet affordable
             mat = Material.ORANGE_STAINED_GLASS_PANE;
-            statusLine = "<yellow>Next | Cost: <white>$" + RankManager.formatNumber(data.cost());
         } else {
             // Locked future rank
             mat = Material.RED_STAINED_GLASS_PANE;
-            statusLine = "<red>Locked | Cost: <white>$" + RankManager.formatNumber(data.cost());
         }
 
         ItemStack item = new ItemStack(mat);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize(data.prefix() + " <white>" + data.display()));
+        meta.displayName(MM.deserialize("<!italic>" + data.prefix() + " <white>" + data.display()));
 
         List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize(statusLine));
-        if (index > 0 && data.cost() > 0) {
-            lore.add(MM.deserialize("<dark_gray>Rankup cost: <gray>$" + RankManager.formatNumber(data.cost())));
+
+        if (index < currentIndex) {
+            lore.add(MM.deserialize("<!italic><green>✓ <green>Completed"));
+        } else if (index == currentIndex) {
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Status: <green>✓ Current Rank"));
+        } else if (index == currentIndex + 1 && canAffordNext) {
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Status: <yellow>Next Rank"));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>$" + RankManager.formatNumber(data.cost())));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><green>→ <green>Click to <underlined>rank up</underlined> to <yellow>" + letter + "<green>!"));
+        } else if (index == currentIndex + 1) {
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Status: <yellow>Next Rank"));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>$" + RankManager.formatNumber(data.cost())));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><red>✗ <gray>Not enough funds to rank up yet."));
+        } else {
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Status: <red>✗ Locked"));
+            if (data.cost() > 0) {
+                lore.add(MM.deserialize("<!italic>"));
+                lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>$" + RankManager.formatNumber(data.cost())));
+            }
         }
+
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -134,36 +148,24 @@ public class RanksGUI {
 
         String nextRank = config.nextRank(currentRank);
         List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>Current rank: <white>" + currentRank));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Current Rank: <yellow>" + currentRank));
         if (nextRank != null) {
             RankConfig.RankData next = config.getRank(nextRank);
-            lore.add(MM.deserialize("<!italic><gray>Next rank: <white>" + nextRank
-                + " <dark_gray>(costs $" + RankManager.formatNumber(next.cost()) + ")"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Next Rank: <yellow>" + nextRank));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost to Rank Up: <white>$" + RankManager.formatNumber(next.cost())));
             lore.add(MM.deserialize("<!italic>"));
             if (canAffordNext) {
-                lore.add(MM.deserialize("<!italic><green><bold>Click the highlighted rank to rank up!"));
+                lore.add(MM.deserialize("<!italic><green>→ <green>Click the <underlined>highlighted rank</underlined> to rank up!"));
             } else {
-                lore.add(MM.deserialize("<!italic><yellow>Type <white>/rankup</white> to advance!"));
+                lore.add(MM.deserialize("<!italic><gray>Type <white>/rankup</white> to advance when ready."));
             }
         } else {
-            lore.add(MM.deserialize("<!italic><gold>You are at the maximum mine rank!"));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><green>✓ <green>Maximum mine rank reached!"));
         }
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
-    }
-
-    private void fillBorder(Inventory inv) {
-        ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-        ItemMeta meta    = filler.getItemMeta();
-        meta.displayName(MM.deserialize(" "));
-        filler.setItemMeta(meta);
-
-        for (int i = 0; i < 9; i++)  inv.setItem(i, filler);       // top row
-        for (int i = 45; i < 54; i++) inv.setItem(i, filler);      // bottom row
-        for (int i = 1; i < 5; i++) {
-            inv.setItem(i * 9, filler);      // left column
-            inv.setItem(i * 9 + 8, filler);  // right column
-        }
     }
 }

@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * PrestigeShopMenuGUI — 54-slot prestige upgrade shop.
  *
- * Top band  (slots 0-8)  : filler
+ * Top band  (slots 0-8)  : info band
  * Upgrades  (slots 10-16, skip 13) : up to 6 upgrade items
  * Slot 13   : points / bonus info (NETHER_STAR)
  * Slot 22   : Prestige Now shortcut
@@ -25,7 +25,7 @@ import java.util.*;
 public class PrestigeShopMenuGUI {
 
     public static final Component TITLE =
-        MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <light_purple>Prestige Shop <dark_gray>]");
+        MiniMessage.miniMessage().deserialize("<!italic>Prestige Shop");
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
@@ -79,9 +79,11 @@ public class PrestigeShopMenuGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         PrestigeManager     pm  = PrestigeManager.getInstance();
         PrestigeShopManager psm = PrestigeShopManager.getInstance();
@@ -110,14 +112,14 @@ public class PrestigeShopMenuGUI {
         // ── Slot 13: Info ───────────────────────────────────────────
         inv.setItem(SLOT_INFO, Gui.make(Material.NETHER_STAR,
             "<light_purple>Prestige Shop",
-            "<gray>Prestige points: <white>" + points,
-            "<gray>Prestige level:  <white>" + prestigeLevel,
+            "<gray>✦ Prestige points: <white>" + points,
+            "<gray>✦ Prestige level:  <light_purple>✦" + prestigeLevel,
             "",
-            "<gray>Shop sell bonus:  <white>+" + totalSellBonus  + "%",
-            "<gray>Shop token bonus: <white>+" + totalTokenBonus + "%",
+            "<gray>✦ Shop sell bonus:  <green>+" + totalSellBonus  + "%",
+            "<gray>✦ Shop token bonus: <green>+" + totalTokenBonus + "%",
             "",
-            "<dark_gray>Spend prestige points on",
-            "<dark_gray>permanent passive upgrades."));
+            "<gray>✦ Spend <aqua>prestige points<gray> on",
+            "<gray>  permanent passive upgrades."));
 
         // ── Upgrade items ───────────────────────────────────────────
         for (int i = 0; i < UPGRADE_SLOTS.length; i++) {
@@ -130,16 +132,18 @@ public class PrestigeShopMenuGUI {
         // ── Slot 22: Prestige Now ───────────────────────────────────
         if (canPrestige) {
             inv.setItem(SLOT_PRESTIGE_NOW, Gui.make(Material.NETHER_STAR,
-                "<light_purple>\u2746 Prestige Now",
-                "<gray>Current prestige level: <white>" + prestigeLevel,
-                "<gray>Next prestige level:    <white>" + (prestigeLevel + 1),
+                "<light_purple>✦ Prestige Now",
+                "<gray>✦ Current prestige level: <light_purple>✦" + prestigeLevel,
+                "<gray>✦ Next prestige level:    <light_purple>✦" + (prestigeLevel + 1),
                 "",
-                "<light_purple>Click to open the prestige confirmation."));
+                "<green>→ Click to open the prestige confirmation!"));
         } else {
-            inv.setItem(SLOT_PRESTIGE_NOW, Gui.make(Material.GRAY_STAINED_GLASS_PANE,
-                "<dark_gray>Prestige Locked",
-                "<gray>Reach rank <white>Z<gray> to prestige.",
-                "<gray>Current rank: <white>" + rank));
+            inv.setItem(SLOT_PRESTIGE_NOW, Gui.make(Material.NETHER_STAR,
+                "<gray>Prestige Locked",
+                "<gray>✦ Reach rank <yellow>Z<gray> to prestige.",
+                "<gray>✦ Current rank: <yellow>" + rank,
+                "",
+                "<red>✗ Requirements not met."));
         }
 
         // ── Slot 45: Back ───────────────────────────────────────────
@@ -170,8 +174,10 @@ public class PrestigeShopMenuGUI {
         if (owned) {
             return Gui.make(Material.LIME_CONCRETE,
                 "<green>\u2714 " + def.display(),
-                "<gray>Owned",
-                bonusLine);
+                "<gray>✦ Status: <green>✓ Owned",
+                bonusLine,
+                "",
+                "<gray>→ Already purchased — passive bonus active.");
         }
 
         // Check prerequisite
@@ -179,9 +185,11 @@ public class PrestigeShopMenuGUI {
         if (req != null && !psm.hasPurchased(uuid, req)) {
             String reqDisplay = findDisplayById(req, allUpgrades);
             return Gui.make(Material.GRAY_STAINED_GLASS_PANE,
-                "<dark_gray>\uD83D\uDD12 " + def.display(),
-                "<gray>Requires: <white>" + reqDisplay,
-                bonusLine);
+                "<gray>" + def.display(),
+                "<gray>✦ Requires: <yellow>" + reqDisplay,
+                bonusLine,
+                "",
+                "<red>✗ Prerequisite not met.");
         }
 
         // Check affordability
@@ -189,19 +197,19 @@ public class PrestigeShopMenuGUI {
         if (canAfford) {
             return Gui.make(Material.YELLOW_STAINED_GLASS_PANE,
                 "<yellow>" + def.display(),
-                "<gray>Cost: <white>" + def.cost() + " prestige points",
-                "<gray>Your points: <white>" + points,
+                "<gray>✦ Cost: <gold>$ " + def.cost() + " prestige points",
+                "<gray>✦ Your points: <white>" + points,
                 bonusLine,
                 "",
-                "<green>Click to purchase!");
+                "<green>→ Click to purchase this upgrade!");
         } else {
             return Gui.make(Material.RED_STAINED_GLASS_PANE,
                 "<red>" + def.display(),
-                "<gray>Cost: <white>" + def.cost() + " prestige points",
-                "<gray>Your points: <white>" + points,
+                "<gray>✦ Cost: <gold>$ " + def.cost() + " prestige points",
+                "<gray>✦ Your points: <white>" + points,
                 bonusLine,
                 "",
-                "<red>Not enough prestige points.");
+                "<red>✗ Not enough prestige points.");
         }
     }
 
@@ -211,13 +219,13 @@ public class PrestigeShopMenuGUI {
         int sellPct  = (int) Math.round((sell - 1.0) * 100);
         int tokenPct = (int) Math.round((token - 1.0) * 100);
         if (sellPct > 0 && tokenPct > 0) {
-            return "<gray>Bonus: <white>+" + sellPct + "% sell<gray>, <white>+" + tokenPct + "% tokens";
+            return "<gray>✦ Bonus: <green>+" + sellPct + "% sell<gray>, <green>+" + tokenPct + "% tokens";
         } else if (sellPct > 0) {
-            return "<gray>Bonus: <white>+" + sellPct + "% sell income";
+            return "<gray>✦ Bonus: <green>+" + sellPct + "% sell income";
         } else if (tokenPct > 0) {
-            return "<gray>Bonus: <white>+" + tokenPct + "% token gain";
+            return "<gray>✦ Bonus: <green>+" + tokenPct + "% token gain";
         }
-        return "<gray>Bonus: <white>none";
+        return "<gray>✦ Bonus: <red>✗ None";
     }
 
     private static String findDisplayById(String id, List<PrestigeShopManager.UpgradeDef> defs) {

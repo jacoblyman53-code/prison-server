@@ -29,8 +29,8 @@ public class AuctionGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE        = MM.deserialize("<gold><bold>Auction House");
-    static final Component FILTER_TITLE = MM.deserialize("<gray>Filter by Material");
+    static final Component TITLE        = MM.deserialize("Auction House");
+    static final Component FILTER_TITLE = MM.deserialize("Filter by Material");
 
     // State: page + filter per player
     private static final Map<UUID, AuctionGUIState> states = new ConcurrentHashMap<>();
@@ -44,15 +44,6 @@ public class AuctionGUI {
         }
     }
 
-    // Filler pane
-    private static final ItemStack FILLER = makeFiller();
-    private static ItemStack makeFiller() {
-        ItemStack pane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta meta  = pane.getItemMeta();
-        meta.displayName(Component.empty());
-        pane.setItemMeta(meta);
-        return pane;
-    }
 
     // ----------------------------------------------------------------
     // Open
@@ -89,9 +80,8 @@ public class AuctionGUI {
             if (listingIndex < endIndex) {
                 AuctionListing listing = listings.get(listingIndex);
                 inv.setItem(slot, buildListingDisplay(listing, true));
-            } else {
-                inv.setItem(slot, FILLER.clone());
             }
+            // Empty slots stay empty — no filler
         }
 
         // --- Navigation bar (slots 45-53) ---
@@ -100,14 +90,12 @@ public class AuctionGUI {
         if (state.page > 0) {
             ItemStack prev = new ItemStack(Material.ARROW);
             ItemMeta m = prev.getItemMeta();
-            m.displayName(MM.deserialize("<white>◀ Previous Page"));
+            m.displayName(MM.deserialize("<gray>\u2190 Previous Page"));
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<gray>Page " + state.page + " / " + totalPages));
+            lore.add(MM.deserialize("<gray>Page <white>" + state.page + " <gray>\u2190 <white>" + (state.page + 1)));
             m.lore(lore);
             prev.setItemMeta(m);
             inv.setItem(45, prev);
-        } else {
-            inv.setItem(45, FILLER.clone());
         }
 
         // Slot 46: My Listings
@@ -117,10 +105,12 @@ public class AuctionGUI {
             int  myMax     = AuctionManager.getInstance().getMaxListingsForPlayer(uuid);
             ItemStack myListings = new ItemStack(Material.LIME_DYE);
             ItemMeta m = myListings.getItemMeta();
-            m.displayName(MM.deserialize("<green>My Listings"));
+            m.displayName(MM.deserialize("<aqua>My Listings"));
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<gray>View and cancel your active listings."));
-            lore.add(MM.deserialize("<gray>Active: <white>" + myCount + "/" + myMax));
+            lore.add(MM.deserialize("<gray>View and cancel your <green>active listings</green>."));
+            lore.add(MM.deserialize("<aqua>\u2756 <gray>Active: <white>" + myCount + "<gray>/<white>" + myMax));
+            lore.add(Component.empty());
+            lore.add(MM.deserialize("<green>\u2192 Click to view your listings!"));
             m.lore(lore);
             myListings.setItemMeta(m);
             inv.setItem(46, myListings);
@@ -133,10 +123,11 @@ public class AuctionGUI {
             int filteredCount = listings.size();
             ItemStack filterItem = new ItemStack(Material.PAPER);
             ItemMeta m = filterItem.getItemMeta();
-            m.displayName(MM.deserialize("<white>Filter: " + filterLabel));
+            m.displayName(MM.deserialize("<aqua>Filter: <yellow>" + filterLabel));
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<gray>Click to change material filter."));
-            lore.add(MM.deserialize("<dark_gray>Showing " + filteredCount + " listing(s)."));
+            lore.add(MM.deserialize("<aqua>\u2756 <gray>Showing: <white>" + filteredCount + " listing(s)"));
+            lore.add(Component.empty());
+            lore.add(MM.deserialize("<green>\u2192 Click to change the material filter!"));
             m.lore(lore);
             filterItem.setItemMeta(m);
             inv.setItem(47, filterItem);
@@ -146,49 +137,39 @@ public class AuctionGUI {
         {
             ItemStack pageItem = new ItemStack(Material.BOOK);
             ItemMeta m = pageItem.getItemMeta();
-            m.displayName(MM.deserialize("<gray>Page " + (state.page + 1) + " / " + totalPages));
+            m.displayName(MM.deserialize("<aqua>\u2756 <gray>Page <white>" + (state.page + 1) + " <gray>/ <white>" + totalPages));
             m.lore(List.of());
             pageItem.setItemMeta(m);
             inv.setItem(48, pageItem);
         }
 
-        // Slot 49: filler
-        inv.setItem(49, FILLER.clone());
-
         // Slot 50: Sell reminder
         {
             ItemStack sell = new ItemStack(Material.EMERALD);
             ItemMeta m = sell.getItemMeta();
-            m.displayName(MM.deserialize("<green>Sell Item"));
+            m.displayName(MM.deserialize("<aqua>Sell an Item"));
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<gray>Hold an item and type:"));
-            lore.add(MM.deserialize("<white>/ah sell <price>"));
-            lore.add(MM.deserialize("<dark_gray>Listing fee: " +
-                AuctionManager.getInstance().listingFeePercent + "% of price"));
+            lore.add(MM.deserialize("<gray>Hold an item and type <green>/ah sell <price></green>."));
+            lore.add(MM.deserialize("<aqua>\u2756 <gray>Listing fee: <white>" +
+                AuctionManager.getInstance().listingFeePercent + "% <gray>of price"));
+            lore.add(Component.empty());
+            lore.add(MM.deserialize("<green>\u2192 Click for a reminder!"));
             m.lore(lore);
             sell.setItemMeta(m);
             inv.setItem(50, sell);
         }
 
-        // Slot 51: filler
-        inv.setItem(51, FILLER.clone());
-
-        // Slot 52: filler
-        inv.setItem(52, FILLER.clone());
-
         // Slot 53: Next page
         boolean hasNext = state.page < totalPages - 1;
         if (hasNext) {
-            ItemStack next = new ItemStack(Material.ARROW);
+            ItemStack next = new ItemStack(Material.LIME_DYE);
             ItemMeta m = next.getItemMeta();
-            m.displayName(MM.deserialize("<white>Next Page ▶"));
+            m.displayName(MM.deserialize("<green>\u2192 Next Page"));
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<gray>Page " + (state.page + 2) + " / " + totalPages));
+            lore.add(MM.deserialize("<gray>Page <white>" + (state.page + 1) + " <gray>\u2192 <white>" + (state.page + 2)));
             m.lore(lore);
             next.setItemMeta(m);
             inv.setItem(53, next);
-        } else {
-            inv.setItem(53, FILLER.clone());
         }
 
         player.openInventory(inv);
@@ -204,14 +185,14 @@ public class AuctionGUI {
         if (meta == null) return display;
 
         List<Component> lore = meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
-        lore.add(Component.empty());
-        lore.add(MM.deserialize("<yellow>Price: <gold>$" +
-            String.format("%,d", listing.priceIgc())));
-        lore.add(MM.deserialize("<gray>Seller: <white>" + listing.sellerName()));
-        lore.add(MM.deserialize("<gray>Expires: <white>" + listing.formattedTimeRemaining()));
+        // Spec: divider, then AH metadata block
+        lore.add(MM.deserialize("<dark_gray><st>--------------------"));
+        lore.add(MM.deserialize("<aqua>\u2756 <gray>Seller: <white>" + listing.sellerName()));
+        lore.add(MM.deserialize("<aqua>\u2756 <gray>Price: <gold>" + String.format("%,d", listing.priceIgc()) + " tokens"));
+        lore.add(MM.deserialize("<aqua>\u2756 <gray>Listed: <white>" + listing.formattedTimeRemaining()));
         lore.add(Component.empty());
         if (showBuyPrompt) {
-            lore.add(MM.deserialize("<green>Click to purchase"));
+            lore.add(MM.deserialize("<green>\u2192 Click to <underlined>buy</underlined> this listing!"));
         }
         meta.lore(lore);
 
@@ -258,9 +239,9 @@ public class AuctionGUI {
         int totalPages = Math.max(1, (int) Math.ceil((double) listings.size() / 45));
 
         if (slot <= 44) {
-            // Check it's not a filler
+            // Check it's not an empty slot
             ItemStack clicked = player.getOpenInventory().getTopInventory().getItem(slot);
-            if (clicked == null || clicked.getType() == Material.GRAY_STAINED_GLASS_PANE) return;
+            if (clicked == null || clicked.getType() == Material.AIR) return;
 
             int listingIndex = (state.page * 45) + slot;
             if (listingIndex < listings.size()) {
@@ -302,9 +283,11 @@ public class AuctionGUI {
         // Slot 0: clear filter
         ItemStack clear = new ItemStack(Material.BARRIER);
         ItemMeta cm = clear.getItemMeta();
-        cm.displayName(MM.deserialize("<red>Clear Filter (Show All)"));
+        cm.displayName(MM.deserialize("<red>\u2717 Clear Filter"));
         List<Component> clearLore = new ArrayList<>();
-        clearLore.add(MM.deserialize("<gray>Show all listings regardless of type."));
+        clearLore.add(MM.deserialize("<gray>Show <green>all listings</green> regardless of type."));
+        clearLore.add(Component.empty());
+        clearLore.add(MM.deserialize("<green>\u2192 Click to clear the filter!"));
         cm.lore(clearLore);
         clear.setItemMeta(cm);
         inv.setItem(0, clear);
@@ -320,20 +303,18 @@ public class AuctionGUI {
             if (slot >= 54) break;
             ItemStack matItem = new ItemStack(mat);
             ItemMeta mm2 = matItem.getItemMeta();
-            mm2.displayName(MM.deserialize("<white>" + AuctionManager.formatMaterialName(mat.name())));
+            mm2.displayName(MM.deserialize("<aqua>" + AuctionManager.formatMaterialName(mat.name())));
             List<Component> matLore = new ArrayList<>();
             long count = AuctionManager.getInstance().getActiveListings().stream()
                 .filter(l -> l.item().getType() == mat).count();
-            matLore.add(MM.deserialize("<gray>" + count + " listing(s) available."));
+            matLore.add(MM.deserialize("<aqua>\u2756 <gray>Listings: <white>" + count));
+            matLore.add(Component.empty());
+            matLore.add(MM.deserialize("<green>\u2192 Click to filter by this item!"));
             mm2.lore(matLore);
             matItem.setItemMeta(mm2);
             inv.setItem(slot++, matItem);
         }
-
-        // Fill remaining slots
-        for (int i = slot; i < 54; i++) {
-            inv.setItem(i, FILLER.clone());
-        }
+        // Remaining slots stay empty — no filler
 
         player.openInventory(inv);
     }
@@ -344,7 +325,7 @@ public class AuctionGUI {
 
     private static void handleFilterPickerClick(Player player, int slot) {
         ItemStack clicked = player.getOpenInventory().getTopInventory().getItem(slot);
-        if (clicked == null || clicked.getType() == Material.GRAY_STAINED_GLASS_PANE) return;
+        if (clicked == null || clicked.getType() == Material.AIR) return;
 
         Material filter;
         if (clicked.getType() == Material.BARRIER) {

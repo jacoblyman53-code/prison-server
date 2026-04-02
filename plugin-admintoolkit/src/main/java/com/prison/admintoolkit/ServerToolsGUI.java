@@ -15,7 +15,7 @@ public class ServerToolsGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    private static final Component TITLE = MM.deserialize("<dark_red><bold>Server Controls");
+    private static final Component TITLE = MM.deserialize("SERVER TOOLS");
 
     // ----------------------------------------------------------------
     // Open
@@ -25,48 +25,47 @@ public class ServerToolsGUI {
         AdminToolkitPlugin plugin = AdminToolkitPlugin.getInstance();
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
 
-        // Fill row borders with dark red glass
-        ItemStack filler = AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 9; i++)  inv.setItem(i, filler);
-        for (int i = 18; i < 27; i++) inv.setItem(i, filler);
-
         // Slot 10 — Whitelist
         boolean whitelistOn = Bukkit.hasWhitelist();
         ItemStack whitelistItem = AdminPanel.makeItem(
             whitelistOn ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE,
-            "<white>Whitelist",
-            "<gray>Currently: " + (whitelistOn ? "<green>ON" : "<red>OFF"),
-            "<dark_gray>Click to toggle.");
+            "<aqua>Whitelist",
+            "<aqua>✦ <gray>Status: " + (whitelistOn ? "<green>✓ ON" : "<red>✗ OFF"),
+            "",
+            "<green>→ <green>Click to <green><underlined>toggle</underlined> whitelist!");
         inv.setItem(10, whitelistItem);
 
         // Slot 12 — Maintenance Mode
         boolean maintOn = plugin.isMaintenanceMode();
         ItemStack maintItem = AdminPanel.makeItem(
             maintOn ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE,
-            "<white>Maintenance Mode",
-            "<gray>Currently: " + (maintOn ? "<green>ON" : "<red>OFF"),
-            "<gray>Only admins can join when ON.",
-            "<dark_gray>Click to toggle.");
+            "<aqua>Maintenance Mode",
+            "<aqua>✦ <gray>Status: " + (maintOn ? "<green>✓ ON" : "<red>✗ OFF"),
+            "<gray>Only <green>admins<gray> can join when ON.",
+            "",
+            "<green>→ <green>Click to <green><underlined>toggle</underlined> maintenance mode!");
         inv.setItem(12, maintItem);
 
         // Slot 14 — Global PvP
         boolean pvpOn = plugin.isGlobalPvpEnabled();
         ItemStack pvpItem = AdminPanel.makeItem(
             pvpOn ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE,
-            "<white>Global PvP",
-            "<gray>Currently: " + (pvpOn ? "<green>ON" : "<red>OFF"),
-            "<gray>When OFF, no player vs player combat.",
-            "<dark_gray>Click to toggle.");
+            "<aqua>Global PvP",
+            "<aqua>✦ <gray>Status: " + (pvpOn ? "<green>✓ ON" : "<red>✗ OFF"),
+            "<gray>When <red>OFF<gray>, no player vs player combat.",
+            "",
+            "<green>→ <green>Click to <green><underlined>toggle</underlined> global PvP!");
         inv.setItem(14, pvpItem);
 
         // Slot 16 — Schedule Restart
         inv.setItem(16, AdminPanel.makeItem(Material.CLOCK,
-            "<yellow>Schedule Restart",
-            "<gray>Broadcast restart warnings and restart.",
-            "<dark_gray>Click to set time (e.g. 30m)."));
+            "<aqua>Schedule Restart",
+            "<gray>Broadcast <green>restart warnings<gray> and restart server.",
+            "",
+            "<green>→ <green>Click to <green><underlined>schedule</underlined> a restart! <gray>(e.g. 30m)"));
 
         // Slot 26 — Close
-        inv.setItem(26, AdminPanel.makeItem(Material.BARRIER, "<red>Close", "<gray>Close server controls."));
+        inv.setItem(26, AdminPanel.makeItem(Material.BARRIER, "<red>✗ Close", "<gray>Click to close this menu."));
 
         player.openInventory(inv);
     }

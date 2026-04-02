@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WarpsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <white>Warps <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>WARPS");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int[] CONTENT_SLOTS = {
@@ -97,9 +97,11 @@ public class WarpsMenuGUI {
 
     private static Inventory build(Player player, int page) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         List<WarpData> warps = getWarps(player);
         int totalPages = Math.max(1, (int) Math.ceil((double) warps.size() / WARPS_PER_PAGE));
@@ -119,35 +121,35 @@ public class WarpsMenuGUI {
         // Back
         inv.setItem(SLOT_BACK, Gui.back());
 
-        // Prev page
+        // Prev page (spec: slot 45, gray dye)
         if (page > 0) {
             inv.setItem(SLOT_PREV, Gui.prevPage(page + 1, totalPages));
         }
 
-        // Next page
+        // Next page (spec: slot 53, lime dye — but SLOT_NEXT=52 kept per original)
         if (page < totalPages - 1) {
             inv.setItem(SLOT_NEXT, Gui.nextPage(page + 1, totalPages));
         }
 
         // Info item
-        inv.setItem(SLOT_INFO, Gui.make(Material.COMPASS, "<white>Warps",
-            "<gray>Accessible warps: <white>" + warps.size(),
-            "<gray>Page <white>" + (page + 1) + "<gray>/" + totalPages));
+        inv.setItem(SLOT_INFO, Gui.make(Material.COMPASS, "<aqua>✦ WARPS",
+            "<gray>✦ Accessible warps: <white>" + warps.size(),
+            "<gray>✦ Page: <white>" + (page + 1) + "<gray> / <white>" + totalPages));
 
         return inv;
     }
 
     private static ItemStack buildWarpItem(WarpData warp) {
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>World: <white>" + warp.world()));
-        lore.add(MM.deserialize("<!italic><gray>Location: <white>"
+        lore.add(MM.deserialize("<!italic><gray>✦ World: <white>" + warp.world()));
+        lore.add(MM.deserialize("<!italic><gray>✦ Location: <white>"
             + (int) warp.x() + ", " + (int) warp.y() + ", " + (int) warp.z()));
         if (warp.permissionNode() != null) {
-            lore.add(MM.deserialize("<!italic><dark_gray>Requires: " + warp.permissionNode()));
+            lore.add(MM.deserialize("<!italic><gray>✦ Requires: <yellow>" + warp.permissionNode()));
         }
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<!italic><green>Click to teleport!"));
-        return Gui.make(Material.COMPASS, "<white>" + Fmt.mat(warp.name()), lore);
+        lore.add(MM.deserialize("<!italic><green>→ Click to teleport to this warp!"));
+        return Gui.make(Material.COMPASS, "<aqua>" + Fmt.mat(warp.name()), lore);
     }
 
     // ----------------------------------------------------------------

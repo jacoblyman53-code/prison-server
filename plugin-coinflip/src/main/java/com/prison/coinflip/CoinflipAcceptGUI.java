@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CoinflipAcceptGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><gold>Accept Coinflip?");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>ACCEPT COINFLIP");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final Map<UUID, Integer> pendingTicket = new ConcurrentHashMap<>();
@@ -77,7 +77,6 @@ public class CoinflipAcceptGUI {
 
     private static Inventory build(Player player, CoinflipTicket ticket) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
 
         long bal = 0;
         try {
@@ -87,40 +86,55 @@ public class CoinflipAcceptGUI {
 
         boolean canAfford = bal >= ticket.getAmount();
 
-        // Creator head
+        // Close / Back button (slot 0)
+        inv.setItem(0, Gui.make(Material.BARRIER,
+            "<!italic><red>← Back to Coinflip",
+            "<!italic><gray>Return to coinflip browser."));
+
+        // Creator head (slot 11)
         inv.setItem(SLOT_CREATOR, makeHead(ticket.getCreatorName(),
-            "<white>" + ticket.getCreatorName(),
-            "<gray>Challenger",
-            "<gray>Bet: <gold>$" + Fmt.number(ticket.getAmount())));
+            "<!italic><aqua>" + ticket.getCreatorName(),
+            "<!italic><aqua>✦ <gray>Player: <yellow>" + ticket.getCreatorName(),
+            "<!italic><aqua>✦ <gray>Bet: <gold>$" + Fmt.number(ticket.getAmount()),
+            "<!italic>",
+            "<!italic><green>→ Click to accept this coinflip!"));
 
-        // Bet info
-        inv.setItem(SLOT_BET, Gui.make(Material.GOLD_INGOT, "<gold>Bet Amount",
-            "<gray>Required match: <gold>$" + Fmt.number(ticket.getAmount()),
-            "<gray>Total prize: <green>$" + Fmt.number(ticket.getAmount() * 2),
-            "",
-            "<gray>Your balance: <gold>$" + Fmt.number(bal)));
+        // Bet info (slot 13)
+        inv.setItem(SLOT_BET, Gui.make(Material.GOLD_INGOT,
+            "<!italic><aqua>✦ Bet Details",
+            "<!italic><aqua>✦ <gray>Bet Amount: <gold>$" + Fmt.number(ticket.getAmount()),
+            "<!italic><aqua>✦ <gray>Potential Win: <green>$" + Fmt.number(ticket.getAmount() * 2),
+            "<!italic><aqua>✦ <gray>Affordability: " + (canAfford
+                ? "<!italic><green>✓ Can afford"
+                : "<!italic><red>✗ Cannot afford"),
+            "<!italic>",
+            "<!italic><green>→ Click to place this bet!"));
 
-        // Acceptor head
+        // Acceptor head (slot 15)
         inv.setItem(SLOT_ACCEPTOR, makeHead(player.getName(),
-            "<white>" + player.getName(),
-            "<gray>You",
-            canAfford ? "<green>Ready to accept" : "<red>Cannot afford"));
+            "<!italic><aqua>" + player.getName(),
+            "<!italic><aqua>✦ <gray>Player: <yellow>" + player.getName(),
+            canAfford ? "<!italic><green>✓ Ready to accept" : "<!italic><red>✗ Cannot afford"));
 
         // Accept / decline
         if (canAfford) {
-            inv.setItem(SLOT_CONFIRM, Gui.make(Material.GREEN_CONCRETE, "<green>Accept Flip",
-                "<gray>Locks <gold>$" + Fmt.number(ticket.getAmount()) + "<gray> of your funds.",
-                "<gray>Winner takes <green>$" + Fmt.number(ticket.getAmount() * 2) + "<gray>.",
-                "",
-                "<green>Click to confirm."));
+            inv.setItem(SLOT_CONFIRM, Gui.make(Material.GREEN_CONCRETE,
+                "<!italic><green>✓ Confirm",
+                "<!italic><gray>Click to confirm <green>accepting<gray> this coinflip.",
+                "<!italic><aqua>✦ <gray>Locks <gold>$" + Fmt.number(ticket.getAmount()) + "<gray> of your funds.",
+                "<!italic><aqua>✦ <gray>Winner takes <green>$" + Fmt.number(ticket.getAmount() * 2) + "<gray>.",
+                "<!italic>",
+                "<!italic><green>→ Click to confirm."));
         } else {
-            inv.setItem(SLOT_CONFIRM, Gui.make(Material.RED_CONCRETE, "<red>Cannot Afford",
-                "<gray>You need <gold>$" + Fmt.number(ticket.getAmount()) + "<gray>.",
-                "<gray>Your balance: <gold>$" + Fmt.number(bal)));
+            inv.setItem(SLOT_CONFIRM, Gui.make(Material.RED_CONCRETE,
+                "<!italic><red>✗ Cannot Afford",
+                "<!italic><aqua>✦ <gray>Required: <gold>$" + Fmt.number(ticket.getAmount()),
+                "<!italic><aqua>✦ <gray>Your balance: <gold>$" + Fmt.number(bal)));
         }
 
-        inv.setItem(SLOT_CANCEL, Gui.make(Material.RED_CONCRETE, "<red>Decline",
-            "<gray>Return to coinflip browser."));
+        inv.setItem(SLOT_CANCEL, Gui.make(Material.RED_CONCRETE,
+            "<!italic><red>✗ Decline",
+            "<!italic><gray>Return to coinflip browser."));
 
         return inv;
     }
@@ -129,11 +143,11 @@ public class CoinflipAcceptGUI {
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerName));
-        meta.displayName(MiniMessage.miniMessage().deserialize("<!italic>" + lore[0]));
+        meta.displayName(MiniMessage.miniMessage().deserialize(lore[0]));
         if (lore.length > 1) {
             java.util.List<Component> loreList = new java.util.ArrayList<>();
             for (int i = 1; i < lore.length; i++) {
-                loreList.add(MiniMessage.miniMessage().deserialize("<!italic>" + lore[i]));
+                loreList.add(MiniMessage.miniMessage().deserialize(lore[i]));
             }
             meta.lore(loreList);
         }

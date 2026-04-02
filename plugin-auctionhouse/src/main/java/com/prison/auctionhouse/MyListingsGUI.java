@@ -24,21 +24,13 @@ public class MyListingsGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE = MM.deserialize("<gold><bold>My Listings");
+    static final Component TITLE = MM.deserialize("My Listings");
 
     // We store the listings list per player so handleClick can look up by slot index.
     // This avoids re-querying; it's refreshed on every open().
     private static final java.util.Map<UUID, List<AuctionListing>> playerListingsCache =
         new java.util.concurrent.ConcurrentHashMap<>();
 
-    // Filler
-    private static ItemStack makeFiller() {
-        ItemStack pane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta meta  = pane.getItemMeta();
-        meta.displayName(Component.empty());
-        pane.setItemMeta(meta);
-        return pane;
-    }
 
     // ----------------------------------------------------------------
     // Open
@@ -58,40 +50,33 @@ public class MyListingsGUI {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
 
         if (myListings.isEmpty()) {
-            // Fill with filler
-            ItemStack filler = makeFiller();
-            for (int i = 0; i < 54; i++) inv.setItem(i, filler.clone());
-
             // Slot 22: No listings message
-            ItemStack noListings = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemStack noListings = new ItemStack(Material.PAPER);
             ItemMeta nm = noListings.getItemMeta();
-            nm.displayName(MM.deserialize("<gray>No active listings"));
+            nm.displayName(MM.deserialize("<aqua>\u2756 No Active Listings"));
             List<Component> nLore = new ArrayList<>();
-            nLore.add(MM.deserialize("<gray>Use /ah sell <price> to list an item."));
+            nLore.add(MM.deserialize("<gray>You have no active listings."));
+            nLore.add(Component.empty());
+            nLore.add(MM.deserialize("<green>\u2192 Use <underlined>/ah sell <price></underlined> to list an item!"));
             nm.lore(nLore);
             noListings.setItemMeta(nm);
             inv.setItem(22, noListings);
         } else {
-            // Slots 0-44: listing items
-            ItemStack filler = makeFiller();
+            // Slots 0-44: listing items — empty slots stay empty
             for (int slot = 0; slot < 45; slot++) {
                 if (slot < myListings.size()) {
                     AuctionListing listing = myListings.get(slot);
                     inv.setItem(slot, buildMyListingDisplay(listing));
-                } else {
-                    inv.setItem(slot, filler.clone());
                 }
             }
-            // Fill nav row with filler first
-            for (int i = 45; i < 54; i++) inv.setItem(i, filler.clone());
         }
 
         // Slot 45: Back button (always shown)
-        ItemStack back = new ItemStack(Material.ARROW);
+        ItemStack back = new ItemStack(Material.BARRIER);
         ItemMeta bm = back.getItemMeta();
-        bm.displayName(MM.deserialize("<gray>← Back"));
+        bm.displayName(MM.deserialize("<red>\u2190 Back to Auction House"));
         List<Component> backLore = new ArrayList<>();
-        backLore.add(MM.deserialize("<gray>Return to auction house."));
+        backLore.add(MM.deserialize("<gray>Return to Auction House."));
         bm.lore(backLore);
         back.setItemMeta(bm);
         inv.setItem(45, back);
@@ -114,12 +99,12 @@ public class MyListingsGUI {
         }
 
         List<Component> lore = meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
+        lore.add(MM.deserialize("<dark_gray><st>--------------------"));
+        lore.add(MM.deserialize("<aqua>\u2756 <gray>Price: <gold>" +
+            String.format("%,d", listing.priceIgc()) + " tokens"));
+        lore.add(MM.deserialize("<aqua>\u2756 <gray>Expires: <white>" + listing.formattedTimeRemaining()));
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<yellow>Price: <gold>$" +
-            String.format("%,d", listing.priceIgc())));
-        lore.add(MM.deserialize("<gray>Expires: <white>" + listing.formattedTimeRemaining()));
-        lore.add(Component.empty());
-        lore.add(MM.deserialize("<red>Click to cancel listing"));
+        lore.add(MM.deserialize("<green>\u2192 Click to <underlined>cancel</underlined> this listing!"));
         lore.add(MM.deserialize("<dark_gray>Listing fee is non-refundable."));
         meta.lore(lore);
         display.setItemMeta(meta);
@@ -147,7 +132,7 @@ public class MyListingsGUI {
                 AuctionListing listing = myListings.get(slot);
                 // Verify it's still a valid item slot (not a filler)
                 ItemStack clicked = player.getOpenInventory().getTopInventory().getItem(slot);
-                if (clicked == null || clicked.getType() == Material.GRAY_STAINED_GLASS_PANE) return;
+                if (clicked == null || clicked.getType() == Material.AIR) return;
                 CancelConfirmGUI.open(player, listing);
             }
         } else if (slot == 45) {

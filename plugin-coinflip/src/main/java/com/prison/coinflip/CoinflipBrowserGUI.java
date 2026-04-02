@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 public class CoinflipBrowserGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><gold>Coinflip");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Coinflip");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int[] LISTING_SLOTS = {
@@ -117,7 +117,6 @@ public class CoinflipBrowserGUI {
 
     private static Inventory build(Player player, int page) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
 
         CoinflipManager mgr = CoinflipManager.getInstance();
         List<CoinflipTicket> tickets = mgr.getOpenTickets();
@@ -126,34 +125,38 @@ public class CoinflipBrowserGUI {
         if (page >= totalPages) page = totalPages - 1;
         if (page < 0) page = 0;
 
-        // Balance card
+        // Balance card (slot 0 — also serves as the close/back anchor per spec)
         long bal = 0;
         try {
             com.prison.economy.EconomyAPI api = com.prison.economy.EconomyAPI.getInstance();
             if (api != null) bal = api.getBalance(player.getUniqueId());
         } catch (Exception ignored) {}
-        inv.setItem(SLOT_BALANCE, Gui.make(Material.SUNFLOWER, "<yellow>Your Balance",
-            "<gray>Bal: <gold>$" + Fmt.number(bal)));
+        inv.setItem(SLOT_BALANCE, Gui.make(Material.SUNFLOWER,
+            "<!italic><aqua>✦ Your Balance",
+            "<!italic><aqua>✦ <gray>Balance: <gold>$" + Fmt.number(bal)));
 
-        // Info card
-        inv.setItem(SLOT_INFO, Gui.make(Material.BOOK, "<yellow>How Coinflip Works",
-            "<gray>Bet IGC against another player.",
-            "<gray>The winner takes the full pool.",
-            "",
-            "<yellow>Left-click a ticket to accept.",
-            "<green>Click Create to start your own."));
+        // Info card (slot 4)
+        inv.setItem(SLOT_INFO, Gui.make(Material.BOOK,
+            "<!italic><aqua>How Coinflip Works",
+            "<!italic><gray>Bet <green>IGC<gray> against another player.",
+            "<!italic><gray>The <green>winner<gray> takes the full pool.",
+            "<!italic>",
+            "<!italic><green>→ Left-click a ticket to accept.",
+            "<!italic><green>→ Click Create to start your own."));
 
-        // Create button
+        // Create button (slot 31)
         boolean hasOpen = mgr.hasOpenTicket(player.getUniqueId());
         if (hasOpen) {
-            inv.setItem(SLOT_CREATE, Gui.make(Material.GOLD_INGOT, "<yellow>Your Active Flip",
-                "<gray>You have an open coinflip.",
-                "<red>Cancel it with /coinflip cancel"));
+            inv.setItem(SLOT_CREATE, Gui.make(Material.GOLD_INGOT,
+                "<!italic><yellow>Your Active Flip",
+                "<!italic><aqua>✦ <gray>You have an <green>open<gray> coinflip.",
+                "<!italic><red>✗ Cancel it with /coinflip cancel"));
         } else {
-            inv.setItem(SLOT_CREATE, Gui.make(Material.GOLD_INGOT, "<green>Create Flip",
-                "<gray>Start a new coinflip challenge.",
-                "",
-                "<green>Click to set your bet amount."));
+            inv.setItem(SLOT_CREATE, Gui.make(Material.GOLD_INGOT,
+                "<!italic><green>→ Create Flip",
+                "<!italic><gray>Start a new coinflip <green>challenge<gray>.",
+                "<!italic>",
+                "<!italic><green>→ Click to set your bet amount."));
         }
 
         // Listings
@@ -225,20 +228,19 @@ public class CoinflipBrowserGUI {
 
         List<Component> lore = new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<!italic>" + tierLabel));
+        lore.add(MiniMessage.miniMessage().deserialize("<!italic>" + tierLabel));
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<!italic><gray>Creator: " + tierColor + ticket.getCreatorName()));
-        lore.add(MM.deserialize("<!italic><gray>Bet:     <gold>$" + Fmt.number(amount)));
-        lore.add(MM.deserialize("<!italic><gray>Prize:   <green>$" + Fmt.number(pot)));
+        lore.add(MiniMessage.miniMessage().deserialize("<!italic><aqua>✦ <gray>Player: " + tierColor + ticket.getCreatorName()));
+        lore.add(MiniMessage.miniMessage().deserialize("<!italic><aqua>✦ <gray>Bet: <gold>$" + Fmt.number(amount)));
         lore.add(Component.empty());
         if (isOwn) {
-            lore.add(MM.deserialize("<!italic><yellow>This is your flip."));
-            lore.add(MM.deserialize("<!italic><dark_gray>/coinflip cancel to remove it."));
+            lore.add(MiniMessage.miniMessage().deserialize("<!italic><yellow>This is your flip."));
+            lore.add(MiniMessage.miniMessage().deserialize("<!italic><dark_gray>/coinflip cancel to remove it."));
         } else {
-            lore.add(MM.deserialize("<!italic><green>▶ Click to accept this bet!"));
+            lore.add(MiniMessage.miniMessage().deserialize("<!italic><green>→ Click to accept this coinflip!"));
         }
 
-        ItemStack item = Gui.make(mat, tierColor + ticket.getCreatorName() + "'s Flip", lore);
+        ItemStack item = Gui.make(mat, "<!italic>" + tierColor + ticket.getCreatorName() + "'s Flip", lore);
 
         // Add enchant glow for high-value bets
         if (glow) {

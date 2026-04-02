@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class CratesHubGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <gold>Crates Hub <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Crates Hub");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Content slots: rows 1-3, columns 1-7 (up to 21 tiers max across 3 rows)
@@ -67,9 +67,11 @@ public class CratesHubGUI {
 
     private static Inventory build(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         CrateManager cm = CrateManager.getInstance();
         if (cm != null) {
@@ -81,13 +83,14 @@ public class CratesHubGUI {
                 int keyCount = countKeys(player, tier.id());
 
                 List<Component> lore = new ArrayList<>();
-                lore.add(MM.deserialize("<!italic><gray>Keys in inventory: <white>" + keyCount));
-                lore.add(MM.deserialize("<!italic><gray>Possible rewards: <white>" + tier.rewards().size()));
+                lore.add(MM.deserialize("<!italic><gray>✦ Keys in inventory: <white>" + keyCount));
+                lore.add(MM.deserialize("<!italic><gray>✦ Possible rewards: <white>" + tier.rewards().size()));
                 lore.add(Component.empty());
                 if (keyCount > 0) {
-                    lore.add(MM.deserialize("<!italic><green>Click to open a crate!"));
+                    lore.add(MM.deserialize("<!italic><green>→ Click to open a crate!"));
                 } else {
-                    lore.add(MM.deserialize("<!italic><gray>No keys in inventory."));
+                    lore.add(MM.deserialize("<!italic><red>✗ No keys in inventory."));
+                    lore.add(MM.deserialize("<!italic><gray>→ Earn keys from ranks, quests, and more."));
                 }
 
                 ItemStack item = Gui.make(tier.keyMaterial(), tier.keyColor() + tier.displayName(), lore);
@@ -99,9 +102,9 @@ public class CratesHubGUI {
         inv.setItem(SLOT_BACK, Gui.back());
 
         // Info item
-        inv.setItem(SLOT_INFO, Gui.make(Material.TRIPWIRE_HOOK, "<gold>Crates Hub",
-            "<gray>Right-click crate blocks to open.",
-            "<gray>Keys can be earned from ranks, quests, and more."));
+        inv.setItem(SLOT_INFO, Gui.make(Material.TRIPWIRE_HOOK, "<aqua>✦ Crates Hub",
+            "<gray>✦ Right-click crate blocks to open.",
+            "<gray>✦ Keys can be earned from <aqua>ranks<gray>, quests, and more."));
 
         return inv;
     }

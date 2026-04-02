@@ -23,15 +23,19 @@ public class ShopGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE_CATEGORIES = MM.deserialize("<dark_green><bold>Shop");
-    static final Component TITLE_ITEMS      = MM.deserialize("<dark_green><bold>Shop \u2014 Browse");
-    static final Component TITLE_CONFIRM    = MM.deserialize("<green><bold>Confirm Purchase");
+    static final Component TITLE_CATEGORIES = MM.deserialize("<!italic>Shop");
+    static final Component TITLE_ITEMS      = MM.deserialize("<!italic>Shop \u2014 Browse");
+    static final Component TITLE_QTY        = MM.deserialize("<!italic>Buy \u2014 Select Quantity");
 
-    // Category picker slots (27-slot GUI): row 1 and row 2 inner slots
+    // Category picker slots (27-slot GUI): rows 1 and 2 inner slots
     private static final int[] CATEGORY_SLOTS = {
         10, 11, 12, 13, 14, 15, 16,
         19, 20, 21, 22, 23, 24, 25
     };
+
+    // Quantity selector: slots and amounts (0 = compute max)
+    private static final int[] QTY_SLOTS   = {10, 11, 12, 14, 15, 16};
+    private static final int[] QTY_AMOUNTS = { 1,  8, 16, 32, 64,  0};
 
     // ----------------------------------------------------------------
     // State
@@ -39,14 +43,16 @@ public class ShopGUI {
 
     private static class ShopGUIState {
         String categoryId;
-        int page;
+        int    page;
         String pendingItemId;
     }
 
     private static final Map<UUID, ShopGUIState> states = new ConcurrentHashMap<>();
 
     public static boolean isTitle(Component title) {
-        return TITLE_CATEGORIES.equals(title) || TITLE_ITEMS.equals(title) || TITLE_CONFIRM.equals(title);
+        return TITLE_CATEGORIES.equals(title)
+            || TITLE_ITEMS.equals(title)
+            || TITLE_QTY.equals(title);
     }
 
     // ----------------------------------------------------------------
@@ -55,37 +61,25 @@ public class ShopGUI {
 
     public static void openCategoryPicker(Player player) {
         ShopGUIState state = states.computeIfAbsent(player.getUniqueId(), k -> new ShopGUIState());
-        state.categoryId = null;
-        state.page = 0;
+        state.categoryId   = null;
+        state.page         = 0;
         state.pendingItemId = null;
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE_CATEGORIES);
 
-        // Fill border with green glass panes
-        ItemStack border = makeItem(Material.GREEN_STAINED_GLASS_PANE, "<green> ");
-        for (int i = 0; i < 27; i++) {
-            int row = i / 9;
-            int col = i % 9;
-            if (row == 0 || row == 2 || col == 0 || col == 8) {
-                inv.setItem(i, border);
-            }
-        }
-
         List<ShopCategory> categories = ShopManager.getInstance().getCategories();
-
         if (categories.isEmpty()) {
-            inv.setItem(13, makeItem(Material.GRAY_STAINED_GLASS_PANE,
-                "<gray>No items available yet",
-                "<dark_gray>Check back later!"));
+            inv.setItem(13, makeItem(Material.PAPER,
+                "<!italic><gray>No items available yet",
+                "<!italic><gray>Check back later!"));
         } else {
             for (int i = 0; i < Math.min(categories.size(), CATEGORY_SLOTS.length); i++) {
                 ShopCategory cat = categories.get(i);
-                int itemCount = cat.items().size();
-                ItemStack catItem = makeItem(cat.icon(),
-                    cat.displayName(),
-                    "<gray>" + itemCount + " items available",
-                    "<dark_gray>Click to browse");
-                inv.setItem(CATEGORY_SLOTS[i], catItem);
+                inv.setItem(CATEGORY_SLOTS[i], makeItem(cat.icon(),
+                    "<!italic><aqua>" + cat.displayName(),
+                    "<!italic><gray>" + cat.items().size() + " <green>items</green> available",
+                    "",
+                    "<!italic><green>\u2192 Click to browse " + cat.displayName() + "!"));
             }
         }
 
@@ -98,8 +92,8 @@ public class ShopGUI {
 
     public static void openItemBrowser(Player player, String catId, int page) {
         ShopGUIState state = states.computeIfAbsent(player.getUniqueId(), k -> new ShopGUIState());
-        state.categoryId = catId;
-        state.page = page;
+        state.categoryId   = catId;
+        state.page         = page;
         state.pendingItemId = null;
 
         Optional<ShopCategory> catOpt = ShopManager.getInstance().getCategory(catId);
@@ -108,7 +102,7 @@ public class ShopGUI {
             openCategoryPicker(player);
             return;
         }
-        ShopCategory cat = catOpt.get();
+        ShopCategory cat   = catOpt.get();
         List<ShopItem> items = cat.items();
 
         int totalPages = items.isEmpty() ? 1 : (int) Math.ceil(items.size() / 45.0);
@@ -116,96 +110,87 @@ public class ShopGUI {
         if (page < 0) page = 0;
         state.page = page;
 
-        Inventory inv = Bukkit.createInventory(null, 54, TITLE_ITEMS);
+        Inventory inv    = Bukkit.createInventory(null, 54, TITLE_ITEMS);
+        EconomyAPI eco   = EconomyAPI.getInstance();
 
-        // Fill slots 0-44 with items
-        ItemStack filler = makeItem(Material.GRAY_STAINED_GLASS_PANE, "<gray> ");
         int startIdx = page * 45;
-
         for (int slot = 0; slot < 45; slot++) {
             int itemIdx = startIdx + slot;
-            if (itemIdx < items.size()) {
-                ShopItem shopItem = items.get(itemIdx);
-                ItemStack display = shopItem.item().clone();
-                ItemMeta meta = display.getItemMeta();
-
-                // Set display name
-                if (shopItem.displayName() != null && !shopItem.displayName().isBlank()) {
-                    meta.displayName(MM.deserialize(shopItem.displayName()));
-                } else {
-                    // Format material name
-                    String matName = formatMaterialName(display.getType());
-                    meta.displayName(MM.deserialize("<white>" + matName));
-                }
-
-                // Build lore — preserve original item lore first
-                List<Component> lore = new ArrayList<>();
-                List<Component> originalLore = meta.lore();
-                if (originalLore != null && !originalLore.isEmpty()) {
-                    lore.addAll(originalLore);
-                    lore.add(Component.empty());
-                }
-                lore.add(MM.deserialize("<yellow>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
-                if (shopItem.stock() == -1) {
-                    lore.add(MM.deserialize("<gray>Stock: <green>\u221e Unlimited"));
-                } else if (shopItem.stock() > 0) {
-                    lore.add(MM.deserialize("<gray>Stock: <white>" + shopItem.stock()));
-                } else {
-                    lore.add(MM.deserialize("<red>SOLD OUT"));
-                }
-                lore.add(Component.empty());
-                if (shopItem.isInStock()) {
-                    lore.add(MM.deserialize("<green>Click to purchase"));
-                } else {
-                    lore.add(MM.deserialize("<red>Out of Stock"));
-                }
-                meta.lore(lore);
-                meta.addItemFlags(
-                    org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
-                    org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS,
-                    org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
-                display.setItemMeta(meta);
-                inv.setItem(slot, display);
-            } else {
-                inv.setItem(slot, filler);
+            if (itemIdx >= items.size()) {
+                continue;
             }
+            ShopItem shopItem = items.get(itemIdx);
+            ItemStack display = shopItem.item().clone();
+            ItemMeta meta     = display.getItemMeta();
+
+            // Name
+            if (shopItem.displayName() != null && !shopItem.displayName().isBlank()) {
+                meta.displayName(MM.deserialize("<!italic>" + shopItem.displayName()));
+            } else {
+                meta.displayName(MM.deserialize("<!italic><white>" + formatMaterialName(display.getType())));
+            }
+
+            // Lore — spec Section 8 shop item format
+            List<Component> lore = new ArrayList<>();
+
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Buy: <white>" + fmt(shopItem.priceIgc()) + " <gold>tokens"));
+
+            if (shopItem.sellable() && eco != null) {
+                long sp = eco.getSellPrice(shopItem.item().getType(), player);
+                if (sp > 0) lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Sell: <white>" + fmt(sp) + " <gold>tokens"));
+                else        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Sell: <red>Not Sellable"));
+            } else {
+                lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Sell: <red>Not Sellable"));
+            }
+
+            lore.add(Component.empty());
+            if (shopItem.isInStock()) {
+                lore.add(MM.deserialize("<!italic><green>\u2192 <green>Left-click <underlined>to buy</underlined>."));
+            } else {
+                lore.add(MM.deserialize("<!italic><red>\u2717 Out of Stock"));
+            }
+            if (shopItem.sellable()) {
+                lore.add(MM.deserialize("<!italic><green>\u2192 <green>Right-click <underlined>to sell</underlined>."));
+            }
+
+            meta.lore(lore);
+            meta.addItemFlags(
+                org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
+                org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS,
+                org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+            display.setItemMeta(meta);
+            inv.setItem(slot, display);
         }
 
-        // Bottom row navigation
+        // Navigation bar (row 6, slots 45-53)
         boolean hasPrev = page > 0;
         boolean hasNext = (page + 1) < totalPages;
 
-        inv.setItem(45, hasPrev
-            ? makeItem(Material.ARROW, "<white>\u25c4 Previous")
-            : filler.clone());
-
-        inv.setItem(46, makeItem(Material.BARRIER, "<gray>\u2190 Back to Categories"));
-
-        // Fill slots 47, 48 with filler
-        inv.setItem(47, filler.clone());
-        inv.setItem(48, filler.clone());
-
-        inv.setItem(49, makeItem(Material.BOOK, "<gray>Page " + (page + 1) + "/" + totalPages));
-
-        // Fill slots 50, 51, 52 with filler
-        inv.setItem(50, filler.clone());
-        inv.setItem(51, filler.clone());
-        inv.setItem(52, filler.clone());
-
-        inv.setItem(53, hasNext
-            ? makeItem(Material.ARROW, "<white>Next \u25ba")
-            : filler.clone());
+        if (hasPrev) {
+            inv.setItem(45, makeItem(Material.ARROW,
+                "<!italic><gray>\u2190 Previous Page",
+                "<!italic><gray>Page <white>" + page + " <gray>\u2190 <white>" + (page + 1)));
+        }
+        inv.setItem(46, makeItem(Material.BARRIER,
+            "<!italic><red>\u2190 Back to Shop",
+            "<!italic><gray>Return to Shop."));
+        inv.setItem(49, makeItem(Material.BOOK, "<!italic><gray>Page <white>" + (page + 1) + " <gray>/ <white>" + totalPages));
+        if (hasNext) {
+            inv.setItem(53, makeItem(Material.LIME_DYE,
+                "<!italic><green>\u2192 Next Page",
+                "<!italic><gray>Page <white>" + (page + 1) + " <gray>\u2192 <white>" + (page + 2)));
+        }
 
         player.openInventory(inv);
     }
 
     // ----------------------------------------------------------------
-    // Open: Confirm Purchase
+    // Open: Quantity Selector  (replaces old confirm-purchase screen)
     // ----------------------------------------------------------------
 
-    public static void openConfirmPurchase(Player player, String catId, String itemId) {
+    public static void openQuantitySelector(Player player, String catId, String itemId) {
         ShopGUIState state = states.computeIfAbsent(player.getUniqueId(), k -> new ShopGUIState());
-        state.categoryId = catId;
+        state.categoryId   = catId;
         state.pendingItemId = itemId;
 
         Optional<ShopItem> itemOpt = ShopManager.getInstance().getItem(catId, itemId);
@@ -215,64 +200,52 @@ public class ShopGUI {
             return;
         }
         ShopItem shopItem = itemOpt.get();
-
         long balance = EconomyAPI.getInstance().getBalance(player.getUniqueId());
-        boolean canAfford = balance >= shopItem.priceIgc();
+        long maxQty  = shopItem.priceIgc() > 0 ? balance / shopItem.priceIgc() : 64L;
 
-        Inventory inv = Bukkit.createInventory(null, 27, TITLE_CONFIRM);
-
-        // Fill borders with cyan glass panes
-        ItemStack border = makeItem(Material.CYAN_STAINED_GLASS_PANE, "<cyan> ");
-        for (int i = 0; i < 27; i++) {
-            int row = i / 9;
-            int col = i % 9;
-            if (row == 0 || row == 2 || col == 0 || col == 8) {
-                inv.setItem(i, border);
-            }
-        }
+        Inventory inv = Bukkit.createInventory(null, 27, TITLE_QTY);
 
         // Slot 13: item preview
         ItemStack preview = shopItem.item().clone();
-        ItemMeta previewMeta = preview.getItemMeta();
+        ItemMeta  pmeta   = preview.getItemMeta();
         if (shopItem.displayName() != null && !shopItem.displayName().isBlank()) {
-            previewMeta.displayName(MM.deserialize(shopItem.displayName()));
+            pmeta.displayName(MM.deserialize("<!italic>" + shopItem.displayName()));
         } else {
-            previewMeta.displayName(MM.deserialize("<white>" + formatMaterialName(preview.getType())));
+            pmeta.displayName(MM.deserialize("<!italic><white>" + formatMaterialName(preview.getType())));
         }
-        List<Component> previewLore = new ArrayList<>();
-        List<Component> originalPreviewLore = previewMeta.lore();
-        if (originalPreviewLore != null && !originalPreviewLore.isEmpty()) {
-            previewLore.addAll(originalPreviewLore);
-            previewLore.add(Component.empty());
-        }
-        previewLore.add(MM.deserialize("<yellow>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
-        previewLore.add(MM.deserialize("<gray>Your balance: <white>$" + String.format("%,d", balance)));
-        previewLore.add(Component.empty());
-        previewLore.add(MM.deserialize("<green>Confirm: slot 11 <red>| Cancel: slot 15"));
-        previewMeta.lore(previewLore);
-        previewMeta.addItemFlags(
+        List<Component> pLore = new ArrayList<>();
+        pLore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Buy: <white>" + fmt(shopItem.priceIgc()) + " <gold>tokens <gray>each"));
+        pLore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Balance: <white>" + fmt(balance) + " <gold>tokens"));
+        pmeta.lore(pLore);
+        pmeta.addItemFlags(
             org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES,
             org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS,
             org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
-        preview.setItemMeta(previewMeta);
+        preview.setItemMeta(pmeta);
         inv.setItem(13, preview);
 
-        // Slot 11: buy button
-        if (canAfford) {
-            long balAfter = balance - shopItem.priceIgc();
-            inv.setItem(11, makeItem(Material.LIME_STAINED_GLASS_PANE,
-                "<green>\u2713 Buy for $" + String.format("%,d", shopItem.priceIgc()),
-                "<gray>Balance after: <white>$" + String.format("%,d", balAfter)));
-        } else {
-            inv.setItem(11, makeItem(Material.GRAY_STAINED_GLASS_PANE,
-                "<red>\u2717 Cannot Afford",
-                "<red>Need <gold>$" + String.format("%,d", shopItem.priceIgc()) + "<red>, have <white>$" + String.format("%,d", balance)));
+        // Quantity buttons at slots 10, 11, 12, 14, 15, 16
+        String[] labels = {"Buy 1", "Buy 8", "Buy 16", "Buy 32", "Buy 64", "Buy Max"};
+        for (int i = 0; i < QTY_SLOTS.length; i++) {
+            long qty = (QTY_AMOUNTS[i] == 0) ? maxQty : QTY_AMOUNTS[i];
+            if (qty <= 0) qty = 0;
+            long cost       = shopItem.priceIgc() * qty;
+            boolean afford  = balance >= cost && qty > 0;
+
+            String qtyLabel = (QTY_AMOUNTS[i] == 0) ? "Buy Max (" + qty + ")" : labels[i];
+            Material btnMat = afford ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+            String nameTag  = "<!italic>" + (afford ? "<green>" : "<red>") + qtyLabel;
+            String costTag  = afford
+                ? "<!italic><gold>$ <gold>Cost: <white>" + fmt(cost) + " tokens"
+                : "<!italic><red>\u2717 Cannot afford <dark_gray>(" + fmt(cost) + " tokens)";
+
+            inv.setItem(QTY_SLOTS[i], makeItem(btnMat, nameTag, costTag));
         }
 
-        // Slot 15: cancel button
-        inv.setItem(15, makeItem(Material.RED_STAINED_GLASS_PANE,
-            "<red>\u2717 Cancel",
-            "<gray>Return to shop."));
+        // Slot 22: cancel
+        inv.setItem(22, makeItem(Material.BARRIER,
+            "<!italic><red>\u2717 Cancel",
+            "<!italic><gray>Return to the item browser."));
 
         player.openInventory(inv);
     }
@@ -287,20 +260,18 @@ public class ShopGUI {
 
         Component title = player.getOpenInventory().title();
 
+        // ── Category picker ──────────────────────────────────────────
         if (TITLE_CATEGORIES.equals(title)) {
-            // Category picker click
             for (int i = 0; i < CATEGORY_SLOTS.length; i++) {
                 if (CATEGORY_SLOTS[i] == slot) {
-                    List<ShopCategory> categories = ShopManager.getInstance().getCategories();
-                    if (i < categories.size()) {
-                        openItemBrowser(player, categories.get(i).id(), 0);
-                    }
+                    List<ShopCategory> cats = ShopManager.getInstance().getCategories();
+                    if (i < cats.size()) openItemBrowser(player, cats.get(i).id(), 0);
                     return;
                 }
             }
 
+        // ── Item browser ─────────────────────────────────────────────
         } else if (TITLE_ITEMS.equals(title)) {
-            // Item browser click
             if (slot >= 0 && slot < 45) {
                 Optional<ShopCategory> catOpt = ShopManager.getInstance().getCategory(state.categoryId);
                 if (catOpt.isEmpty()) return;
@@ -308,54 +279,79 @@ public class ShopGUI {
                 int itemIdx = (state.page * 45) + slot;
                 if (itemIdx >= items.size()) return;
 
-                // Check it's not a filler
-                ItemStack clickedItem = player.getOpenInventory().getItem(slot);
-                if (clickedItem == null
-                    || clickedItem.getType() == Material.GRAY_STAINED_GLASS_PANE
-                    || clickedItem.getType() == Material.AIR) return;
+                ItemStack clicked = player.getOpenInventory().getItem(slot);
+                if (clicked == null || clicked.getType() == Material.AIR) return;
 
                 ShopItem shopItem = items.get(itemIdx);
-                openConfirmPurchase(player, state.categoryId, shopItem.id());
 
-            } else if (slot == 45) {
-                // Previous page
-                if (state.page > 0) {
-                    openItemBrowser(player, state.categoryId, state.page - 1);
+                if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT) {
+                    handleSell(player, shopItem);
+                } else {
+                    if (!shopItem.isInStock()) {
+                        player.sendMessage(MM.deserialize("<red>This item is out of stock."));
+                        return;
+                    }
+                    openQuantitySelector(player, state.categoryId, shopItem.id());
                 }
+
+            } else if (slot == 45 && state.page > 0) {
+                openItemBrowser(player, state.categoryId, state.page - 1);
             } else if (slot == 46) {
-                // Back to categories
                 openCategoryPicker(player);
             } else if (slot == 53) {
-                // Next page
                 Optional<ShopCategory> catOpt = ShopManager.getInstance().getCategory(state.categoryId);
                 if (catOpt.isEmpty()) return;
-                List<ShopItem> items = catOpt.get().items();
-                int totalPages = (int) Math.ceil(items.size() / 45.0);
-                if ((state.page + 1) < totalPages) {
-                    openItemBrowser(player, state.categoryId, state.page + 1);
-                }
+                int totalPages = (int) Math.ceil(catOpt.get().items().size() / 45.0);
+                if ((state.page + 1) < totalPages) openItemBrowser(player, state.categoryId, state.page + 1);
             }
 
-        } else if (TITLE_CONFIRM.equals(title)) {
-            // Confirm purchase click
-            if (slot == 11) {
-                // Buy
+        // ── Quantity selector ────────────────────────────────────────
+        } else if (TITLE_QTY.equals(title)) {
+            if (slot == 22) {
+                // Cancel → back to item browser
+                String catId = state.categoryId;
+                int    pg    = state.page;
+                player.closeInventory();
+                Bukkit.getScheduler().runTask(ShopPlugin.getInstance(),
+                    (Runnable) () -> openItemBrowser(player, catId, pg));
+                return;
+            }
+
+            for (int i = 0; i < QTY_SLOTS.length; i++) {
+                if (QTY_SLOTS[i] != slot) continue;
+
+                Optional<ShopItem> itemOpt = ShopManager.getInstance().getItem(state.categoryId, state.pendingItemId);
+                if (itemOpt.isEmpty()) { player.sendMessage(MM.deserialize("<red>Item not found.")); player.closeInventory(); return; }
+                ShopItem shopItem = itemOpt.get();
+
+                EconomyAPI eco  = EconomyAPI.getInstance();
+                long balance    = eco.getBalance(player.getUniqueId());
+                long qty;
+                if (QTY_AMOUNTS[i] == 0) {
+                    qty = shopItem.priceIgc() > 0 ? balance / shopItem.priceIgc() : 64L;
+                } else {
+                    qty = QTY_AMOUNTS[i];
+                }
+                if (qty <= 0) {
+                    player.sendMessage(MM.deserialize("<red>You cannot afford any of this item."));
+                    return;
+                }
+
                 ShopManager.PurchaseResult result = ShopManager.getInstance()
-                    .purchase(player, state.categoryId, state.pendingItemId);
+                    .purchaseMulti(player, state.categoryId, state.pendingItemId, (int) qty);
 
                 String catId = state.categoryId;
-
                 switch (result) {
                     case OK -> {
-                        Optional<ShopItem> itemOpt = ShopManager.getInstance().getItem(catId, state.pendingItemId);
-                        long price = itemOpt.map(ShopItem::priceIgc).orElse(0L);
-                        player.sendMessage(MM.deserialize("<green>Purchased! <gold>$" + String.format("%,d", price) + "<green> deducted."));
+                        String name = itemDisplayName(shopItem);
+                        player.sendMessage(MM.deserialize("<green>Purchased <white>" + qty + "x " + name
+                            + "<green> for <gold>$" + fmt(shopItem.priceIgc() * qty) + "<green>."));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_TRADE, 1.0f, 1.2f);
                         player.closeInventory();
                     }
                     case INSUFFICIENT_FUNDS -> {
                         player.sendMessage(MM.deserialize("<red>Insufficient funds."));
-                        player.closeInventory();
+                        openQuantitySelector(player, state.categoryId, state.pendingItemId);
                     }
                     case OUT_OF_STOCK -> {
                         player.sendMessage(MM.deserialize("<red>Item is sold out."));
@@ -368,20 +364,60 @@ public class ShopGUI {
                         player.closeInventory();
                     }
                     case INVENTORY_ERROR -> {
-                        player.sendMessage(MM.deserialize("<red>Your inventory is full. Free up some space and try again."));
+                        player.sendMessage(MM.deserialize("<red>Inventory full — free up space and try again."));
                         player.closeInventory();
                     }
                 }
-
-            } else if (slot == 15) {
-                // Cancel — reopen item browser on next tick
-                String catId = state.categoryId;
-                int page = state.page;
-                player.closeInventory();
-                Bukkit.getScheduler().runTask(ShopPlugin.getInstance(),
-                    (Runnable) () -> openItemBrowser(player, catId, page));
+                return;
             }
         }
+    }
+
+    // ----------------------------------------------------------------
+    // Right-click sell helper
+    // ----------------------------------------------------------------
+
+    private static void handleSell(Player player, ShopItem shopItem) {
+        if (!shopItem.sellable()) {
+            player.sendMessage(MM.deserialize("<red>This item is not sellable."));
+            return;
+        }
+        EconomyAPI eco = EconomyAPI.getInstance();
+        if (eco == null) {
+            player.sendMessage(MM.deserialize("<red>Economy is not available."));
+            return;
+        }
+        Material mat   = shopItem.item().getType();
+        long unitPrice = eco.getSellPrice(mat, player);
+        if (unitPrice <= 0) {
+            player.sendMessage(MM.deserialize("<red>That item has no sell value."));
+            return;
+        }
+
+        // Remove all stacks of this material from inventory
+        long rawTotal = 0;
+        int  count    = 0;
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if (stack != null && stack.getType() == mat) {
+                rawTotal += unitPrice * stack.getAmount();
+                count    += stack.getAmount();
+                stack.setAmount(0);
+            }
+        }
+
+        if (count == 0) {
+            player.sendMessage(MM.deserialize("<red>You don't have any of that item to sell."));
+            return;
+        }
+
+        double mult  = eco.getExternalSellMultiplier(player.getUniqueId());
+        long earned  = (long)(rawTotal * mult);
+        eco.addBalance(player.getUniqueId(), earned);
+
+        String name = itemDisplayName(shopItem);
+        player.sendMessage(MM.deserialize(
+            "<green>Sold <white>" + count + "x " + name + "<green> for <gold>$" + fmt(earned) + "<green>."));
+        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_TRADE, 1.0f, 1.0f);
     }
 
     // ----------------------------------------------------------------
@@ -398,17 +434,21 @@ public class ShopGUI {
 
     static ItemStack makeItem(Material material, String name, String... loreLines) {
         ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
+        ItemMeta  meta = item.getItemMeta();
         meta.displayName(MM.deserialize(name));
         if (loreLines.length > 0) {
             List<Component> lore = new ArrayList<>();
-            for (String line : loreLines) {
-                lore.add(MM.deserialize(line));
-            }
+            for (String line : loreLines) lore.add(MM.deserialize(line));
             meta.lore(lore);
         }
         item.setItemMeta(meta);
         return item;
+    }
+
+    private static String itemDisplayName(ShopItem shopItem) {
+        if (shopItem.displayName() != null && !shopItem.displayName().isBlank())
+            return shopItem.displayName();
+        return formatMaterialName(shopItem.item().getType());
     }
 
     private static String formatMaterialName(Material material) {
@@ -421,5 +461,9 @@ public class ShopGUI {
             }
         }
         return sb.toString();
+    }
+
+    private static String fmt(long n) {
+        return String.format("%,d", n);
     }
 }

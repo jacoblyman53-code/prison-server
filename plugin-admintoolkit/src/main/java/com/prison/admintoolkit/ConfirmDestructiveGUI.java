@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConfirmDestructiveGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    private static final Component TITLE = MM.deserialize("<!italic><dark_red>[ Confirm Action ]");
+    private static final Component TITLE = MM.deserialize("CONFIRM");
 
     public enum ActionType { BAN, TEMP_BAN, MUTE, KICK }
 
@@ -44,9 +44,6 @@ public class ConfirmDestructiveGUI {
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
 
-        ItemStack filler = AdminPanel.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 27; i++) inv.setItem(i, filler);
-
         // Action description — centered in top row (slot 4)
         String actionLabel = switch (actionType) {
             case BAN      -> "Permanently Ban";
@@ -56,28 +53,32 @@ public class ConfirmDestructiveGUI {
         };
         String actionColor = (actionType == ActionType.KICK) ? "<yellow>" : "<red>";
         String hint = switch (actionType) {
-            case BAN      -> "<gray>This will <red>permanently ban <gray>" + targetName + ".";
-            case TEMP_BAN -> "<gray>You will enter a duration and reason next.";
-            case MUTE     -> "<gray>This will <red>permanently mute <gray>" + targetName + ".";
-            case KICK     -> "<gray>This will kick <yellow>" + targetName + " <gray>from the server.";
+            case BAN      -> "<gray>This will <red>permanently ban <gray><yellow>" + targetName + "<gray>.";
+            case TEMP_BAN -> "<gray>You will enter a <green>duration<gray> and <green>reason<gray> next.";
+            case MUTE     -> "<gray>This will <red>permanently mute <gray><yellow>" + targetName + "<gray>.";
+            case KICK     -> "<gray>This will <green>kick <yellow>" + targetName + " <gray>from the server.";
         };
         inv.setItem(4, AdminPanel.makeItem(Material.PAPER,
-            actionColor + actionLabel + ": <white>" + targetName,
+            actionColor + "✦ " + actionLabel + ": <yellow>" + targetName,
             hint,
             "",
-            "<dark_gray>Click <green>CONFIRM <dark_gray>to proceed or <red>CANCEL <dark_gray>to abort."));
+            "<green>→ <green>Click <green><underlined>CONFIRM</underlined><green> to proceed or <red>CANCEL<green> to abort."));
 
         // CONFIRM — slot 11
         inv.setItem(11, AdminPanel.makeItem(Material.LIME_WOOL,
-            "<green>✔ CONFIRM",
-            "<gray>Proceed with " + actionLabel + ".",
-            "<dark_gray>You will be prompted to enter a reason."));
+            "<green>✓ Confirm",
+            "<gray>Click to confirm <green>" + actionLabel + "<gray>.",
+            "",
+            "<green>→ <green>Click to <green><underlined>confirm</underlined> this action!"));
 
         // Target player head — slot 13
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skull = (SkullMeta) head.getItemMeta();
-        skull.displayName(MM.deserialize("<!italic><gold>" + targetName));
-        skull.lore(java.util.List.of(MM.deserialize("<!italic><dark_gray>Target player")));
+        skull.displayName(MM.deserialize("<!italic><yellow>" + targetName));
+        skull.lore(java.util.List.of(
+            MM.deserialize("<!italic><aqua>✦ <gray>Target player"),
+            MM.deserialize("<!italic><aqua>✦ <gray>Action: <white>" + actionLabel)
+        ));
         @SuppressWarnings("deprecation")
         OfflinePlayer op = Bukkit.getOfflinePlayer(targetName);
         skull.setOwningPlayer(op);
@@ -87,8 +88,10 @@ public class ConfirmDestructiveGUI {
 
         // CANCEL — slot 15
         inv.setItem(15, AdminPanel.makeItem(Material.RED_WOOL,
-            "<red>✘ CANCEL",
-            "<gray>Abort — return to player manager."));
+            "<red>✗ Cancel",
+            "<gray>Click to cancel and return.",
+            "",
+            "<green>→ <green>Click to <green><underlined>cancel</underlined> this action."));
 
         admin.openInventory(inv);
     }
@@ -137,7 +140,7 @@ public class ConfirmDestructiveGUI {
             Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () ->
                 PlayerManageGUI.open(admin, targetName));
         }
-        // Other slots: filler — no action
+        // Other slots: no action
     }
 
     public static void cleanup(UUID uuid) {

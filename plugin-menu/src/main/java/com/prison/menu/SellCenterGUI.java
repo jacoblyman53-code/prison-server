@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class SellCenterGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <green>Sell Center <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Sell Center");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_INV_VALUE  = 10;
@@ -63,7 +63,9 @@ public class SellCenterGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         EconomyAPI eco = EconomyAPI.getInstance();
 
@@ -80,11 +82,11 @@ public class SellCenterGUI {
                 }
             }
         }
-        inv.setItem(SLOT_INV_VALUE, Gui.make(Material.SUNFLOWER, "<yellow>Inventory Value",
-            "<gray>Estimated sell value: <gold>$" + Fmt.number(estimatedValue),
-            "<dark_gray>(Based on current mine prices and multiplier)",
+        inv.setItem(SLOT_INV_VALUE, Gui.make(Material.SUNFLOWER, "<aqua>Inventory Value",
+            "<gray>✦ Estimated sell value: <gold>$" + Fmt.number(estimatedValue),
+            "<gray>✦ Based on current <aqua>mine prices<gray> and multiplier.",
             "",
-            "<dark_gray>Does not include live streak/event bonus."));
+            "<gray>✦ Does not include live streak/event bonus."));
 
         // --- Streak info ---
         int streak = eco != null ? eco.getSellStreak(uuid) : 0;
@@ -97,12 +99,12 @@ public class SellCenterGUI {
         else if (streak < 100) nextBreak = "100 (1.50x)";
         else                   nextBreak = "MAX (1.50x)";
 
-        inv.setItem(SLOT_STREAK, Gui.make(Material.BLAZE_POWDER, "<yellow>Sell Streak",
-            "<gray>Current streak: <yellow>x" + streak,
-            "<gray>Streak bonus: <green>" + Fmt.multiplier(streakMult),
-            "<gray>Next bonus at: <white>" + nextBreak,
+        inv.setItem(SLOT_STREAK, Gui.make(Material.BLAZE_POWDER, "<aqua>Sell Streak",
+            "<gray>✦ Current streak: <yellow>x" + streak,
+            "<gray>✦ Streak bonus: <green>" + Fmt.multiplier(streakMult),
+            "<gray>✦ Next bonus at: <white>" + nextBreak,
             "",
-            "<dark_gray>Sell within 60 seconds to keep streak."));
+            "<gray>✦ Sell within <aqua>60 seconds<gray> to keep streak."));
 
         // --- Multiplier breakdown ---
         double gang  = eco != null ? eco.getGangSellBonus(uuid)     : 1.0;
@@ -113,60 +115,62 @@ public class SellCenterGUI {
 
         List<Component> multLore = new ArrayList<>();
         multLore.add(Component.empty());
-        multLore.add(MM.deserialize("<!italic><gray>Total: <green>" + Fmt.multiplier(total)));
+        multLore.add(MM.deserialize("<!italic><gray>✦ Total: <green>" + Fmt.multiplier(total)));
         multLore.add(Component.empty());
-        multLore.add(MM.deserialize("<!italic><dark_gray>Streak:   <gray>" + Fmt.multiplier(streakMult)));
-        multLore.add(MM.deserialize("<!italic><dark_gray>Gang:     <gray>" + Fmt.multiplier(gang)));
-        multLore.add(MM.deserialize("<!italic><dark_gray>Event:    <gray>" + Fmt.multiplier(event)));
-        multLore.add(MM.deserialize("<!italic><dark_gray>Prestige: <gray>" + Fmt.multiplier(prest)));
-        multLore.add(MM.deserialize("<!italic><dark_gray>Boost:    <gray>" + Fmt.multiplier(boost)));
-        inv.setItem(SLOT_MULTIPLIER, Gui.make(Material.GLOWSTONE_DUST, "<orange>Multiplier Breakdown", multLore));
+        multLore.add(MM.deserialize("<!italic><gray>  ◆ Streak:   <white>" + Fmt.multiplier(streakMult)));
+        multLore.add(MM.deserialize("<!italic><gray>  ◆ Gang:     <white>" + Fmt.multiplier(gang)));
+        multLore.add(MM.deserialize("<!italic><gray>  ◆ Event:    <white>" + Fmt.multiplier(event)));
+        multLore.add(MM.deserialize("<!italic><gray>  ◆ Prestige: <white>" + Fmt.multiplier(prest)));
+        multLore.add(MM.deserialize("<!italic><gray>  ◆ Boost:    <white>" + Fmt.multiplier(boost)));
+        inv.setItem(SLOT_MULTIPLIER, Gui.make(Material.GLOWSTONE_DUST, "<aqua>Multiplier Breakdown", multLore));
 
         // --- Auto-sell toggle ---
         boolean autoSell = eco != null && eco.hasAutoSell(uuid);
         if (autoSell) {
-            inv.setItem(SLOT_AUTOSELL, Gui.make(Material.HOPPER, "<green>Auto Sell: ON",
-                "<gray>Automatically sell blocks as you mine.",
+            inv.setItem(SLOT_AUTOSELL, Gui.make(Material.HOPPER, "<aqua>Auto Sell",
+                "<gray>✦ Status: <green>✓ Enabled",
+                "<gray>✦ Automatically <aqua>sell blocks<gray> as you mine.",
                 "",
-                "<green>Currently enabled. Click to disable."));
+                "<green>→ Click to toggle this setting!"));
         } else {
-            inv.setItem(SLOT_AUTOSELL, Gui.make(Material.HOPPER, "<red>Auto Sell: OFF",
-                "<gray>Automatically sell blocks as you mine.",
+            inv.setItem(SLOT_AUTOSELL, Gui.make(Material.HOPPER, "<aqua>Auto Sell",
+                "<gray>✦ Status: <red>✗ Disabled",
+                "<gray>✦ Automatically <aqua>sell blocks<gray> as you mine.",
                 "",
-                "<red>Currently disabled. Click to enable."));
+                "<green>→ Click to toggle this setting!"));
         }
 
         // --- What will sell ---
         List<Component> whatSellsLore = new ArrayList<>();
         whatSellsLore.add(Component.empty());
         if (sellables.isEmpty()) {
-            whatSellsLore.add(MM.deserialize("<!italic><gray>No sellable blocks in inventory."));
+            whatSellsLore.add(MM.deserialize("<!italic><red>✗ No sellable blocks in inventory."));
         } else {
-            whatSellsLore.add(MM.deserialize("<!italic><gray>Sellable items in your inventory:"));
+            whatSellsLore.add(MM.deserialize("<!italic><gray>✦ Sellable items in your inventory:"));
             int shown = 0;
             for (Map.Entry<Material, Long> e : sellables.entrySet()) {
                 if (shown >= 6) {
-                    whatSellsLore.add(MM.deserialize("<!italic><dark_gray>  ... and more"));
+                    whatSellsLore.add(MM.deserialize("<!italic><gray>  ◆ ... and more"));
                     break;
                 }
-                whatSellsLore.add(MM.deserialize("<!italic><gray>  " + e.getValue() + "x <white>" + Fmt.mat(e.getKey().name())));
+                whatSellsLore.add(MM.deserialize("<!italic><gray>  ◆ " + e.getValue() + "x <white>" + Fmt.mat(e.getKey().name())));
                 shown++;
             }
         }
-        inv.setItem(SLOT_WHAT_SELLS, Gui.make(Material.CHEST, "<yellow>What Will Sell", whatSellsLore));
+        inv.setItem(SLOT_WHAT_SELLS, Gui.make(Material.CHEST, "<aqua>What Will Sell", whatSellsLore));
 
         // --- Main sell button ---
         if (estimatedValue > 0) {
             inv.setItem(SLOT_SELL_ALL, Gui.make(Material.EMERALD_BLOCK, "<green>Sell All",
-                "<gray>Estimated total: <gold>$" + Fmt.number(estimatedValue),
-                "<dark_gray>(Multiplier applied at time of sale)",
+                "<gray>✦ Estimated total: <gold>$" + Fmt.number(estimatedValue),
+                "<gray>✦ Multiplier applied at time of sale.",
                 "",
-                "<green>Click to sell all blocks!"));
+                "<green>→ Click to sell all blocks!"));
         } else {
             inv.setItem(SLOT_SELL_ALL, Gui.make(Material.EMERALD_BLOCK, "<gray>Sell All",
-                "<gray>No sellable blocks in your inventory.",
+                "<red>✗ No sellable blocks in your inventory.",
                 "",
-                "<dark_gray>Mine blocks to earn $."));
+                "<gray>✦ Mine blocks to earn $."));
         }
 
         inv.setItem(SLOT_BACK, Gui.back());

@@ -22,9 +22,9 @@ public class ShopAdminGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE_MAIN     = MM.deserialize("<dark_red><bold>Shop Admin");
-    static final Component TITLE_CATEGORY = MM.deserialize("<dark_red><bold>Shop Admin \u2014 Category");
-    static final Component TITLE_ITEM     = MM.deserialize("<dark_red><bold>Shop Admin \u2014 Item");
+    static final Component TITLE_MAIN     = MM.deserialize("Shop Admin");
+    static final Component TITLE_CATEGORY = MM.deserialize("Shop Admin \u2014 Category");
+    static final Component TITLE_ITEM     = MM.deserialize("Shop Admin \u2014 Item");
 
     // Usable slots in a 54-slot GUI with borders at rows 0 and 5, columns 0 and 8
     private static final int[] ADMIN_CONTENT_SLOTS = {
@@ -61,29 +61,30 @@ public class ShopAdminGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, TITLE_MAIN);
 
-        // Fill borders with dark red glass panes
-        ItemStack border = makeItem(Material.RED_STAINED_GLASS_PANE, "<dark_red> ");
-        fillBorders(inv, 54, border);
-
         List<ShopCategory> categories = ShopManager.getInstance().getCategories();
         for (int i = 0; i < Math.min(categories.size(), ADMIN_CONTENT_SLOTS.length); i++) {
             ShopCategory cat = categories.get(i);
             ItemStack catItem = makeItem(cat.icon(),
-                cat.displayName(),
-                "<gray>" + cat.items().size() + " items",
-                "<dark_gray>Click to manage",
-                "<red>Shift-click to delete");
+                "<aqua>" + cat.displayName(),
+                "<aqua>\u2756 <gray>Items: <white>" + cat.items().size(),
+                "",
+                "<green>\u2192 Click to manage this category.",
+                "<red>\u2717 Shift-click to delete.");
             inv.setItem(ADMIN_CONTENT_SLOTS[i], catItem);
         }
 
         // Slot 45: Add Category
         inv.setItem(45, makeItem(Material.LIME_DYE,
-            "<green>Add Category",
-            "<gray>Click to add a new shop category.",
-            "<dark_gray>You will be prompted for a name."));
+            "<green>+ Add Category",
+            "<gray>Click to add a new <green>shop category</green>.",
+            "<dark_gray>You will be prompted for a name.",
+            "",
+            "<green>\u2192 Click to add a category!"));
 
         // Slot 53: Close
-        inv.setItem(53, makeItem(Material.BARRIER, "<gray>Close"));
+        inv.setItem(53, makeItem(Material.BARRIER,
+            "<red>\u2717 Close",
+            "<gray>Click to close this menu."));
 
         player.openInventory(inv);
     }
@@ -107,9 +108,6 @@ public class ShopAdminGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, TITLE_CATEGORY);
 
-        ItemStack border = makeItem(Material.RED_STAINED_GLASS_PANE, "<dark_red> ");
-        fillBorders(inv, 54, border);
-
         List<ShopItem> items = cat.items();
         for (int i = 0; i < Math.min(items.size(), ADMIN_CONTENT_SLOTS.length); i++) {
             ShopItem shopItem = items.get(i);
@@ -117,16 +115,17 @@ public class ShopAdminGUI {
             ItemMeta meta = display.getItemMeta();
 
             String nameStr = shopItem.displayName() != null && !shopItem.displayName().isBlank()
-                ? shopItem.displayName()
-                : "<white>" + formatMaterialName(display.getType());
+                ? "<aqua>" + shopItem.displayName()
+                : "<aqua>" + formatMaterialName(display.getType());
             meta.displayName(MM.deserialize(nameStr));
 
-            String stockStr = shopItem.stock() == -1 ? "\u221e" : String.valueOf(shopItem.stock());
+            String stockStr = shopItem.stock() == -1 ? "\u221e Unlimited" : String.valueOf(shopItem.stock());
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<gray>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
-            lore.add(MM.deserialize("<gray>Stock: <white>" + stockStr));
-            lore.add(MM.deserialize("<dark_gray>Click to edit price/stock"));
-            lore.add(MM.deserialize("<red>Shift-click to remove"));
+            lore.add(MM.deserialize("<aqua>\u2756 <gray>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " tokens"));
+            lore.add(MM.deserialize("<aqua>\u2756 <gray>Stock: <white>" + stockStr));
+            lore.add(Component.empty());
+            lore.add(MM.deserialize("<green>\u2192 Click to edit this item."));
+            lore.add(MM.deserialize("<red>\u2717 Shift-click to remove."));
             meta.lore(lore);
             display.setItemMeta(meta);
             inv.setItem(ADMIN_CONTENT_SLOTS[i], display);
@@ -134,15 +133,21 @@ public class ShopAdminGUI {
 
         // Slot 45: Add Item
         inv.setItem(45, makeItem(Material.LIME_DYE,
-            "<green>Add Item",
-            "<gray>Hold item in hand and click.",
-            "<dark_gray>You will be prompted for price and stock."));
+            "<green>+ Add Item",
+            "<gray>Hold item in <green>main hand</green> and click.",
+            "<dark_gray>You will be prompted for price and stock.",
+            "",
+            "<green>\u2192 Click to add an item!"));
 
         // Slot 46: Back
-        inv.setItem(46, makeItem(Material.ARROW, "<gray>\u2190 Back"));
+        inv.setItem(46, makeItem(Material.BARRIER,
+            "<red>\u2190 Back to Shop Admin",
+            "<gray>Return to Shop Admin."));
 
         // Slot 53: Close
-        inv.setItem(53, makeItem(Material.BARRIER, "<gray>Close"));
+        inv.setItem(53, makeItem(Material.BARRIER,
+            "<red>\u2717 Close",
+            "<gray>Click to close this menu."));
 
         player.openInventory(inv);
     }
@@ -166,21 +171,17 @@ public class ShopAdminGUI {
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE_ITEM);
 
-        // Fill borders with orange glass panes
-        ItemStack border = makeItem(Material.ORANGE_STAINED_GLASS_PANE, "<orange> ");
-        fillBorders(inv, 27, border);
-
         // Slot 13: Item preview
         ItemStack preview = shopItem.item().clone();
         ItemMeta previewMeta = preview.getItemMeta();
         String nameStr = shopItem.displayName() != null && !shopItem.displayName().isBlank()
-            ? shopItem.displayName()
-            : "<white>" + formatMaterialName(preview.getType());
+            ? "<aqua>" + shopItem.displayName()
+            : "<aqua>" + formatMaterialName(preview.getType());
         previewMeta.displayName(MM.deserialize(nameStr));
         String stockStr = shopItem.stock() == -1 ? "\u221e Unlimited" : String.valueOf(shopItem.stock());
         List<Component> previewLore = new ArrayList<>();
-        previewLore.add(MM.deserialize("<gray>Price: <gold>$" + String.format("%,d", shopItem.priceIgc())));
-        previewLore.add(MM.deserialize("<gray>Stock: <white>" + stockStr));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Price: <gold>" + String.format("%,d", shopItem.priceIgc()) + " tokens"));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Stock: <white>" + stockStr));
         previewMeta.lore(previewLore);
         preview.setItemMeta(previewMeta);
         inv.setItem(13, preview);
@@ -188,25 +189,31 @@ public class ShopAdminGUI {
         // Slot 10: Edit Price
         inv.setItem(10, makeItem(Material.GOLD_NUGGET,
             "<gold>Edit Price",
-            "<gray>Current: <white>$" + String.format("%,d", shopItem.priceIgc()),
-            "<dark_gray>Click to change."));
+            "<aqua>\u2756 <gray>Current: <gold>" + String.format("%,d", shopItem.priceIgc()) + " tokens",
+            "",
+            "<green>\u2192 Click to change the price."));
 
         // Slot 12: Edit Stock
         String currentStock = shopItem.stock() == -1 ? "Unlimited" : String.valueOf(shopItem.stock());
         inv.setItem(12, makeItem(Material.COMPARATOR,
             "<aqua>Edit Stock",
-            "<gray>Current: <white>" + currentStock,
-            "<dark_gray>Click to change.",
-            "<dark_gray>Enter -1 for unlimited."));
+            "<aqua>\u2756 <gray>Current: <white>" + currentStock,
+            "<gray>Enter <red>-1</red> for unlimited.",
+            "",
+            "<green>\u2192 Click to change the stock."));
 
         // Slot 14: Remove Item
-        inv.setItem(14, makeItem(Material.RED_STAINED_GLASS_PANE,
-            "<red>Remove Item",
+        inv.setItem(14, makeItem(Material.BARRIER,
+            "<red>\u2717 Remove Item",
             "<red>Permanently removes this item.",
-            "<dark_gray>Cannot be undone."));
+            "<dark_gray>Cannot be undone.",
+            "",
+            "<red>\u2192 Click to remove this item!"));
 
         // Slot 16: Back
-        inv.setItem(16, makeItem(Material.ARROW, "<gray>\u2190 Back to Category"));
+        inv.setItem(16, makeItem(Material.BARRIER,
+            "<red>\u2190 Back to Category",
+            "<gray>Return to the category editor."));
 
         player.openInventory(inv);
     }

@@ -37,6 +37,7 @@ public class MineManager {
     private final HashMap<String, MineState>       states = new HashMap<>();
 
     private int batchSize = 1000;
+    private int defaultDonorSessionMins = 30;
     private String warningMsg = "<gold>[Mine {mine}]</gold> <gray>Mine is resetting — stand clear!";
     private String doneMsg    = "<gold>[Mine {mine}]</gold> <green>Reset complete.";
 
@@ -57,6 +58,7 @@ public class MineManager {
         states.clear();
 
         batchSize  = config.getInt("reset-batch-size", 1000);
+        defaultDonorSessionMins = config.getInt("default-donor-session-mins", 30);
         warningMsg = config.getString("reset-warning-message",
             "<gold>[Mine {mine}]</gold> <gray>Mine is resetting — stand clear!");
         doneMsg    = config.getString("reset-done-message",
@@ -73,21 +75,17 @@ public class MineManager {
             ConfigurationSection s = minesSection.getConfigurationSection(id);
             if (s == null) continue;
 
-            if (!s.getBoolean("enabled", false)) {
-                // Register state for disabled mines too (so /mine info shows them)
-                states.put(id.toUpperCase(), new MineState());
-                continue;
-            }
-
+            // Always parse so GUI/API can read composition, target value, etc.
             MineData mine = parseMine(id.toUpperCase(), s);
             if (mine == null) continue;
 
             mines.put(mine.id(), mine);
             states.put(mine.id(), new MineState());
-            loaded++;
+
+            if (s.getBoolean("enabled", false)) loaded++;
         }
 
-        logger.info("[Mines] Loaded " + loaded + " enabled mines.");
+        logger.info("[Mines] Loaded " + loaded + " enabled mines (all 26 parsed for GUI).");
     }
 
     @SuppressWarnings("unchecked")
@@ -152,7 +150,9 @@ public class MineManager {
             s.getString("permission-node", "prison.mine." + id.toLowerCase()),
             s.getString("mine-type", "STANDARD"),
             s.getInt("prestige-required", 0),
-            s.getBoolean("vote-crate", false)
+            s.getInt("donor-session-mins", defaultDonorSessionMins),
+            s.getBoolean("vote-crate", false),
+            s.getLong("target-avg-inventory", 0)
         );
     }
 
@@ -183,8 +183,10 @@ public class MineManager {
         config.set(path + ".reset-timer-mins",   15);
         config.set(path + ".reset-threshold",    0.80);
         config.set(path + ".permission-node",    "prison.mine." + id.toLowerCase());
-        config.set(path + ".mine-type",          "STANDARD");
-        config.set(path + ".prestige-required",  0);
+        config.set(path + ".mine-type",              "STANDARD");
+        config.set(path + ".prestige-required",      0);
+        config.set(path + ".donor-session-mins",     30);
+        config.set(path + ".target-avg-inventory",   0);
         plugin.saveConfig();
     }
 
@@ -241,6 +243,10 @@ public class MineManager {
         MineData mine = getMine(mineId);
         if (mine == null) {
             logger.warning("[Mines] triggerReset called for unknown mine: " + mineId);
+            return;
+        }
+        if (!mine.isConfigured()) {
+            logger.warning("[Mines] triggerReset called for unconfigured mine: " + mineId);
             return;
         }
         MineState state = getState(mineId);

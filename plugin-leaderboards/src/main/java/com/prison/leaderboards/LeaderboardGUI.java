@@ -21,10 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * 54-slot leaderboard GUI.
  *
  * <pre>
- * Row 0 (slots  0- 8): filler, category selectors at 1/2/3/4
- * Row 1 (slots  9-17): filler, entries at 10-14
- * Row 2 (slots 18-26): filler, entries at 19-23
- * Rows 3-5 (27-53):    filler; slot 49 = Close button
+ * Row 0 (slots  0- 8): category selectors at 1/2/3/4; slot 0 = close button
+ * Row 1 (slots  9-17): entries at 10-14
+ * Row 2 (slots 18-26): entries at 19-23
+ * Rows 3-5 (27-53):    slot 49 = Close button
  * </pre>
  */
 public class LeaderboardGUI {
@@ -35,7 +35,7 @@ public class LeaderboardGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE = MM.deserialize("<dark_aqua><bold>\u2694 Leaderboards");
+    static final Component TITLE = MM.deserialize("<!italic>LEADERBOARDS");
 
     /** Slot for the close button. */
     private static final int SLOT_CLOSE = 49;
@@ -79,30 +79,30 @@ public class LeaderboardGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
 
-        // --- Row 0: filler + category selectors ---
-        ItemStack filler = makeFiller();
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, filler.clone());
-        }
+        // --- Slot 0: Close button (spec: always top-left) ---
+        inv.setItem(0, makeItem(Material.BARRIER,
+            "<!italic><red>✗ Close",
+            "<!italic><gray>Click to close this menu."));
 
+        // --- Row 0: category selectors (slots 1-4) ---
         inv.setItem(SLOT_RICHEST,  makeCategoryItem(Material.GOLD_INGOT,
-            "<gold><!italic><bold>Richest",
-            "<gray><!italic>Top balance",
+            "<!italic><gold>Richest",
+            "<!italic><gray>View the <green>top balance<gray> players.",
             category.equals("richest")));
 
         inv.setItem(SLOT_PRESTIGE, makeCategoryItem(Material.NETHER_STAR,
-            "<light_purple><!italic><bold>Prestige",
-            "<gray><!italic>Top prestige level",
+            "<!italic><light_purple>Prestige",
+            "<!italic><gray>View the <green>top prestige<gray> players.",
             category.equals("prestige")));
 
         inv.setItem(SLOT_BLOCKS,   makeCategoryItem(Material.DIAMOND_ORE,
-            "<aqua><!italic><bold>Blocks Mined",
-            "<gray><!italic>Total blocks broken",
+            "<!italic><aqua>Blocks Mined",
+            "<!italic><gray>View the <green>most blocks broken<gray>.",
             category.equals("blocks")));
 
         inv.setItem(SLOT_TOKENS,   makeCategoryItem(Material.EMERALD,
-            "<green><!italic><bold>Tokens",
-            "<gray><!italic>Top token balance",
+            "<!italic><green>Tokens",
+            "<!italic><gray>View the <green>top token balance<gray> players.",
             category.equals("tokens")));
 
         // --- Rows 1-2: entry slots ---
@@ -121,19 +121,10 @@ public class LeaderboardGUI {
             }
         }
 
-        // --- Rows 1-5: fill remaining slots with filler ---
-        for (int slot = 9; slot < 54; slot++) {
-            // Skip already-set category selectors and entry slots
-            if (isEntrySlot(slot) || isCategorySlot(slot)) continue;
-            if (inv.getItem(slot) == null) {
-                inv.setItem(slot, filler.clone());
-            }
-        }
-
-        // --- Slot 49: Close button ---
+        // --- Slot 49: Close button (functional — handleClick uses this slot) ---
         inv.setItem(SLOT_CLOSE, makeItem(Material.BARRIER,
-            "<red><!italic>Close",
-            (String[]) null));
+            "<!italic><red>✗ Close",
+            "<!italic><gray>Click to close this menu."));
 
         player.openInventory(inv);
     }
@@ -208,9 +199,19 @@ public class LeaderboardGUI {
         List<String> lore = new ArrayList<>();
         lore.add(loreLine);
         if (active) {
-            lore.add("<yellow><!italic>\u25ba Active");
+            lore.add("<!italic><green>✓ Active");
         }
+        lore.add("<!italic>");
+        lore.add("<!italic><green>→ Click to view " + extractCategoryName(displayName) + " leaderboard.");
         return makeItem(material, displayName, lore.toArray(new String[0]));
+    }
+
+    /**
+     * Strips MiniMessage tags from a display name to get the plain category name.
+     */
+    private static String extractCategoryName(String displayName) {
+        // Remove <!italic> and color tags for use in the CTA line
+        return displayName.replaceAll("<[^>]+>", "").trim();
     }
 
     /**
@@ -236,24 +237,22 @@ public class LeaderboardGUI {
             default -> "<white>";
         };
 
-        String displayName = rankColor + "<!italic>#" + rank + " <white><!italic>" + playerName;
-        String loreLine    = "<yellow><!italic>" + currencyLabel + formatNumber(value);
+        String displayName = "<!italic>" + rankColor + "#" + rank + " <white>" + playerName;
 
-        return makeItem(material, displayName, loreLine);
+        return makeItem(material, displayName,
+            "<!italic><aqua>✦ <gray>Rank: <white>#" + rank,
+            "<!italic><aqua>✦ <gray>Value: <white>" + formatNumber(value) + " " + currencyLabel.trim(),
+            "<!italic>",
+            "<!italic><green>→ Click to view this player's profile.");
     }
 
     /**
      * Creates a placeholder item for an empty leaderboard slot.
      */
     private static ItemStack makeEmptyEntry() {
-        return makeItem(Material.GRAY_STAINED_GLASS_PANE, "<gray><!italic>\u2014", (String[]) null);
-    }
-
-    /**
-     * Creates the standard gray filler pane.
-     */
-    private static ItemStack makeFiller() {
-        return makeItem(Material.GRAY_STAINED_GLASS_PANE, "<gray><!italic> ", (String[]) null);
+        return makeItem(Material.GRAY_STAINED_GLASS_PANE,
+            "<!italic><gray>—",
+            "<!italic><gray>No player in this position yet.");
     }
 
     /**
@@ -288,9 +287,9 @@ public class LeaderboardGUI {
     private static String categoryLabel(String category) {
         return switch (category) {
             case "richest"  -> "$";
-            case "prestige" -> "Prestige ";
-            case "blocks"   -> "Blocks ";
-            case "tokens"   -> "Tokens ";
+            case "prestige" -> "Prestige";
+            case "blocks"   -> "Blocks";
+            case "tokens"   -> "Tokens";
             default         -> "";
         };
     }

@@ -15,7 +15,7 @@ import java.util.List;
 
 public class BlackMarketMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <dark_purple>Black Market <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Black Market");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // 27-slot layout: row 1 = slots 9-17, content items at slots 10-15 (6 items max)
@@ -61,7 +61,9 @@ public class BlackMarketMenuGUI {
 
     private static Inventory build(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         BlackMarketManager bmm = BlackMarketManager.getInstance();
 
@@ -69,14 +71,14 @@ public class BlackMarketMenuGUI {
             List<BlackMarketItem> items = bmm.getCurrentItems();
 
             if (items.isEmpty()) {
-                inv.setItem(SLOT_TIMER, Gui.make(Material.CLOCK, "<gray>No items available",
-                    "<dark_gray>Check back later for new deals."));
+                inv.setItem(SLOT_TIMER, Gui.make(Material.CLOCK, "<gray>No Items Available",
+                    "<gray>✦ Check back later for new deals."));
             } else {
                 long timeUntil = bmm.getTimeUntilRefresh();
                 inv.setItem(SLOT_TIMER, Gui.make(Material.CLOCK,
-                    "<gold>\u23f1 Refreshes in: <white>" + Fmt.duration(timeUntil),
-                    "<gray>New deals rotate periodically.",
-                    "<dark_gray>Limited stock — buy fast!"));
+                    "<aqua>✦ Refreshes In: <white>" + Fmt.duration(timeUntil),
+                    "<gray>✦ New deals <aqua>rotate<gray> periodically.",
+                    "<gray>✦ Limited stock — buy fast!"));
 
                 for (int i = 0; i < ITEM_SLOTS.length && i < items.size(); i++) {
                     BlackMarketItem bmi = items.get(i);
@@ -93,20 +95,20 @@ public class BlackMarketMenuGUI {
                         lore.add(Component.empty());
                     }
 
-                    lore.add(MM.deserialize("<!italic><gray>Price: <gold>$" + Fmt.number(bmi.getPriceIgc())));
+                    lore.add(MM.deserialize("<!italic><gray>✦ Price: <gold>$" + Fmt.number(bmi.getPriceIgc())));
 
                     if (bmi.isInStock()) {
-                        lore.add(MM.deserialize("<!italic><gray>Stock: <white>" + bmi.getCurrentStock()));
+                        lore.add(MM.deserialize("<!italic><gray>✦ Stock: <white>" + bmi.getCurrentStock()));
                     } else {
-                        lore.add(MM.deserialize("<!italic><red>Sold Out"));
+                        lore.add(MM.deserialize("<!italic><red>✗ Sold Out"));
                     }
 
                     lore.add(Component.empty());
 
                     if (bmi.isInStock()) {
-                        lore.add(MM.deserialize("<!italic><green>Click to purchase!"));
+                        lore.add(MM.deserialize("<!italic><green>→ Click to purchase this item!"));
                     } else {
-                        lore.add(MM.deserialize("<!italic><red>Out of stock"));
+                        lore.add(MM.deserialize("<!italic><red>✗ Out of stock."));
                     }
 
                     inv.setItem(ITEM_SLOTS[i], Gui.make(bmi.getMaterial(), bmi.getDisplay(), lore));
@@ -114,8 +116,8 @@ public class BlackMarketMenuGUI {
             }
         } else {
             // Manager unavailable
-            inv.setItem(SLOT_TIMER, Gui.make(Material.BARRIER, "<red>Unavailable",
-                "<gray>Black Market is not available right now."));
+            inv.setItem(SLOT_TIMER, Gui.make(Material.BARRIER, "<red>✗ Unavailable",
+                "<gray>✦ Black Market is not available right now."));
         }
 
         inv.setItem(SLOT_BACK, Gui.back());

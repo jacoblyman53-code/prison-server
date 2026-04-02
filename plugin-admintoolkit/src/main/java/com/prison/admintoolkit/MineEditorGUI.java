@@ -28,8 +28,8 @@ public class MineEditorGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    private static final Component TITLE_LIST   = MM.deserialize("<gold><bold>Mine Editor — Select Mine");
-    private static final Component TITLE_PICKER = MM.deserialize("<gold><bold>Add Block — Select Material");
+    private static final Component TITLE_LIST   = MM.deserialize("MINE EDITOR");
+    private static final Component TITLE_PICKER = MM.deserialize("ADD BLOCK");
 
     // Composition title is dynamic: "Mine: {id} — Composition"
     // We identify it with a plain-text prefix check.
@@ -94,15 +94,16 @@ public class MineEditorGUI {
             int compEntries = mine.composition().size();
 
             ItemStack item = AdminPanel.makeItem(Material.DIAMOND_PICKAXE,
-                mine.display(),
-                "<gray>World: <white>" + mine.world(),
-                "<gray>Blocks: <white>" + blockCount,
-                "<gray>Compositions: <white>" + compEntries,
-                "<dark_gray>Click to edit.");
+                "<aqua>" + mine.display(),
+                "<aqua>✦ <gray>World: <yellow>" + mine.world(),
+                "<aqua>✦ <gray>Blocks: <white>" + blockCount,
+                "<aqua>✦ <gray>Composition entries: <white>" + compEntries,
+                "",
+                "<green>→ <green>Click to <green><underlined>edit</underlined> this mine!");
             inv.setItem(i, item);
         }
 
-        inv.setItem(49, AdminPanel.makeItem(Material.BARRIER, "<red>Close", "<gray>Close the admin panel."));
+        inv.setItem(49, AdminPanel.makeItem(Material.BARRIER, "<red>✗ Close", "<gray>Click to close this menu."));
 
         player.openInventory(inv);
     }
@@ -124,17 +125,8 @@ public class MineEditorGUI {
     }
 
     static void renderCompositionEditor(Player player, MineEditorState state) {
-        Component title = MM.deserialize("<gold><bold>Mine: " + state.mineId() + " — Composition");
+        Component title = MM.deserialize("Mine: " + state.mineId() + " — Composition");
         Inventory inv = Bukkit.createInventory(null, 54, title);
-
-        // Fill border
-        ItemStack filler = AdminPanel.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 9; i++)   inv.setItem(i, filler);
-        for (int i = 45; i < 54; i++) inv.setItem(i, filler);
-        for (int i = 9; i < 45; i += 9) {
-            inv.setItem(i, filler);
-            inv.setItem(i + 8, filler);
-        }
 
         // Composition slots (slots 10–43, skipping borders at col 0 and 8)
         // We use inner slots: 10-16, 19-25, 28-34, 37-43 (4 rows × 7 cols = 28 max)
@@ -153,10 +145,11 @@ public class MineEditorGUI {
 
             String matName = formatMaterialName(mat);
             ItemStack item = AdminPanel.makeItem(mat,
-                "<white>" + matName,
-                "<yellow>" + pct + "%",
-                "<gray>Click: change percentage",
-                "<gray>Shift-click: remove");
+                "<aqua>" + matName,
+                "<aqua>✦ <gray>Percentage: <white>" + pct + "%",
+                "",
+                "<green>→ <green>Click to <green><underlined>change</underlined> percentage.",
+                "<green>→ <green>Shift-click to <green><underlined>remove</underlined> this block.");
             inv.setItem(slotIdx, item);
             slotMap.put(slotIdx, mat);
         }
@@ -170,28 +163,37 @@ public class MineEditorGUI {
         // Calculate total
         double total = state.pendingComposition().values().stream().mapToDouble(Double::doubleValue).sum();
         String totalLine = Math.abs(total - 100.0) < 0.01
-            ? "<green>Total: 100% ✓"
-            : "<red>Warning: total is " + String.format("%.1f", total) + "%, should be 100%";
+            ? "<green>✓ Total: 100%"
+            : "<red>✗ Warning: total is " + String.format("%.1f", total) + "%, should be 100%";
 
         // Control row (slot 45-53)
         inv.setItem(45, AdminPanel.makeItem(Material.ARROW,
-            "<gray>← Back",
-            "<gray>Back to mine list. Unsaved changes are discarded."));
+            "<red>← Back to MINE EDITOR",
+            "<gray>Return to Mine Editor.",
+            "",
+            "<green>→ <green>Click to <green><underlined>go back</underlined>."));
         inv.setItem(46, AdminPanel.makeItem(Material.LIME_DYE,
-            "<green>Add Block",
-            "<gray>Add a new block type to this mine."));
+            "<aqua>Add Block",
+            "<gray>Add a <green>new block type<gray> to this mine.",
+            "",
+            "<green>→ <green>Click to <green><underlined>add</underlined> a block!"));
         inv.setItem(47, AdminPanel.makeItem(Material.ORANGE_DYE,
-            "<gold>Current Total",
+            "<aqua>✦ Current Total",
             totalLine));
         inv.setItem(48, AdminPanel.makeItem(Material.EMERALD,
-            "<green>Save & Reset Mine",
-            "<gray>Saves the composition and immediately",
+            "<aqua>Save & Reset Mine",
+            "<gray>Saves the <green>composition<gray> and immediately",
             "<gray>resets the mine with new blocks.",
-            "<yellow>⚠ This will clear the mine!"));
-        inv.setItem(49, AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
-            "<red>Discard Changes",
+            "",
+            "<red>✗ This will clear the mine!",
+            "",
+            "<green>→ <green>Click to <green><underlined>save</underlined> and reset!"));
+        inv.setItem(49, AdminPanel.makeItem(Material.BARRIER,
+            "<red>✗ Discard Changes",
             "<gray>Discard all pending changes",
-            "<gray>and return to mine list."));
+            "<gray>and return to mine list.",
+            "",
+            "<green>→ <green>Click to <green><underlined>discard</underlined> changes."));
 
         player.openInventory(inv);
     }
@@ -206,10 +208,17 @@ public class MineEditorGUI {
         for (int i = 0; i < Math.min(PICKER_MATERIALS.length, 45); i++) {
             Material mat = PICKER_MATERIALS[i];
             String name = formatMaterialName(mat);
-            inv.setItem(i, AdminPanel.makeItem(mat, "<white>" + name));
+            inv.setItem(i, AdminPanel.makeItem(mat,
+                "<aqua>" + name,
+                "",
+                "<green>→ <green>Click to <green><underlined>select</underlined> this block!"));
         }
 
-        inv.setItem(45, AdminPanel.makeItem(Material.ARROW, "<gray>← Back to Editor"));
+        inv.setItem(45, AdminPanel.makeItem(Material.ARROW,
+            "<red>← Back to Editor",
+            "<gray>Return to Mine Editor.",
+            "",
+            "<green>→ <green>Click to <green><underlined>go back</underlined>."));
 
         player.openInventory(inv);
     }
@@ -220,7 +229,7 @@ public class MineEditorGUI {
 
     public static boolean isTitle(Component title) {
         String plain = PlainTextComponentSerializer.plainText().serialize(title);
-        return plain.startsWith("Mine Editor") || plain.startsWith("Mine: ") || plain.startsWith("Add Block");
+        return plain.startsWith("Mine Editor") || plain.startsWith("Mine: ") || plain.startsWith("Add Block") || plain.equals("MINE EDITOR") || plain.equals("ADD BLOCK");
     }
 
     // ----------------------------------------------------------------
@@ -231,13 +240,13 @@ public class MineEditorGUI {
         var viewTitle = player.getOpenInventory().title();
         String plain = PlainTextComponentSerializer.plainText().serialize(viewTitle);
 
-        if (plain.startsWith("Mine Editor")) {
+        if (plain.startsWith("Mine Editor") || plain.equals("MINE EDITOR")) {
             // Mine list view
             handleMineListClick(player, slot);
         } else if (plain.startsWith("Mine: ")) {
             // Composition editor view
             handleCompositionEditorClick(player, slot, click);
-        } else if (plain.startsWith("Add Block")) {
+        } else if (plain.startsWith("Add Block") || plain.equals("ADD BLOCK")) {
             // Material picker view
             handleMaterialPickerClick(player, slot);
         }

@@ -23,7 +23,9 @@ public record MineData(
     String permissionNode,
     String mineType,                   // STANDARD | DONOR | PRESTIGE
     int    prestigeRequired,
-    boolean voteCrate                  // true = this mine awards a vote crate on /sell
+    int    donorSessionMins,           // DONOR type only: session length in minutes (0 = unlimited)
+    boolean voteCrate,                 // true = this mine awards a vote crate on /sell
+    long   targetAvgInventory          // spec target avg inventory value ($); 0 = compute dynamically
 ) {
     /** True when the mine has non-zero volume (corners have been set). */
     public boolean isConfigured() {

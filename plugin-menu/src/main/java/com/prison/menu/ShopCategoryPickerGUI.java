@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ShopCategoryPickerGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <yellow>Shop <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Shop");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Three rows of 7 content slots
@@ -55,9 +55,11 @@ public class ShopCategoryPickerGUI {
 
     private static Inventory build(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         ShopManager sm = ShopManager.getInstance();
         if (sm != null) {
@@ -67,9 +69,9 @@ public class ShopCategoryPickerGUI {
                 ShopCategory cat = categories.get(i);
 
                 List<Component> lore = new ArrayList<>();
-                lore.add(MM.deserialize("<!italic><gray>" + cat.items().size() + "<gray> items"));
+                lore.add(MM.deserialize("<!italic><gray>✦ Items: <white>" + cat.items().size()));
                 lore.add(Component.empty());
-                lore.add(MM.deserialize("<!italic><green>Click to browse."));
+                lore.add(MM.deserialize("<!italic><green>→ Click to browse this category!"));
 
                 inv.setItem(CONTENT_SLOTS[i], Gui.make(cat.icon(), cat.displayName(), lore));
             }

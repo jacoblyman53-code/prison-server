@@ -31,12 +31,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <pre>
  * Slot layout (54 slots):
- *  0  1  2  3  [4]  5  6  7  8    ← header row — slot 4 = Chat Tags tab; rest = glass
+ *  0  1  2  3  [4]  5  6  7  8    ← header row — slot 4 = Chat Tags tab; rest = empty
  *  9 10 11 12  13 14 15 16 17    ─┐
  * 18 19 20 21  22 23 24 25 26     │  content area (slots 9-44): up to 36 tag icons
  * 27 28 29 30  31 32 33 34 35     │
  * 36 37 38 39  40 41 42 43 44    ─┘
- * 45 46 47 48 [49] 50 51 52 53    ← footer row — slot 49 = Close button; rest = glass
+ * 45 46 47 48 [49] 50 51 52 53    ← footer row — slot 49 = Close button; rest = empty
  * </pre>
  *
  * Tags are laid out left-to-right, top-to-bottom starting at slot 9.
@@ -48,7 +48,7 @@ public class CosmeticsGUI implements Listener {
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     /** Title rendered at the top of every cosmetics inventory. */
-    private static final String TITLE = "<light_purple><bold>✦ Cosmetics";
+    private static final String TITLE_BASE = "Your Tags";
 
     /** Tracks which players have our GUI open so we can intercept clicks precisely. */
     private final ConcurrentHashMap<UUID, Inventory> openInventories = new ConcurrentHashMap<>();
@@ -76,21 +76,23 @@ public class CosmeticsGUI implements Listener {
      * Must be called on the main thread.
      */
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54, MM.deserialize(TITLE));
+        UUID uuid = player.getUniqueId();
+        Collection<ChatTag> allTags = manager.getAllTagDefinitions();
+        Set<String> owned = manager.getOwnedTags(uuid);
+        if (owned == null) owned = Set.of();
+        int ownedCount = 0;
+        for (ChatTag tag : allTags) {
+            if (owned.contains(tag.id())) ownedCount++;
+        }
+
+        String title = TITLE_BASE + " (" + ownedCount + ")";
+        Inventory inv = Bukkit.createInventory(null, 54, MM.deserialize(title));
 
         // --- Header row (slots 0–8) ---
-        ItemStack glassHeader = grayGlass();
-        for (int i = 0; i <= 8; i++) {
-            inv.setItem(i, glassHeader);
-        }
         // Slot 4: Chat Tags tab indicator
         inv.setItem(4, buildTabIcon());
 
-        // --- Footer row (slots 45–53) ---
-        ItemStack glassFooter = grayGlass();
-        for (int i = 45; i <= 53; i++) {
-            inv.setItem(i, glassFooter);
-        }
+        // --- Footer row ---
         // Slot 49: Close button
         inv.setItem(49, buildCloseButton());
 
@@ -136,11 +138,7 @@ public class CosmeticsGUI implements Listener {
             slot++;
         }
 
-        // Fill remaining empty content slots with black glass to tidy up the grid
-        ItemStack empty = buildItem(Material.BLACK_STAINED_GLASS_PANE, "<dark_gray> ", List.of());
-        for (int s = slot; s <= 44; s++) {
-            inv.setItem(s, empty);
-        }
+        // Remaining empty content slots stay empty
 
         return map;
     }
@@ -153,10 +151,12 @@ public class CosmeticsGUI implements Listener {
     private ItemStack buildTabIcon() {
         return buildItem(
             Material.NAME_TAG,
-            "<!italic><white><bold>Chat Tags",
+            "<!italic><aqua>✦ <white><bold>Chat Tags",
             List.of(
-                "<!italic><gray>Browse and equip your",
-                "<!italic><gray>collected chat tags."
+                "<!italic><aqua>✦ <gray>Browse and <green>equip</green> your",
+                "<!italic><gray>  collected chat tags.",
+                "",
+                "<!italic><green>→ <green>Currently viewing <green>tags</green>."
             )
         );
     }
@@ -165,34 +165,40 @@ public class CosmeticsGUI implements Listener {
     private ItemStack buildCloseButton() {
         return buildItem(
             Material.BARRIER,
-            "<!italic><red>Close",
-            List.of("<!italic><gray>Close this menu.")
+            "<!italic><red>✗ Close",
+            List.of("<!italic><gray>Click to close this menu.")
         );
-    }
-
-    /** Gray glass pane filler — no display name, no lore. */
-    private ItemStack grayGlass() {
-        ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta meta  = item.getItemMeta();
-        meta.displayName(Component.empty());
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ITEM_SPECIFICS);
-        item.setItemMeta(meta);
-        return item;
     }
 
     /** Icon for a tag the player owns. */
     private ItemStack buildOwnedTagIcon(ChatTag tag, boolean equipped) {
         List<String> lore = new ArrayList<>();
-        lore.add("<!italic>" + tag.rarity().loreLabel());
-        lore.add("<!italic><dark_gray>" + tag.description());
-        lore.add("<!italic><dark_gray> ");
-        lore.add("<!italic><white>Preview: " + tag.display() + " <white>YourName");
-        lore.add("<!italic><dark_gray> ");
+
+        // Item name header
+        lore.add("<!italic><aqua>" + tag.display());
+
+        lore.add("");
+
+        // Metadata
+        lore.add("<!italic><aqua>✦ " + tag.rarity().loreLabel());
+        lore.add("<!italic><aqua>✦ <gray>Obtained from <yellow>" + tag.description());
+        lore.add("<!italic><aqua>✦ <green>✓ Owned");
+
+        lore.add("");
+
+        // Chat preview
+        lore.add("<!italic><aqua>✦ <gray>Chat Preview:");
+        lore.add("<!italic><gray>" + tag.display() + " <white>YourName<gray>: Hey!");
+
+        lore.add("");
+
+        // Status and CTA
         if (equipped) {
-            lore.add("<!italic><green>✔ Equipped");
-            lore.add("<!italic><gray>Click to <red>unequip</red>.");
+            lore.add("<!italic><green>✓ <green>Equipped");
+            lore.add("");
+            lore.add("<!italic><green>→ <green>Click to <green>unequip</green> this tag!");
         } else {
-            lore.add("<!italic><gray>Click to <green>equip</green>.");
+            lore.add("<!italic><green>→ <green>Click to <green>equip</green> this tag!");
         }
 
         ItemStack icon = buildItem(tag.iconMaterial(), "<!italic>" + tag.display(), lore);
@@ -211,12 +217,26 @@ public class CosmeticsGUI implements Listener {
     /** Icon for a tag the player does NOT own — shows as locked glass pane. */
     private ItemStack buildLockedTagIcon(ChatTag tag) {
         List<String> lore = new ArrayList<>();
-        lore.add("<!italic>" + tag.rarity().loreLabel());
-        lore.add("<!italic><dark_gray>" + tag.description());
-        lore.add("<!italic><dark_gray> ");
-        lore.add("<!italic><white>Preview: " + tag.display() + " <white>YourName");
-        lore.add("<!italic><dark_gray> ");
-        lore.add("<!italic><red>✘ Not owned");
+
+        // Item name header
+        lore.add("<!italic><aqua>" + tag.display());
+
+        lore.add("");
+
+        // Metadata
+        lore.add("<!italic><aqua>✦ " + tag.rarity().loreLabel());
+        lore.add("<!italic><aqua>✦ <gray>Obtained from <yellow>" + tag.description());
+        lore.add("<!italic><red>✗ <red>Not Owned");
+
+        lore.add("");
+
+        // Chat preview
+        lore.add("<!italic><aqua>✦ <gray>Chat Preview:");
+        lore.add("<!italic><gray>" + tag.display() + " <white>YourName<gray>: Hey!");
+
+        lore.add("");
+
+        lore.add("<!italic><green>→ <green>Click to view in <green>store</green>!");
 
         return buildItem(Material.GRAY_STAINED_GLASS_PANE, "<!italic><dark_gray>??? Locked", lore);
     }

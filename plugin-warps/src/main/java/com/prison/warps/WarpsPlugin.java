@@ -1,7 +1,5 @@
 package com.prison.warps;
 
-import com.prison.mines.MineData;
-import com.prison.mines.MinesAPI;
 import com.prison.permissions.PermissionEngine;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -29,22 +27,7 @@ public class WarpsPlugin extends JavaPlugin implements Listener {
     private final MiniMessage mm = MiniMessage.miniMessage();
 
     // GUI title constants — used to identify our inventories in click events
-    private static final String MINES_TITLE_STR = "<dark_gray><bold>Prison Mines</bold></dark_gray>";
     private static final String WARPS_TITLE_STR = "<dark_gray><bold>Warps</bold></dark_gray>";
-
-    // Mine order A-Z for GUI layout
-    private static final String[] MINE_LETTERS = {
-        "A","B","C","D","E","F","G","H","I","J","K","L","M",
-        "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
-    };
-
-    // Slot positions for mines A-Z in a 54-slot inventory (bordered layout)
-    private static final int[] MINE_SLOTS = {
-         1, 2, 3, 4, 5, 6, 7,          // A-G  (row 1)
-        10,11,12,13,14,15,16,          // H-N  (row 2)
-        19,20,21,22,23,24,25,          // O-U  (row 3)
-        28,29,30,31,32                 // V-Z  (row 4)
-    };
 
     @Override
     public void onEnable() {
@@ -77,7 +60,6 @@ public class WarpsPlugin extends JavaPlugin implements Listener {
             case "spawn"  -> handleSpawn(sender, args);
             case "warp"   -> handleWarp(sender, args);
             case "warps"  -> handleWarpsGui(sender);
-            case "mines"  -> handleMinesGui(sender);
             default -> { return false; }
         }
         return true;
@@ -208,93 +190,6 @@ public class WarpsPlugin extends JavaPlugin implements Listener {
         openWarpsGui(player);
     }
 
-    private void handleMinesGui(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("This command must be run by a player."); return;
-        }
-        openMinesGui(player);
-    }
-
-    // ----------------------------------------------------------------
-    // Mines GUI — 54 slots, all 26 mines A-Z with permission colouring
-    // ----------------------------------------------------------------
-
-    private void openMinesGui(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54,
-            mm.deserialize(MINES_TITLE_STR));
-
-        MinesAPI minesApi = MinesAPI.getInstance();
-        ItemStack bg = makeItem(Material.BLACK_STAINED_GLASS_PANE, " ");
-
-        // Fill all slots with background first
-        for (int i = 0; i < 54; i++) inv.setItem(i, bg);
-
-        // Place each mine A-Z in its designated slot
-        for (int i = 0; i < MINE_LETTERS.length; i++) {
-            String letter = MINE_LETTERS[i];
-            int slot = MINE_SLOTS[i];
-
-            if (minesApi == null) {
-                inv.setItem(slot, makeItem(Material.GRAY_STAINED_GLASS_PANE,
-                    "<gray>Mine " + letter, "<dark_gray>Mines plugin not loaded"));
-                continue;
-            }
-
-            MineData mine = minesApi.getMine(letter);
-            if (mine == null) {
-                // Mine exists in config but not enabled yet
-                inv.setItem(slot, makeItem(Material.GRAY_STAINED_GLASS_PANE,
-                    "<dark_gray>Mine " + letter, "<gray>Not yet available"));
-                continue;
-            }
-
-            boolean accessible = PermissionEngine.getInstance()
-                .hasPermission(player, mine.permissionNode())
-                || PermissionEngine.getInstance()
-                .hasPermission(player, "prison.admin.*");
-
-            String currentRank = PermissionEngine.getInstance()
-                .getMineRank(player.getUniqueId());
-            boolean isCurrent = letter.equals(currentRank);
-
-            if (!accessible) {
-                inv.setItem(slot, makeItem(Material.BARRIER,
-                    "<red>Mine " + letter,
-                    "<dark_red>Requires rank " + letter + " or higher",
-                    "<gray>" + mine.display()));
-            } else {
-                // Primary block of this mine as icon
-                Material icon = mine.composition().keySet().iterator().next();
-
-                List<Component> lore = new ArrayList<>();
-                lore.add(mm.deserialize("<gray>Click to teleport"));
-                lore.add(mm.deserialize("<dark_gray>" + mine.world() +
-                    " — " + mine.totalBlocks() + " blocks"));
-                if (mine.resetTimerMins() > 0)
-                    lore.add(mm.deserialize("<dark_gray>Resets every " + mine.resetTimerMins() + " min"));
-
-                ItemStack item = buildMineItem(icon, mine.display(), lore, isCurrent);
-                inv.setItem(slot, item);
-            }
-        }
-
-        // Close button
-        inv.setItem(49, makeItem(Material.BARRIER, "<red>Close"));
-
-        player.openInventory(inv);
-    }
-
-    private ItemStack buildMineItem(Material mat, String displayName,
-                                     List<Component> lore, boolean glint) {
-        ItemStack item = new ItemStack(mat);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(mm.deserialize(displayName));
-        meta.lore(lore);
-        if (glint) meta.setEnchantmentGlintOverride(true);
-        item.setItemMeta(meta);
-        return item;
-    }
-
     // ----------------------------------------------------------------
     // Warps GUI
     // ----------------------------------------------------------------
@@ -333,52 +228,12 @@ public class WarpsPlugin extends JavaPlugin implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         Component title = event.getView().title();
-        Component minesTitle = mm.deserialize(MINES_TITLE_STR);
         Component warpsTitle = mm.deserialize(WARPS_TITLE_STR);
 
-        if (title.equals(minesTitle)) {
-            event.setCancelled(true);
-            handleMinesClick(player, event.getRawSlot());
-        } else if (title.equals(warpsTitle)) {
+        if (title.equals(warpsTitle)) {
             event.setCancelled(true);
             handleWarpsClick(player, event.getRawSlot(),
                 api.getAccessibleWarps(player));
-        }
-    }
-
-    private void handleMinesClick(Player player, int slot) {
-        // Close button
-        if (slot == 49) { player.closeInventory(); return; }
-
-        // Find which mine was clicked
-        for (int i = 0; i < MINE_SLOTS.length; i++) {
-            if (MINE_SLOTS[i] == slot) {
-                String letter = MINE_LETTERS[i];
-                MinesAPI minesApi = MinesAPI.getInstance();
-                if (minesApi == null) return;
-
-                MineData mine = minesApi.getMine(letter);
-                if (mine == null) return;
-
-                if (!PermissionEngine.getInstance().hasPermission(player, mine.permissionNode())
-                        && !PermissionEngine.getInstance().hasPermission(player, "prison.admin.*")) {
-                    player.sendMessage(mm.deserialize(
-                        "<red>You don't have access to Mine " + letter + "."));
-                    return;
-                }
-
-                player.closeInventory();
-                // Delay 1 tick so inventory close processes first
-                getServer().getScheduler().runTaskLater(this, () -> {
-                    Location spawn = minesApi.getSpawnLocation(letter);
-                    if (spawn != null) {
-                        player.teleport(spawn);
-                        player.sendMessage(mm.deserialize(
-                            "<green>Teleported to " + mine.display() + "<green>."));
-                    }
-                }, 1L);
-                return;
-            }
         }
     }
 

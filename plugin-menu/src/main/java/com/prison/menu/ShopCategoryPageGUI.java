@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ShopCategoryPageGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <yellow>Shop: Browse <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Shop: Browse");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // 28 content slots across 4 rows of 7
@@ -170,7 +170,7 @@ public class ShopCategoryPageGUI {
 
         Sounds.buy(player);
         player.sendMessage(MM.deserialize(
-            "<green>Sold <white>×" + removed + " " + displayName
+            "<green>Sold <white>\u00d7" + removed + " " + displayName
             + " <green>for <gold>$" + Fmt.number(earned)));
     }
 
@@ -180,9 +180,11 @@ public class ShopCategoryPageGUI {
 
     private static Inventory build(Player player, String categoryId, int page) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         ShopManager sm = ShopManager.getInstance();
         if (sm == null) {
@@ -210,20 +212,20 @@ public class ShopCategoryPageGUI {
 
             String displayName = shopItem.displayName() != null
                 ? shopItem.displayName()
-                : "<white>" + Fmt.mat(shopItem.item().getType().name());
+                : "<aqua>" + Fmt.mat(shopItem.item().getType().name());
 
             List<Component> lore = new ArrayList<>();
-            lore.add(MM.deserialize("<!italic><gray>Buy Price: <gold>$" + Fmt.number(shopItem.priceIgc()) + "<gray>/ea."));
+            lore.add(MM.deserialize("<!italic><gray>✦ Buy: <gold>$" + Fmt.number(shopItem.priceIgc()) + "<gray>/ea."));
             if (shopItem.sellable()) {
-                lore.add(MM.deserialize("<!italic><gray>Sell Price: <green>$" + Fmt.number(shopItem.priceIgc()) + "<gray>/ea."));
+                lore.add(MM.deserialize("<!italic><gray>✦ Sell: <green>$" + Fmt.number(shopItem.priceIgc()) + "<gray>/ea."));
             } else {
-                lore.add(MM.deserialize("<!italic><gray>Sell Price: <dark_gray>Not Sellable"));
+                lore.add(MM.deserialize("<!italic><gray>✦ Sell: <red>✗ Not Sellable"));
             }
             lore.add(Component.empty());
-            lore.add(MM.deserialize("<!italic><green>[LEFT-CLICK] <gray>Buy Items"));
+            lore.add(MM.deserialize("<!italic><green>→ Left-click to buy this item!"));
             if (shopItem.sellable()) {
-                lore.add(MM.deserialize("<!italic><yellow>[RIGHT-CLICK] <gray>Sell Items"));
-                lore.add(MM.deserialize("<!italic><yellow>Shift + [RIGHT-CLICK] <gray>Sell All"));
+                lore.add(MM.deserialize("<!italic><green>→ Right-click to sell this item."));
+                lore.add(MM.deserialize("<!italic><green>→ Shift+Right-click to sell all."));
             }
 
             inv.setItem(CONTENT_SLOTS[i], Gui.make(shopItem.item().getType(), displayName, lore));
@@ -240,8 +242,8 @@ public class ShopCategoryPageGUI {
 
         inv.setItem(SLOT_INFO, Gui.make(Material.CHEST,
             category.displayName(),
-            "<gray>Page <white>" + (page + 1) + "<gray> of <white>" + totalPages,
-            "<gray>" + items.size() + "<gray> items in this category."));
+            "<gray>✦ Page: <white>" + (page + 1) + "<gray> / <white>" + totalPages,
+            "<gray>✦ Items in category: <white>" + items.size()));
 
         return inv;
     }

@@ -29,7 +29,7 @@ public class EcoToolsGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    private static final Component TITLE = MM.deserialize("<gold><bold>Economy Tools");
+    private static final Component TITLE = MM.deserialize("ECO TOOLS");
 
     // Admin UUID → target player name
     private static final Map<UUID, String> targetPlayerNames = new ConcurrentHashMap<>();
@@ -81,22 +81,15 @@ public class EcoToolsGUI {
     private static void renderEcoToolsGUI(Player admin, String targetName, long igc, long tokens, boolean offline) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
 
-        // Fill border
-        ItemStack filler = AdminPanel.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 9; i++)   inv.setItem(i, filler);
-        for (int i = 45; i < 54; i++) inv.setItem(i, filler);
-        for (int i = 9; i < 45; i += 9) {
-            inv.setItem(i, filler);
-            inv.setItem(i + 8, filler);
-        }
-
         // Player head at slot 4
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-        skullMeta.displayName(MM.deserialize("<!italic><gold>" + targetName + (offline ? " <dark_gray>(offline)" : "")));
+        skullMeta.displayName(MM.deserialize("<!italic><yellow>" + targetName + (offline ? " <red>(offline)" : "")));
         skullMeta.lore(java.util.List.of(
-            MM.deserialize("<!italic><gray>IGC Balance: <white>" + igc),
-            MM.deserialize("<!italic><gray>Token Balance: <white>" + tokens)
+            MM.deserialize("<!italic><aqua>✦ <gray>IGC Balance: <white>" + igc),
+            MM.deserialize("<!italic><aqua>✦ <gray>Token Balance: <white>" + tokens),
+            MM.deserialize("<!italic>"),
+            MM.deserialize("<!italic><aqua>✦ <gray>Status: " + (offline ? "<red>✗ Offline" : "<green>✓ Online"))
         ));
         @SuppressWarnings("deprecation")
         OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetName);
@@ -108,92 +101,113 @@ public class EcoToolsGUI {
         // Offline warning — slot 22 (center of content area)
         if (offline) {
             inv.setItem(22, AdminPanel.makeItem(Material.ORANGE_STAINED_GLASS_PANE,
-                "<gold>⚠ Offline Player",
-                "<yellow>" + targetName + " is not currently online.",
+                "<gold>✦ Offline Player",
+                "<aqua>✦ <yellow>" + targetName + " <gray>is not currently online.",
                 "",
-                "<gray>Balance changes write directly to the database.",
-                "<gray>The new value takes effect on their next login.",
+                "<gray>Balance changes write directly to the <green>database<gray>.",
+                "<gray>The new value takes effect on their next <green>login<gray>.",
                 "",
-                "<dark_gray>DB value shown above may be cached; reload to refresh."));
+                "<red>✗ DB value shown above may be cached; reload to refresh."));
         }
 
         // Offline note appended to each button's lore
-        String offlineNote = offline ? "<gold>⚠ Writes directly to DB — takes effect on login." : null;
+        String offlineNote = offline ? "<gold>$ Writes directly to DB — takes effect on login." : null;
 
         // IGC controls
         inv.setItem(18, offlineNote != null
-            ? AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
-                "<green>Give IGC",
-                "<gray>Add IGC to " + targetName + "'s balance.",
+            ? AdminPanel.makeItem(Material.LIME_DYE,
+                "<aqua>Give IGC",
+                "<gray>Add <green>IGC<gray> to <yellow>" + targetName + "<gray>'s balance.",
                 "",
-                offlineNote)
-            : AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
-                "<green>Give IGC",
-                "<gray>Add IGC to " + targetName + "'s balance.",
-                "<dark_gray>Click to enter amount."));
+                offlineNote,
+                "",
+                "<green>→ <green>Click to <green><underlined>give</underlined> IGC!")
+            : AdminPanel.makeItem(Material.LIME_DYE,
+                "<aqua>Give IGC",
+                "<gray>Add <green>IGC<gray> to <yellow>" + targetName + "<gray>'s balance.",
+                "",
+                "<green>→ <green>Click to <green><underlined>give</underlined> IGC!"));
         inv.setItem(19, offlineNote != null
-            ? AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
-                "<red>Take IGC",
-                "<gray>Remove IGC from " + targetName + "'s balance.",
+            ? AdminPanel.makeItem(Material.RED_DYE,
+                "<aqua>Take IGC",
+                "<gray>Remove <green>IGC<gray> from <yellow>" + targetName + "<gray>'s balance.",
                 "",
-                offlineNote)
-            : AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
-                "<red>Take IGC",
-                "<gray>Remove IGC from " + targetName + "'s balance.",
-                "<dark_gray>Fails if balance is insufficient.",
-                "<dark_gray>Click to enter amount."));
+                offlineNote,
+                "",
+                "<green>→ <green>Click to <green><underlined>take</underlined> IGC!")
+            : AdminPanel.makeItem(Material.RED_DYE,
+                "<aqua>Take IGC",
+                "<gray>Remove <green>IGC<gray> from <yellow>" + targetName + "<gray>'s balance.",
+                "<red>✗ Fails if balance is insufficient.",
+                "",
+                "<green>→ <green>Click to <green><underlined>take</underlined> IGC!"));
         inv.setItem(20, offlineNote != null
-            ? AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
-                "<yellow>Set IGC",
-                "<gray>Force-set " + targetName + "'s IGC balance.",
+            ? AdminPanel.makeItem(Material.YELLOW_DYE,
+                "<aqua>Set IGC",
+                "<gray>Force-set <yellow>" + targetName + "<gray>'s <green>IGC balance<gray>.",
                 "",
-                offlineNote)
-            : AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
-                "<yellow>Set IGC",
-                "<gray>Force-set " + targetName + "'s IGC balance.",
-                "<dark_gray>Overwrites current value.",
-                "<dark_gray>Click to enter amount."));
+                offlineNote,
+                "",
+                "<green>→ <green>Click to <green><underlined>set</underlined> IGC!")
+            : AdminPanel.makeItem(Material.YELLOW_DYE,
+                "<aqua>Set IGC",
+                "<gray>Force-set <yellow>" + targetName + "<gray>'s <green>IGC balance<gray>.",
+                "<gray>Overwrites current value.",
+                "",
+                "<green>→ <green>Click to <green><underlined>set</underlined> IGC!"));
 
         // Token controls
         inv.setItem(24, offlineNote != null
-            ? AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
-                "<green>Give Tokens",
-                "<gray>Add tokens to " + targetName + "'s balance.",
+            ? AdminPanel.makeItem(Material.LIME_DYE,
+                "<aqua>Give Tokens",
+                "<gray>Add <green>tokens<gray> to <yellow>" + targetName + "<gray>'s balance.",
                 "",
-                offlineNote)
-            : AdminPanel.makeItem(Material.LIME_STAINED_GLASS_PANE,
-                "<green>Give Tokens",
-                "<gray>Add tokens to " + targetName + "'s balance.",
-                "<dark_gray>Click to enter amount."));
+                offlineNote,
+                "",
+                "<green>→ <green>Click to <green><underlined>give</underlined> tokens!")
+            : AdminPanel.makeItem(Material.LIME_DYE,
+                "<aqua>Give Tokens",
+                "<gray>Add <green>tokens<gray> to <yellow>" + targetName + "<gray>'s balance.",
+                "",
+                "<green>→ <green>Click to <green><underlined>give</underlined> tokens!"));
         inv.setItem(25, offlineNote != null
-            ? AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
-                "<red>Take Tokens",
-                "<gray>Remove tokens from " + targetName + "'s balance.",
+            ? AdminPanel.makeItem(Material.RED_DYE,
+                "<aqua>Take Tokens",
+                "<gray>Remove <green>tokens<gray> from <yellow>" + targetName + "<gray>'s balance.",
                 "",
-                offlineNote)
-            : AdminPanel.makeItem(Material.RED_STAINED_GLASS_PANE,
-                "<red>Take Tokens",
-                "<gray>Remove tokens from " + targetName + "'s balance.",
-                "<dark_gray>Fails if balance is insufficient."));
+                offlineNote,
+                "",
+                "<green>→ <green>Click to <green><underlined>take</underlined> tokens!")
+            : AdminPanel.makeItem(Material.RED_DYE,
+                "<aqua>Take Tokens",
+                "<gray>Remove <green>tokens<gray> from <yellow>" + targetName + "<gray>'s balance.",
+                "<red>✗ Fails if balance is insufficient.",
+                "",
+                "<green>→ <green>Click to <green><underlined>take</underlined> tokens!"));
         inv.setItem(26, offlineNote != null
-            ? AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
-                "<yellow>Set Tokens",
-                "<gray>Force-set " + targetName + "'s token balance.",
+            ? AdminPanel.makeItem(Material.YELLOW_DYE,
+                "<aqua>Set Tokens",
+                "<gray>Force-set <yellow>" + targetName + "<gray>'s <green>token balance<gray>.",
                 "",
-                offlineNote)
-            : AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
-                "<yellow>Set Tokens",
-                "<gray>Force-set " + targetName + "'s token balance.",
-                "<dark_gray>Overwrites current value."));
+                offlineNote,
+                "",
+                "<green>→ <green>Click to <green><underlined>set</underlined> tokens!")
+            : AdminPanel.makeItem(Material.YELLOW_DYE,
+                "<aqua>Set Tokens",
+                "<gray>Force-set <yellow>" + targetName + "<gray>'s <green>token balance<gray>.",
+                "<gray>Overwrites current value.",
+                "",
+                "<green>→ <green>Click to <green><underlined>set</underlined> tokens!"));
 
         // Transaction log
         inv.setItem(36, AdminPanel.makeItem(Material.BOOK,
-            "<gold>Transaction Log",
-            "<gray>Shows last 10 transactions in chat.",
-            "<dark_gray>Click to view."));
+            "<aqua>Transaction Log",
+            "<gray>Shows last <green>10 transactions<gray> in chat.",
+            "",
+            "<green>→ <green>Click to <green><underlined>view</underlined> transaction log!"));
 
         // Close
-        inv.setItem(45, AdminPanel.makeItem(Material.BARRIER, "<red>Close", "<gray>Close economy tools."));
+        inv.setItem(45, AdminPanel.makeItem(Material.BARRIER, "<red>✗ Close", "<gray>Click to close this menu."));
 
         admin.openInventory(inv);
     }
@@ -229,6 +243,7 @@ public class EcoToolsGUI {
                         EconomyAPI.getInstance().addBalanceAsync(targetUuid, amount, TransactionType.ADMIN_ADD)
                             .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Gave <white>" + amount + " IGC</white> to " + targetName + "."));
+                                logStaffAction(admin.getUniqueId(), targetUuid, "IGC", "give", amount, newBal);
                                 refreshGui(admin, targetName);
                             }));
                     } catch (NumberFormatException e) {
@@ -249,6 +264,7 @@ public class EcoToolsGUI {
                                     admin.sendMessage(MM.deserialize("<red>" + targetName + " has insufficient funds."));
                                 } else {
                                     admin.sendMessage(MM.deserialize("<green>Removed <white>" + amount + " IGC</white> from " + targetName + "."));
+                                    logStaffAction(admin.getUniqueId(), targetUuid, "IGC", "take", amount, newBal);
                                 }
                                 refreshGui(admin, targetName);
                             }));
@@ -267,6 +283,7 @@ public class EcoToolsGUI {
                         EconomyAPI.getInstance().setBalanceAsync(targetUuid, amount, TransactionType.ADMIN_SET)
                             .thenRun(() -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s IGC to <white>" + amount + "</white>."));
+                                logStaffAction(admin.getUniqueId(), targetUuid, "IGC", "set", amount, amount);
                                 refreshGui(admin, targetName);
                             }));
                     } catch (NumberFormatException e) {
@@ -284,6 +301,7 @@ public class EcoToolsGUI {
                         EconomyAPI.getInstance().addTokensAsync(targetUuid, amount, TransactionType.ADMIN_ADD)
                             .thenAccept(newBal -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Gave <white>" + amount + " tokens</white> to " + targetName + "."));
+                                logStaffAction(admin.getUniqueId(), targetUuid, "TOKEN", "give", amount, newBal);
                                 refreshGui(admin, targetName);
                             }));
                     } catch (NumberFormatException e) {
@@ -304,6 +322,7 @@ public class EcoToolsGUI {
                                     admin.sendMessage(MM.deserialize("<red>" + targetName + " has insufficient tokens."));
                                 } else {
                                     admin.sendMessage(MM.deserialize("<green>Removed <white>" + amount + " tokens</white> from " + targetName + "."));
+                                    logStaffAction(admin.getUniqueId(), targetUuid, "TOKEN", "take", amount, newBal);
                                 }
                                 refreshGui(admin, targetName);
                             }));
@@ -322,6 +341,7 @@ public class EcoToolsGUI {
                         EconomyAPI.getInstance().setTokensAsync(targetUuid, amount, TransactionType.ADMIN_SET)
                             .thenRun(() -> Bukkit.getScheduler().runTask(AdminToolkitPlugin.getInstance(), () -> {
                                 admin.sendMessage(MM.deserialize("<green>Set " + targetName + "'s tokens to <white>" + amount + "</white>."));
+                                logStaffAction(admin.getUniqueId(), targetUuid, "TOKEN", "set", amount, amount);
                                 refreshGui(admin, targetName);
                             }));
                     } catch (NumberFormatException e) {
@@ -386,5 +406,24 @@ public class EcoToolsGUI {
         Player online = findOnlinePlayer(name);
         if (online != null) return online.getUniqueId();
         return Bukkit.getOfflinePlayer(name).getUniqueId();
+    }
+
+    // ----------------------------------------------------------------
+    // Staff action logging
+    // ----------------------------------------------------------------
+
+    /**
+     * Async-write a row to staff_actions for every eco adjustment made via this GUI.
+     * JSON format: {"currency":"IGC","action":"give","amount":1000,"balance_after":5000}
+     */
+    private static void logStaffAction(UUID adminUuid, UUID targetUuid,
+                                       String currency, String action, long amount, long balanceAfter) {
+        String details = String.format(
+            "{\"currency\":\"%s\",\"action\":\"%s\",\"amount\":%d,\"balance_after\":%d}",
+            currency, action, amount, balanceAfter);
+        DatabaseManager.getInstance().queueWrite(
+            "INSERT INTO staff_actions (actor_uuid, target_uuid, action_type, details) VALUES (?,?,?,?)",
+            adminUuid.toString(), targetUuid.toString(), "economy", details
+        );
     }
 }

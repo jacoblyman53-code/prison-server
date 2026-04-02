@@ -15,12 +15,23 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MinesPlugin extends JavaPlugin implements Listener {
 
     private MineManager manager;
     private MinesAPI    api;
     private final MiniMessage mm = MiniMessage.miniMessage();
+
+    /**
+     * Active donor mine sessions: player UUID → session start time (ms).
+     * Only populated when a player is in a DONOR mine with donorSessionMins > 0.
+     * mineId stored separately since a player can only be in one mine at a time.
+     */
+    private final ConcurrentHashMap<UUID, DonorSession> donorSessions = new ConcurrentHashMap<>();
+
+    private record DonorSession(String mineId, long startMs) {}
 
     @Override
     public void onEnable() {
@@ -47,6 +58,10 @@ public class MinesPlugin extends JavaPlugin implements Listener {
         // 60-second auto-reset check task
         getServer().getScheduler().runTaskTimerAsynchronously(this,
             this::checkAutoResets, 20 * 60L, 20 * 60L);
+
+        // 60-second donor session expiry task (runs on main thread to teleport players safely)
+        getServer().getScheduler().runTaskTimer(this,
+            this::checkDonorSessions, 20 * 60L, 20 * 60L);
 
         getLogger().info("Mines system enabled — " + manager.getMines().size() + " mines active.");
     }
@@ -77,6 +92,90 @@ public class MinesPlugin extends JavaPlugin implements Listener {
     }
 
     // ----------------------------------------------------------------
+    // Donor Mine Session Handling
+    // ----------------------------------------------------------------
+
+    /**
+     * Checks whether a player can mine in a DONOR mine.
+     * - Requires any donor rank (checked via DonorAPI softdepend).
+     * - If donorSessionMins > 0, starts a timed session on first entry.
+     * Returns false (and cancels event) if access is denied.
+     */
+    private boolean checkDonorMineAccess(Player player, MineData mine, BlockBreakEvent event) {
+        // Admins bypass donor mine restrictions
+        if (PermissionEngine.getInstance().hasPermission(player, "prison.admin.*")) return true;
+
+        // Check donor rank via DonorAPI (soft-depend — may not be loaded)
+        try {
+            com.prison.donor.DonorAPI donorApi = com.prison.donor.DonorAPI.getInstance();
+            if (donorApi == null || !donorApi.isDonor(player.getUniqueId())) {
+                event.setCancelled(true);
+                player.sendMessage(mm.deserialize(
+                    "<red>This is an exclusive donor mine. Purchase a donor rank to access it!"));
+                return false;
+            }
+        } catch (NoClassDefFoundError e) {
+            // DonorAPI not loaded — deny access to be safe
+            event.setCancelled(true);
+            player.sendMessage(mm.deserialize("<red>Donor system unavailable. Try again later."));
+            return false;
+        }
+
+        // Session tracking (only if a time limit is configured)
+        if (mine.donorSessionMins() > 0) {
+            UUID uuid = player.getUniqueId();
+            DonorSession existing = donorSessions.get(uuid);
+
+            if (existing == null || !existing.mineId().equals(mine.id())) {
+                // Starting a new session in this mine
+                donorSessions.put(uuid, new DonorSession(mine.id(), System.currentTimeMillis()));
+                player.sendMessage(mm.deserialize(
+                    "<gold>⏱ <yellow>Donor mine session started! <gray>You have <white>" +
+                    mine.donorSessionMins() + " minutes <gray>to mine here."));
+            }
+            // Session already active — mining is allowed, expiry checked by periodic task
+        }
+        return true;
+    }
+
+    /**
+     * Periodic task (every 60s, main thread): expire donor mine sessions that have run out of time.
+     * Teleports expired players to spawn (or their mine's spawn if spawn warp not available).
+     */
+    private void checkDonorSessions() {
+        long now = System.currentTimeMillis();
+        donorSessions.entrySet().removeIf(entry -> {
+            UUID uuid     = entry.getKey();
+            DonorSession  session = entry.getValue();
+            MineData mine = manager.getMine(session.mineId());
+
+            if (mine == null) return true; // mine removed — clear session
+
+            long elapsedMins = (now - session.startMs()) / 60_000L;
+            if (elapsedMins < mine.donorSessionMins()) return false; // still time left
+
+            // Session expired — kick player if online and inside the mine
+            Player player = getServer().getPlayer(uuid);
+            if (player != null && player.isOnline()) {
+                org.bukkit.Location loc = player.getLocation();
+                if (mine.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ())) {
+                    // Teleport out: use mine's own spawn as a safe ejection point
+                    World w = getServer().getWorld(mine.world());
+                    if (w != null) {
+                        player.teleport(new Location(w,
+                            mine.spawnX(), mine.spawnY(), mine.spawnZ(),
+                            mine.spawnYaw(), mine.spawnPitch()));
+                    }
+                }
+                player.sendMessage(mm.deserialize(
+                    "<red>⏱ Your donor mine session in <white>" + mine.display() +
+                    " <red>has expired. Come back any time!"));
+            }
+            return true; // remove from map
+        });
+    }
+
+    // ----------------------------------------------------------------
     // Block Break Event
     // ----------------------------------------------------------------
 
@@ -91,6 +190,11 @@ public class MinesPlugin extends JavaPlugin implements Listener {
         );
 
         if (mine == null) return; // not in a mine — don't interfere
+
+        // Donor mine: check donor rank and session
+        if ("DONOR".equals(mine.mineType())) {
+            if (!checkDonorMineAccess(player, mine, event)) return;
+        }
 
         // Permission check
         if (!PermissionEngine.getInstance().hasPermission(player, mine.permissionNode())

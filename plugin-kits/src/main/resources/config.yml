@@ -79,6 +79,157 @@ kits:
         amount: 4
 
   # ------------------------------------------------------------------
+  # RANK kits — milestone rewards for reaching specific mine ranks
+  # type: FREE with a required-rank permission node (checked in KitsManager)
+  # cooldown-hours: 0 = one-time only (rank milestone kits are one-time)
+  # ------------------------------------------------------------------
+
+  rankE:
+    display: "<green>Rank E Kit"
+    type: RANK
+    required-rank: E
+    cooldown-hours: 0
+    contents:
+      - material: IRON_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 3
+          UNBREAKING: 2
+          FORTUNE: 1
+      - material: IRON_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 2
+          UNBREAKING: 2
+      - material: COOKED_BEEF
+        amount: 32
+      - material: EXPERIENCE_BOTTLE
+        amount: 8
+
+  rankJ:
+    display: "<aqua>Rank J Kit"
+    type: RANK
+    required-rank: J
+    cooldown-hours: 0
+    contents:
+      - material: IRON_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 4
+          UNBREAKING: 3
+          FORTUNE: 2
+      - material: IRON_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 3
+      - material: IRON_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 3
+      - material: COOKED_BEEF
+        amount: 48
+      - material: EXPERIENCE_BOTTLE
+        amount: 16
+
+  rankO:
+    display: "<yellow>Rank O Kit"
+    type: RANK
+    required-rank: O
+    cooldown-hours: 0
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 4
+          UNBREAKING: 3
+          FORTUNE: 2
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 3
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 3
+          UNBREAKING: 3
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 24
+
+  rankT:
+    display: "<gold>Rank T Kit"
+    type: RANK
+    required-rank: T
+    cooldown-hours: 0
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 5
+          UNBREAKING: 3
+          FORTUNE: 3
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+      - material: DIAMOND_BOOTS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          FEATHER_FALLING: 4
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 32
+
+  rankZ:
+    display: "<gradient:#c0392b:#e74c3c>Rank Z Kit</gradient>"
+    type: RANK
+    required-rank: Z
+    cooldown-hours: 0
+    contents:
+      - material: DIAMOND_PICKAXE
+        amount: 1
+        enchants:
+          EFFICIENCY: 5
+          UNBREAKING: 3
+          FORTUNE: 3
+      - material: DIAMOND_CHESTPLATE
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          MENDING: 1
+      - material: DIAMOND_LEGGINGS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          MENDING: 1
+      - material: DIAMOND_BOOTS
+        amount: 1
+        enchants:
+          PROTECTION: 4
+          UNBREAKING: 3
+          FEATHER_FALLING: 4
+          MENDING: 1
+      - material: COOKED_BEEF
+        amount: 64
+      - material: EXPERIENCE_BOTTLE
+        amount: 64
+
+  # ------------------------------------------------------------------
   # DONOR kits — require donor rank; cooldown resets on server restart
   # min-cooldown-hours prevents abuse on frequent restarts
   # Scaling: 24h → 18h → 12h → 8h

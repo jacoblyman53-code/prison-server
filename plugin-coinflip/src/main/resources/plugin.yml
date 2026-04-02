@@ -11,3 +11,9 @@ commands:
     description: Open the coinflip browser or manage your flip.
     aliases: [cf, flip]
     usage: /coinflip [create <amount>|cancel|accept <player>]
+    permission: prison.coinflip.use
+    permission-message: You don't have permission to use coinflip.
+permissions:
+  prison.coinflip.use:
+    description: Allows using /coinflip to create and accept coinflips.
+    default: true

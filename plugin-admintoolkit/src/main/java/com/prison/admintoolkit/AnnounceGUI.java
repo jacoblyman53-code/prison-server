@@ -19,7 +19,7 @@ public class AnnounceGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    private static final Component TITLE = MM.deserialize("<dark_aqua><bold>Announce");
+    private static final Component TITLE = MM.deserialize("ANNOUNCEMENTS");
 
     // ----------------------------------------------------------------
     // Open
@@ -28,31 +28,30 @@ public class AnnounceGUI {
     public static void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
 
-        // Fill row 0 and row 2 (borders)
-        ItemStack filler = AdminPanel.makeItem(Material.CYAN_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 9; i++)  inv.setItem(i, filler);
-        for (int i = 18; i < 27; i++) inv.setItem(i, filler);
-
         // Content row (slots 9-17)
         inv.setItem(10, AdminPanel.makeItem(Material.PAPER,
-            "<white>Chat Broadcast",
-            "<gray>Broadcasts a message to all players in chat.",
-            "<dark_gray>Click to compose message."));
+            "<aqua>Chat Broadcast",
+            "<gray>Broadcasts a <green>message<gray> to all players in chat.",
+            "",
+            "<green>→ <green>Click to <green><underlined>compose</underlined> a chat message!"));
 
         inv.setItem(12, AdminPanel.makeItem(Material.GOLDEN_CHESTPLATE,
-            "<gold>Title + Subtitle",
-            "<gray>Shows a large title on all players' screens.",
-            "<dark_gray>Click to compose."));
+            "<aqua>Title + Subtitle",
+            "<gray>Shows a large <green>title<gray> on all players' screens.",
+            "",
+            "<green>→ <green>Click to <green><underlined>compose</underlined> a title!"));
 
         inv.setItem(14, AdminPanel.makeItem(Material.NAME_TAG,
             "<aqua>Action Bar",
-            "<gray>Shows a message above the hotbar.",
-            "<dark_gray>Click to compose."));
+            "<gray>Shows a <green>message<gray> above the hotbar.",
+            "",
+            "<green>→ <green>Click to <green><underlined>compose</underlined> an action bar message!"));
 
         inv.setItem(16, AdminPanel.makeItem(Material.BEACON,
-            "<yellow>Boss Bar",
-            "<gray>Shows a boss bar at the top of the screen.",
-            "<dark_gray>Click to compose."));
+            "<aqua>Boss Bar",
+            "<gray>Shows a <green>boss bar<gray> at the top of all screens.",
+            "",
+            "<green>→ <green>Click to <green><underlined>compose</underlined> a boss bar message!"));
 
         player.openInventory(inv);
     }

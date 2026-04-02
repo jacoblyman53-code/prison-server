@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class GangHomeGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <green>Gang Home <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Gang Home");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_BACK = 45;
@@ -66,9 +66,11 @@ public class GangHomeGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         // Resolve gang state
         String gangName = null;
@@ -103,60 +105,60 @@ public class GangHomeGUI {
         // ---- Slot 13: Main gang info ----
         if (!inGang) {
             inv.setItem(13, Gui.make(Material.SHIELD, "<gray>No Gang",
-                "<gray>You are not in a gang.",
-                "<dark_gray>Use <white>/gang create <name> <tag> <dark_gray>to create one.",
+                "<gray>✦ Status: <red>✗ None",
+                "<gray>✦ You are not in a gang.",
+                "<gray>✦ Use <white>/gang create <name> <tag><gray> to create one.",
                 "",
-                "<yellow>Click to open gang commands..."));
+                "<green>→ Click to open gang commands!"));
         } else {
             String tag     = gangTag  != null ? gangTag  : "";
-            String bankStr = "<gray>Bank: <gold>N/A";
+            String bankStr = "<gray>✦ Bank: <gold>N/A";
             String createdStr = "";
             if (gangData != null) {
-                bankStr = "<gray>Bank: <gold>$" + Fmt.number((long) gangData.bankBalance());
+                bankStr = "<gray>✦ Bank: <gold>$" + Fmt.number((long) gangData.bankBalance());
                 if (gangData.createdAt() != null) {
-                    createdStr = "<gray>Founded: <white>" +
+                    createdStr = "<gray>✦ Founded: <white>" +
                         gangData.createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 }
             }
-            inv.setItem(13, Gui.make(Material.SHIELD, "<green>" + gangName,
-                "<gray>Tag: <white>[" + tag + "]",
-                "<gray>Level: <white>" + gangLevel,
+            inv.setItem(13, Gui.make(Material.SHIELD, "<aqua>" + gangName,
+                "<gray>✦ Tag: <white>[" + tag + "]",
+                "<gray>✦ Level: <white>" + gangLevel,
                 bankStr,
-                createdStr,
-                ""));
+                createdStr));
         }
 
         // ---- Slot 11: Sell Bonus ----
-        inv.setItem(11, Gui.make(Material.SUNFLOWER, "<yellow>Sell Bonus",
-            "<gray>Gang sell bonus: <green>" + Fmt.multiplier(sellBonus)));
+        inv.setItem(11, Gui.make(Material.SUNFLOWER, "<aqua>Sell Bonus",
+            "<gray>✦ Gang sell bonus: <green>" + Fmt.multiplier(sellBonus)));
 
         // ---- Slot 15: Token Bonus ----
         inv.setItem(15, Gui.make(Material.EXPERIENCE_BOTTLE, "<aqua>Token Bonus",
-            "<gray>Gang token bonus: <aqua>" + Fmt.multiplier(tokenBonus)));
+            "<gray>✦ Gang token bonus: <green>" + Fmt.multiplier(tokenBonus)));
 
         if (inGang) {
             // ---- Slot 22: Your Role ----
             String roleName = role != null ? role.name() : "MEMBER";
-            inv.setItem(22, Gui.make(Material.PLAYER_HEAD, "<green>Your Role: <white>" + roleName,
-                "<gray>Role: <white>" + roleName));
+            inv.setItem(22, Gui.make(Material.PLAYER_HEAD, "<aqua>Your Role",
+                "<gray>✦ Role: <yellow>" + roleName));
 
             // ---- Slot 24: Gang Commands ----
-            inv.setItem(24, Gui.make(Material.WRITABLE_BOOK, "<gray>Gang Commands",
-                "<dark_gray>/gang help",
-                "<dark_gray>/gang invite <player>",
-                "<dark_gray>/gang leave",
-                "<dark_gray>/gang bank deposit <amt>",
+            inv.setItem(24, Gui.make(Material.WRITABLE_BOOK, "<aqua>Gang Commands",
+                "<gray>✦ /gang help",
+                "<gray>✦ /gang invite <player>",
+                "<gray>✦ /gang leave",
+                "<gray>✦ /gang bank deposit <amt>",
                 "",
-                "<yellow>Click to close menu"));
+                "<green>→ Click to close and use commands!"));
 
             // ---- Slot 20: Gang Management (owner only) ----
             boolean isOwner = role == GangRole.LEADER;
             if (isOwner) {
                 inv.setItem(20, Gui.make(Material.ANVIL, "<red>Gang Management",
-                    "<dark_gray>/gang disband",
-                    "<dark_gray>/gang kick <player>",
+                    "<gray>✦ /gang disband",
+                    "<gray>✦ /gang kick <player>",
                     "",
-                    "<yellow>Click to close menu"));
+                    "<green>→ Click to close and use commands!"));
             }
         }
 

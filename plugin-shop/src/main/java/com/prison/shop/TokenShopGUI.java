@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class TokenShopGUI {
 
-    public static final String TITLE_STRING = "<!italic><aqua>[ <white>Token Shop</white> ]";
+    public static final String TITLE_STRING = "<!italic>TOKEN SHOP";
 
     // Item slots
     private static final int SLOT_SELL_BOOST   = 11;
@@ -38,8 +38,7 @@ public class TokenShopGUI {
     private static final int SLOT_SPEED_FLASK  = 24;
     private static final int SLOT_CLOSE        = 26;
 
-    private static final Material BORDER = Material.CYAN_STAINED_GLASS_PANE;
-    private static final MiniMessage MM   = MiniMessage.miniMessage();
+    private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Cleanup: players with GUI open
     private static final Set<UUID> openSessions = Collections.synchronizedSet(new HashSet<>());
@@ -165,8 +164,6 @@ public class TokenShopGUI {
         EconomyAPI   eco = EconomyAPI.getInstance();
 
         Inventory inv = Bukkit.createInventory(null, 27, MM.deserialize(TITLE_STRING));
-        ItemStack border = borderPane();
-        for (int i = 0; i < 27; i++) inv.setItem(i, border);
 
         long tokens = eco != null ? eco.getTokens(uuid) : 0L;
 
@@ -190,16 +187,22 @@ public class TokenShopGUI {
         String remain  = (active && bm != null) ? bm.formatRemaining(uuid, BoostManager.BoostType.SELL) : "";
         ItemStack item = new ItemStack(Material.BLAZE_POWDER);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><gold>Sell Boost"));
+        meta.displayName(MM.deserialize("<!italic><aqua>Sell Boost"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>2x sell multiplier for <white>5 minutes"));
-        lore.add(MM.deserialize("<!italic><gray>Cost: <aqua>500 tokens"));
-        lore.add(MM.deserialize("<!italic><gray>Your tokens: " + (tokens >= 500 ? "<aqua>" : "<red>") + tokens));
-        lore.add(MM.deserialize("<!italic>"));
+        lore.add(MM.deserialize("<!italic><gray><green>2x sell</green> multiplier for <green>5 minutes</green>."));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>500 tokens"));
+        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Your tokens: " + (tokens >= 500 ? "<white>" : "<red>") + tokens));
         if (active) {
-            lore.add(MM.deserialize("<!italic><green>ACTIVE <dark_gray>(" + remain + " remaining)"));
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Status: <green>\u2713 Active <gray>(" + remain + " remaining)"));
         } else {
-            lore.add(MM.deserialize("<!italic>" + (tokens >= 500 ? "<yellow>Click to activate" : "<red>Not enough tokens")));
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Status: <red>\u2717 Inactive"));
+        }
+        lore.add(Component.empty());
+        if (active) {
+            lore.add(MM.deserialize("<!italic><green>\u2192 Already active!"));
+        } else {
+            lore.add(MM.deserialize("<!italic>" + (tokens >= 500 ? "<green>\u2192 Click to activate this boost!" : "<red>\u2717 Not enough tokens")));
         }
         meta.lore(lore);
         item.setItemMeta(meta);
@@ -213,14 +216,20 @@ public class TokenShopGUI {
         ItemMeta meta  = item.getItemMeta();
         meta.displayName(MM.deserialize("<!italic><aqua>Token Storm"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>2x token earn rate for <white>5 minutes"));
-        lore.add(MM.deserialize("<!italic><gray>Cost: <aqua>750 tokens"));
-        lore.add(MM.deserialize("<!italic><gray>Your tokens: " + (tokens >= 750 ? "<aqua>" : "<red>") + tokens));
-        lore.add(MM.deserialize("<!italic>"));
+        lore.add(MM.deserialize("<!italic><gray><green>2x token</green> earn rate for <green>5 minutes</green>."));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>750 tokens"));
+        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Your tokens: " + (tokens >= 750 ? "<white>" : "<red>") + tokens));
         if (active) {
-            lore.add(MM.deserialize("<!italic><green>ACTIVE <dark_gray>(" + remain + " remaining)"));
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Status: <green>\u2713 Active <gray>(" + remain + " remaining)"));
         } else {
-            lore.add(MM.deserialize("<!italic>" + (tokens >= 750 ? "<yellow>Click to activate" : "<red>Not enough tokens")));
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Status: <red>\u2717 Inactive"));
+        }
+        lore.add(Component.empty());
+        if (active) {
+            lore.add(MM.deserialize("<!italic><green>\u2192 Already active!"));
+        } else {
+            lore.add(MM.deserialize("<!italic>" + (tokens >= 750 ? "<green>\u2192 Click to activate this boost!" : "<red>\u2717 Not enough tokens")));
         }
         meta.lore(lore);
         item.setItemMeta(meta);
@@ -233,16 +242,22 @@ public class TokenShopGUI {
         boolean bothActive  = sellActive && tokenActive;
         ItemStack item = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><gold>Mega Combo"));
+        meta.displayName(MM.deserialize("<!italic><aqua>Mega Combo"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>2x sell <dark_gray>+<gray> 2x tokens for <white>3 minutes"));
-        lore.add(MM.deserialize("<!italic><gray>Cost: <aqua>1,200 tokens"));
-        lore.add(MM.deserialize("<!italic><gray>Your tokens: " + (tokens >= 1200 ? "<aqua>" : "<red>") + tokens));
-        lore.add(MM.deserialize("<!italic>"));
+        lore.add(MM.deserialize("<!italic><gray><green>2x sell</green> + <green>2x tokens</green> for <green>3 minutes</green>."));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>1,200 tokens"));
+        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Your tokens: " + (tokens >= 1200 ? "<white>" : "<red>") + tokens));
         if (bothActive) {
-            lore.add(MM.deserialize("<!italic><green>BOTH ACTIVE"));
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Status: <green>\u2713 Both Active"));
         } else {
-            lore.add(MM.deserialize("<!italic>" + (tokens >= 1200 ? "<yellow>Click to activate" : "<red>Not enough tokens")));
+            lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Status: <red>\u2717 Inactive"));
+        }
+        lore.add(Component.empty());
+        if (bothActive) {
+            lore.add(MM.deserialize("<!italic><green>\u2192 Both boosts already active!"));
+        } else {
+            lore.add(MM.deserialize("<!italic>" + (tokens >= 1200 ? "<green>\u2192 Click to activate this boost!" : "<red>\u2717 Not enough tokens")));
         }
         meta.lore(lore);
         item.setItemMeta(meta);
@@ -252,13 +267,14 @@ public class TokenShopGUI {
     private static ItemStack makeXPFlaskItem(long tokens) {
         ItemStack item = new ItemStack(Material.GLASS_BOTTLE);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><green>XP Flask"));
+        meta.displayName(MM.deserialize("<!italic><aqua>XP Flask"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>Instantly grants <white>10 XP levels"));
-        lore.add(MM.deserialize("<!italic><gray>Cost: <aqua>300 tokens"));
-        lore.add(MM.deserialize("<!italic><gray>Your tokens: " + (tokens >= 300 ? "<aqua>" : "<red>") + tokens));
-        lore.add(MM.deserialize("<!italic>"));
-        lore.add(MM.deserialize("<!italic>" + (tokens >= 300 ? "<yellow>Click to purchase" : "<red>Not enough tokens")));
+        lore.add(MM.deserialize("<!italic><gray>Instantly grants <green>10 XP levels</green>."));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>300 tokens"));
+        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Your tokens: " + (tokens >= 300 ? "<white>" : "<red>") + tokens));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic>" + (tokens >= 300 ? "<green>\u2192 Click to purchase this flask!" : "<red>\u2717 Not enough tokens")));
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -267,13 +283,14 @@ public class TokenShopGUI {
     private static ItemStack makeHasteFlaskItem(long tokens) {
         ItemStack item = new ItemStack(Material.GOLDEN_PICKAXE);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><yellow>Haste Flask"));
+        meta.displayName(MM.deserialize("<!italic><aqua>Haste Flask"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>Grants <white>Haste II<gray> for <white>3 minutes"));
-        lore.add(MM.deserialize("<!italic><gray>Cost: <aqua>400 tokens"));
-        lore.add(MM.deserialize("<!italic><gray>Your tokens: " + (tokens >= 400 ? "<aqua>" : "<red>") + tokens));
-        lore.add(MM.deserialize("<!italic>"));
-        lore.add(MM.deserialize("<!italic>" + (tokens >= 400 ? "<yellow>Click to purchase" : "<red>Not enough tokens")));
+        lore.add(MM.deserialize("<!italic><gray>Grants <green>Haste II</green> for <green>3 minutes</green>."));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>400 tokens"));
+        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Your tokens: " + (tokens >= 400 ? "<white>" : "<red>") + tokens));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic>" + (tokens >= 400 ? "<green>\u2192 Click to purchase this flask!" : "<red>\u2717 Not enough tokens")));
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -282,13 +299,14 @@ public class TokenShopGUI {
     private static ItemStack makeSpeedFlaskItem(long tokens) {
         ItemStack item = new ItemStack(Material.SUGAR);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><white>Speed Flask"));
+        meta.displayName(MM.deserialize("<!italic><aqua>Speed Flask"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><gray>Grants <white>Speed II<gray> for <white>3 minutes"));
-        lore.add(MM.deserialize("<!italic><gray>Cost: <aqua>350 tokens"));
-        lore.add(MM.deserialize("<!italic><gray>Your tokens: " + (tokens >= 350 ? "<aqua>" : "<red>") + tokens));
-        lore.add(MM.deserialize("<!italic>"));
-        lore.add(MM.deserialize("<!italic>" + (tokens >= 350 ? "<yellow>Click to purchase" : "<red>Not enough tokens")));
+        lore.add(MM.deserialize("<!italic><gray>Grants <green>Speed II</green> for <green>3 minutes</green>."));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Cost: <white>350 tokens"));
+        lore.add(MM.deserialize("<!italic><aqua>\u2756 <gray>Your tokens: " + (tokens >= 350 ? "<white>" : "<red>") + tokens));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic>" + (tokens >= 350 ? "<green>\u2192 Click to purchase this flask!" : "<red>\u2717 Not enough tokens")));
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -299,8 +317,9 @@ public class TokenShopGUI {
         ItemMeta meta  = item.getItemMeta();
         meta.displayName(MM.deserialize("<!italic><aqua>Your Tokens"));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<!italic><white><bold>" + String.format("%,d", tokens)));
-        lore.add(MM.deserialize("<!italic><dark_gray>Earn tokens by mining blocks."));
+        lore.add(MM.deserialize("<!italic><gold>$ <white><bold>" + String.format("%,d", tokens) + "</bold> <gold>tokens"));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic><gray>Earn <green>tokens</green> by mining blocks."));
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -309,15 +328,10 @@ public class TokenShopGUI {
     private static ItemStack makeCloseItem() {
         ItemStack item = new ItemStack(Material.BARRIER);
         ItemMeta meta  = item.getItemMeta();
-        meta.displayName(MM.deserialize("<!italic><red>Close"));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private static ItemStack borderPane() {
-        ItemStack item = new ItemStack(BORDER);
-        ItemMeta meta  = item.getItemMeta();
-        meta.displayName(Component.empty());
+        meta.displayName(MM.deserialize("<!italic><red>\u2717 Close"));
+        List<Component> lore = new ArrayList<>();
+        lore.add(MM.deserialize("<!italic><gray>Click to close this menu."));
+        meta.lore(lore);
         item.setItemMeta(meta);
         return item;
     }

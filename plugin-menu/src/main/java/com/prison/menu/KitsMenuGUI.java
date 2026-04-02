@@ -22,7 +22,7 @@ import java.util.UUID;
 
 public class KitsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <green>Kits <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Kits");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Content slots — three rows of 7 (mirrors plugin-kits KitsGUI layout)
@@ -97,15 +97,17 @@ public class KitsMenuGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         KitsAPI api = KitsAPI.getInstance();
 
         if (api == null) {
-            inv.setItem(22, Gui.make(Material.BARRIER, "<red>Kits Unavailable",
-                "<gray>The Kits plugin is not loaded."));
+            inv.setItem(22, Gui.make(Material.BARRIER, "<red>✗ Kits Unavailable",
+                "<gray>✦ The Kits plugin is not loaded."));
             inv.setItem(SLOT_BACK, Gui.back());
             return inv;
         }
@@ -148,14 +150,14 @@ public class KitsMenuGUI {
         try {
             KitData.KitType type = kit.type();
             if (type == KitData.KitType.RANK) {
-                reqLine = "<gray>Requires rank: <white>" + kit.requiredRank();
+                reqLine = "<gray>✦ Requires rank: <yellow>" + kit.requiredRank();
             } else if (type == KitData.KitType.DONOR) {
-                reqLine = "<gray>Requires donor rank: <white>" + kit.requiredDonorRank();
+                reqLine = "<gray>✦ Requires donor rank: <yellow>" + kit.requiredDonorRank();
             } else {
-                reqLine = "<gray>Available to all players";
+                reqLine = "<gray>✦ Available to <aqua>all players<gray>.";
             }
         } catch (Exception e) {
-            reqLine = "<gray>Requirement unknown";
+            reqLine = "<gray>✦ Requirement unknown";
         }
 
         // Contents preview (up to 4 items)
@@ -165,21 +167,22 @@ public class KitsMenuGUI {
             int shown = 0;
             for (KitItem ki : contents) {
                 if (shown >= 4) {
-                    contentLines.add("<dark_gray>  ...and more");
+                    contentLines.add("<gray>  ◆ ...and more");
                     break;
                 }
-                contentLines.add("<gray>  " + ki.amount() + "x <white>" + Fmt.mat(ki.material().name()));
+                contentLines.add("<gray>  ◆ " + ki.amount() + "x <white>" + Fmt.mat(ki.material().name()));
                 shown++;
             }
         } catch (Exception ignored) {}
         if (contentLines.isEmpty()) {
-            contentLines.add("<gray>  (no preview available)");
+            contentLines.add("<gray>  ◆ (no preview available)");
         }
 
         // Determine status, material, and name
         Material mat;
         String displayName;
         String statusLine;
+        String ctaLine;
 
         if (hasAccess && remaining == 0) {
             // READY
@@ -189,22 +192,26 @@ public class KitsMenuGUI {
                 if (!contents.isEmpty()) mat = contents.get(0).material();
             } catch (Exception ignored) {}
             displayName = "<green>\u2714 " + plain;
-            statusLine = "<green>\u25cf Ready to claim!";
+            statusLine = "<green>✓ Ready to claim!";
+            ctaLine = "<green>→ Click to claim this kit!";
         } else if (hasAccess && remaining != Long.MAX_VALUE && remaining > 0) {
             // COOLDOWN
             mat = Material.YELLOW_STAINED_GLASS_PANE;
-            displayName = "<yellow>\u23f3 " + plain;
-            statusLine = "<yellow>On cooldown: <white>" + Fmt.duration(remaining);
+            displayName = "<yellow>" + plain;
+            statusLine = "<gray>✦ Cooldown: <yellow>" + Fmt.duration(remaining);
+            ctaLine = "<gray>→ Check back when the cooldown expires.";
         } else if (hasAccess) {
             // CLAIMED (Long.MAX_VALUE)
             mat = Material.RED_STAINED_GLASS_PANE;
-            displayName = "<red>\u2716 " + plain;
-            statusLine = "<red>Already claimed (one-time kit)";
+            displayName = "<red>" + plain;
+            statusLine = "<red>✗ Already claimed (one-time kit)";
+            ctaLine = "<gray>→ This kit cannot be claimed again.";
         } else {
             // LOCKED
             mat = Material.GRAY_STAINED_GLASS_PANE;
-            displayName = "<dark_gray>\uD83D\uDD12 " + plain;
-            statusLine = "<dark_gray>Locked — requirements not met";
+            displayName = "<gray>" + plain;
+            statusLine = "<red>✗ Locked — requirements not met";
+            ctaLine = "<gray>→ Meet the requirements to unlock this kit.";
         }
 
         // Build lore
@@ -212,12 +219,14 @@ public class KitsMenuGUI {
         lore.add(Component.empty());
         lore.add(MM.deserialize("<!italic>" + reqLine));
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<!italic><gray>Contents:"));
+        lore.add(MM.deserialize("<!italic><gray>✦ Contents:"));
         for (String cl : contentLines) {
             lore.add(MM.deserialize("<!italic>" + cl));
         }
         lore.add(Component.empty());
         lore.add(MM.deserialize("<!italic>" + statusLine));
+        lore.add(Component.empty());
+        lore.add(MM.deserialize("<!italic>" + ctaLine));
 
         return Gui.make(mat, displayName, lore);
     }

@@ -27,7 +27,7 @@ public class AuctionConfirmGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE = MM.deserialize("<green><bold>Confirm Purchase");
+    static final Component TITLE = MM.deserialize("Confirm Purchase");
 
     // Pending purchases per player UUID
     private static final Map<UUID, AuctionListing> pendingPurchase = new ConcurrentHashMap<>();
@@ -50,12 +50,6 @@ public class AuctionConfirmGUI {
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
 
-        // Fill all slots with cyan glass panes
-        ItemStack cyan = makeFiller(Material.CYAN_STAINED_GLASS_PANE);
-        for (int i = 0; i < 27; i++) {
-            inv.setItem(i, cyan.clone());
-        }
-
         long playerBalance = EconomyAPI.getInstance().getBalance(player.getUniqueId());
         long price         = listing.priceIgc();
         boolean canAfford  = playerBalance >= price;
@@ -71,13 +65,11 @@ public class AuctionConfirmGUI {
         }
 
         List<Component> previewLore = pm.lore() != null ? new ArrayList<>(pm.lore()) : new ArrayList<>();
-        previewLore.add(Component.empty());
-        previewLore.add(MM.deserialize("<yellow>Price: <gold>$" + String.format("%,d", price)));
-        previewLore.add(MM.deserialize("<gray>Seller: <white>" + listing.sellerName()));
-        previewLore.add(MM.deserialize("<gray>Your Balance: <white>$" +
-            String.format("%,d", playerBalance)));
-        previewLore.add(Component.empty());
-        previewLore.add(MM.deserialize("<green>Confirm: slot 11 <gray>| <red>Cancel: slot 15"));
+        previewLore.add(MM.deserialize("<dark_gray><st>--------------------"));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Seller: <white>" + listing.sellerName()));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Price: <gold>" + String.format("%,d", price) + " tokens"));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Your Balance: <white>" +
+            String.format("%,d", playerBalance) + " tokens"));
         pm.lore(previewLore);
         preview.setItemMeta(pm);
         inv.setItem(13, preview);
@@ -86,24 +78,24 @@ public class AuctionConfirmGUI {
         if (canAfford) {
             ItemStack confirm = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
             ItemMeta cm = confirm.getItemMeta();
-            cm.displayName(MM.deserialize("<green>✓ Confirm Purchase"));
+            cm.displayName(MM.deserialize("<green>\u2713 Confirm"));
             List<Component> confirmLore = new ArrayList<>();
-            confirmLore.add(MM.deserialize("<gold>$" + String.format("%,d", price) +
-                "<gray> will be deducted."));
-            confirmLore.add(MM.deserialize("<gray>Balance after: <white>$" +
-                String.format("%,d", playerBalance - price)));
+            confirmLore.add(MM.deserialize("<gray>Click to confirm <green>purchase</green>."));
+            confirmLore.add(Component.empty());
+            confirmLore.add(MM.deserialize("<gold>$ <gold>Cost: <white>" + String.format("%,d", price) + " tokens"));
+            confirmLore.add(MM.deserialize("<aqua>\u2756 <gray>Balance after: <white>" +
+                String.format("%,d", playerBalance - price) + " tokens"));
             cm.lore(confirmLore);
             confirm.setItemMeta(cm);
             inv.setItem(11, confirm);
         } else {
             ItemStack cantAfford = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
             ItemMeta cam = cantAfford.getItemMeta();
-            cam.displayName(MM.deserialize("<red>Cannot Afford"));
+            cam.displayName(MM.deserialize("<red>\u2717 Cannot Afford"));
             List<Component> caLore = new ArrayList<>();
-            caLore.add(MM.deserialize("<red>You need <gold>$" + String.format("%,d", price) +
-                "<red>."));
-            caLore.add(MM.deserialize("<gray>You have: <white>$" +
-                String.format("%,d", playerBalance)));
+            caLore.add(MM.deserialize("<red>You need <gold>" + String.format("%,d", price) + " tokens</gold>."));
+            caLore.add(MM.deserialize("<aqua>\u2756 <gray>You have: <white>" +
+                String.format("%,d", playerBalance) + " tokens"));
             cam.lore(caLore);
             cantAfford.setItemMeta(cam);
             inv.setItem(11, cantAfford);
@@ -112,9 +104,9 @@ public class AuctionConfirmGUI {
         // Slot 15: Cancel
         ItemStack cancel = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta cancM = cancel.getItemMeta();
-        cancM.displayName(MM.deserialize("<red>✗ Cancel"));
+        cancM.displayName(MM.deserialize("<red>\u2717 Cancel"));
         List<Component> cancelLore = new ArrayList<>();
-        cancelLore.add(MM.deserialize("<gray>Go back without purchasing."));
+        cancelLore.add(MM.deserialize("<gray>Click to cancel and return."));
         cancM.lore(cancelLore);
         cancel.setItemMeta(cancM);
         inv.setItem(15, cancel);

@@ -63,26 +63,26 @@ public final class Gui {
         return item;
     }
 
-    /** Standard back button (ARROW, slot 49 in 54-slot, slot 18 in 27-slot GUIs). */
+    /** Standard back button — BARRIER at slot 0 per spec. */
     public static ItemStack back() {
-        return make(Material.ARROW, "<gray>Back", "<dark_gray>Return to previous menu");
+        return make(Material.BARRIER, "<red>← Back", "<gray>Return to previous menu.");
     }
 
-    /** Standard close button (BARRIER). */
+    /** Standard close button — BARRIER at slot 0 per spec. */
     public static ItemStack close() {
-        return make(Material.BARRIER, "<red>Close", "<dark_gray>Close this menu");
+        return make(Material.BARRIER, "<red>✗ Close", "<gray>Click to close this menu.");
     }
 
-    /** Previous page button (SPECTRAL_ARROW). */
+    /** Previous page button — gray dye, slot 45. */
     public static ItemStack prevPage(int currentPage, int totalPages) {
-        return make(Material.SPECTRAL_ARROW, "<blue>Previous Page",
-            "<gray>Page <white>" + currentPage + " <gray>/ <white>" + totalPages);
+        return make(Material.GRAY_DYE, "<gray>← Previous Page",
+            "<gray>Page <white>" + currentPage + " <gray>← <white>" + (currentPage - 1));
     }
 
-    /** Next page button (ARROW). */
+    /** Next page button — lime dye, slot 53. */
     public static ItemStack nextPage(int currentPage, int totalPages) {
-        return make(Material.ARROW, "<blue>Next Page",
-            "<gray>Page <white>" + currentPage + " <gray>/ <white>" + totalPages);
+        return make(Material.LIME_DYE, "<green>→ Next Page",
+            "<gray>Page <white>" + currentPage + " <gray>→ <white>" + (currentPage + 1));
     }
 
     /** Locked slot indicator (RED_STAINED_GLASS_PANE). */

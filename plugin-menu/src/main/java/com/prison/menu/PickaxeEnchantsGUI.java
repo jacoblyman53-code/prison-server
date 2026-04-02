@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class PickaxeEnchantsGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <aqua>Pickaxe Enchants <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Pickaxe Enchants");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_SPEED       = 10;
@@ -95,7 +95,6 @@ public class PickaxeEnchantsGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
 
@@ -108,16 +107,16 @@ public class PickaxeEnchantsGUI {
 
         // --- Token balance display ---
         inv.setItem(SLOT_MY_TOKENS, Gui.make(Material.RAW_GOLD, "<aqua>Your Tokens",
-            "<gray>Balance: <aqua>" + Fmt.number(tokens) + " tokens",
+            "<gray>✦ Balance: <aqua>" + Fmt.number(tokens) + " tokens",
             "",
-            "<dark_gray>Spend tokens to upgrade enchants."));
+            "<gray>✦ Spend tokens to <aqua>upgrade enchants<gray>."));
 
         // No pickaxe held — show error and bail
         if (!hasPickaxe) {
-            inv.setItem(13, Gui.make(Material.BARRIER, "<red>No Server Pickaxe",
-                "<gray>Hold your server pickaxe to upgrade enchants.",
+            inv.setItem(13, Gui.make(Material.BARRIER, "<red>✗ No Server Pickaxe",
+                "<gray>✦ Hold your <aqua>server pickaxe<gray> to upgrade enchants.",
                 "",
-                "<yellow>Enchants are locked to your pickaxe."));
+                "<gray>✦ Enchants are locked to your pickaxe."));
             inv.setItem(SLOT_BACK, Gui.back());
             return inv;
         }
@@ -182,25 +181,25 @@ public class PickaxeEnchantsGUI {
 
         List<Component> lore = new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<!italic><gray>" + description));
+        lore.add(MM.deserialize("<!italic><gray>✦ " + description));
         lore.add(Component.empty());
-        lore.add(MM.deserialize("<!italic><gray>Level: <white>" + currentLevel + "<gray>/<white>" + maxLevel));
-        lore.add(MM.deserialize("<!italic><gray>Current: <green>" + currentEffect));
+        lore.add(MM.deserialize("<!italic><gray>✦ Level: <white>" + currentLevel + "<gray>/<white>" + maxLevel));
+        lore.add(MM.deserialize("<!italic><gray>  ◆ Current: <green>" + currentEffect));
         if (!isMaxed) {
-            lore.add(MM.deserialize("<!italic><gray>Next:    <yellow>" + nextEffect));
-            lore.add(MM.deserialize("<!italic><gray>Cost:    <aqua>see /pickaxe upgrade " + id));
+            lore.add(MM.deserialize("<!italic><gray>  ◆ Next:    <yellow>" + nextEffect));
+            lore.add(MM.deserialize("<!italic><gray>  ◆ Cost:    <aqua>see /pickaxe upgrade " + id));
         }
         lore.add(Component.empty());
         if (isMaxed) {
-            lore.add(MM.deserialize("<!italic><green><bold>MAXED OUT"));
+            lore.add(MM.deserialize("<!italic><green>✓ MAXED OUT"));
         } else {
-            lore.add(MM.deserialize("<!italic><green>Left-click to upgrade (\u00d71)."));
-            lore.add(MM.deserialize("<!italic><yellow>Shift-click to upgrade (max)."));
+            lore.add(MM.deserialize("<!italic><green>→ Left-click to upgrade (\u00d71)."));
+            lore.add(MM.deserialize("<!italic><green>→ Shift-click to upgrade (max)."));
         }
 
         String nameTag = isMaxed
             ? "<green>\u2714 " + name + " (MAXED)"
-            : "<aqua>" + name + " Lv." + currentLevel;
+            : "<aqua>" + name + " " + currentLevel;
         return Gui.make(mat, nameTag, lore);
     }
 }

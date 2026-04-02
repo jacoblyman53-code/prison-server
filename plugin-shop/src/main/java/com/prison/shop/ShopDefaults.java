@@ -74,14 +74,14 @@ public class ShopDefaults {
         add(mgr, "blocks", Material.GRAVEL,           "Gravel",           5L,  false);
         add(mgr, "blocks", Material.CLAY,             "Clay",             7L,  false);
         add(mgr, "blocks", Material.RED_SAND,         "Red Sand",         6L,  false);
-        add(mgr, "blocks", Material.SMOOTH_STONE,     "Smooth Stone",     5L,  false);
+        add(mgr, "blocks", Material.SMOOTH_STONE,     "Smooth Stone",     5L,  true);
         add(mgr, "blocks", Material.GRANITE,          "Granite",          6L,  false);
         add(mgr, "blocks", Material.POLISHED_GRANITE, "Polished Granite", 8L,  false);
         add(mgr, "blocks", Material.DIORITE,          "Diorite",          6L,  false);
         add(mgr, "blocks", Material.POLISHED_DIORITE, "Polished Diorite", 8L,  false);
         add(mgr, "blocks", Material.POLISHED_ANDESITE,"Polished Andesite",8L,  false);
         add(mgr, "blocks", Material.CALCITE,          "Calcite",          10L, false);
-        add(mgr, "blocks", Material.DEEPSLATE,        "Deepslate",        5L,  false);
+        add(mgr, "blocks", Material.DEEPSLATE,        "Deepslate",        5L,  true);
         add(mgr, "blocks", Material.COBBLED_DEEPSLATE,"Cobbled Deepslate",4L,  false);
 
         // ── Wood logs (buy-only) ────────────────────────────────────
@@ -133,6 +133,26 @@ public class ShopDefaults {
         add(mgr, "ores", Material.EMERALD,        "Emerald",        300L,  true);
         add(mgr, "ores", Material.NETHERITE_SCRAP,"Netherite Scrap",600L,  true);
         add(mgr, "ores", Material.NETHERITE_INGOT,"Netherite Ingot",2400L, true);
+
+        // ── Ore blocks (silk-touch sellable mine blocks) ─────────────
+        add(mgr, "ores", Material.COAL_ORE,                "Coal Ore",               8L,   true);
+        add(mgr, "ores", Material.DEEPSLATE_COAL_ORE,      "Deepslate Coal Ore",     9L,   true);
+        add(mgr, "ores", Material.IRON_ORE,                "Iron Ore",               15L,  true);
+        add(mgr, "ores", Material.DEEPSLATE_IRON_ORE,      "Deepslate Iron Ore",     16L,  true);
+        add(mgr, "ores", Material.COPPER_ORE,              "Copper Ore",             11L,  true);
+        add(mgr, "ores", Material.DEEPSLATE_COPPER_ORE,    "Deepslate Copper Ore",   12L,  true);
+        add(mgr, "ores", Material.GOLD_ORE,                "Gold Ore",               35L,  true);
+        add(mgr, "ores", Material.DEEPSLATE_GOLD_ORE,      "Deepslate Gold Ore",     38L,  true);
+        add(mgr, "ores", Material.NETHER_GOLD_ORE,         "Nether Gold Ore",        24L,  true);
+        add(mgr, "ores", Material.LAPIS_ORE,               "Lapis Ore",              50L,  true);
+        add(mgr, "ores", Material.DEEPSLATE_LAPIS_ORE,     "Deepslate Lapis Ore",    54L,  true);
+        add(mgr, "ores", Material.REDSTONE_ORE,            "Redstone Ore",           45L,  true);
+        add(mgr, "ores", Material.DEEPSLATE_REDSTONE_ORE,  "Deepslate Redstone Ore", 48L,  true);
+        add(mgr, "ores", Material.NETHER_QUARTZ_ORE,       "Nether Quartz Ore",      26L,  true);
+        add(mgr, "ores", Material.DIAMOND_ORE,             "Diamond Ore",            120L, true);
+        add(mgr, "ores", Material.DEEPSLATE_DIAMOND_ORE,   "Deepslate Diamond Ore",  132L, true);
+        add(mgr, "ores", Material.EMERALD_ORE,             "Emerald Ore",            300L, true);
+        add(mgr, "ores", Material.ANCIENT_DEBRIS,          "Ancient Debris",         600L, true);
     }
 
     // ----------------------------------------------------------------

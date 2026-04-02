@@ -10,7 +10,7 @@ import org.bukkit.inventory.Inventory;
 
 public class LeaderboardSelectorGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <aqua>Leaderboards <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>LEADERBOARDS");
 
     private static final int SLOT_RICHEST  = 10;
     private static final int SLOT_PRESTIGE = 11;
@@ -43,31 +43,33 @@ public class LeaderboardSelectorGUI {
 
     private static Inventory build(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         inv.setItem(SLOT_RICHEST, Gui.make(Material.SUNFLOWER,
-            "<gold>Richest Players",
-            "<gray>Top 10 players by balance.",
+            "<aqua>Richest Players",
+            "<gray>✦ Top 10 players by <aqua>balance<gray>.",
             "",
-            "<green>Click to view!"));
+            "<green>→ Click to view this leaderboard!"));
 
         inv.setItem(SLOT_PRESTIGE, Gui.make(Material.NETHER_STAR,
             "<light_purple>Top Prestige",
-            "<gray>Top 10 players by prestige level.",
+            "<gray>✦ Top 10 players by <aqua>prestige level<gray>.",
             "",
-            "<green>Click to view!"));
+            "<green>→ Click to view this leaderboard!"));
 
         inv.setItem(SLOT_BLOCKS, Gui.make(Material.DIAMOND_PICKAXE,
             "<aqua>Most Blocks Mined",
-            "<gray>Top 10 players by total blocks mined.",
+            "<gray>✦ Top 10 players by total <aqua>blocks mined<gray>.",
             "",
-            "<green>Click to view!"));
+            "<green>→ Click to view this leaderboard!"));
 
         inv.setItem(SLOT_TOKENS, Gui.make(Material.EXPERIENCE_BOTTLE,
-            "<green>Most Tokens",
-            "<gray>Top 10 players by token balance.",
+            "<aqua>Most Tokens",
+            "<gray>✦ Top 10 players by <aqua>token balance<gray>.",
             "",
-            "<green>Click to view!"));
+            "<green>→ Click to view this leaderboard!"));
 
         inv.setItem(SLOT_BACK, Gui.back());
         return inv;

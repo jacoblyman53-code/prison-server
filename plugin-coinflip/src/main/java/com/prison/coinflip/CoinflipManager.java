@@ -124,7 +124,7 @@ public class CoinflipManager {
         if (eco == null) return "Economy system not available.";
 
         // Deduct funds atomically — returns -1 if insufficient
-        long result = eco.deductBalance(uuid, amount, TransactionType.PAY_SENT);
+        long result = eco.deductBalance(uuid, amount, TransactionType.COINFLIP_BET);
         if (result < 0)
             return "You cannot afford to bet $" + String.format("%,d", amount) + ".";
 
@@ -139,6 +139,7 @@ public class CoinflipManager {
                 openTickets.put((int) newId, ticket);
                 creatorIndex.put(uuid, (int) newId);
 
+
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     player.sendMessage(MM.deserialize(
                         "<green>✔ Coinflip created for <gold>$" + String.format("%,d", amount) +
@@ -148,7 +149,7 @@ public class CoinflipManager {
                 });
             } catch (SQLException e) {
                 // Rollback the deduction
-                eco.addBalance(uuid, amount, TransactionType.PAY_SENT);
+                eco.addBalance(uuid, amount, TransactionType.COINFLIP_REFUND);
                 logger.severe("[Coinflip] DB insert failed for " + uuid + ": " + e.getMessage());
                 Bukkit.getScheduler().runTask(plugin, () ->
                     player.sendMessage(MM.deserialize("<red>Failed to create coinflip. Your IGC has been refunded.")));
@@ -172,7 +173,7 @@ public class CoinflipManager {
         EconomyAPI eco = EconomyAPI.getInstance();
         if (eco == null) return "Economy system not available.";
 
-        long result = eco.deductBalance(uuid, ticket.getAmount(), TransactionType.PAY_SENT);
+        long result = eco.deductBalance(uuid, ticket.getAmount(), TransactionType.COINFLIP_BET);
         if (result < 0)
             return "You need $" + String.format("%,d", ticket.getAmount()) + " to accept this coinflip.";
 
@@ -217,7 +218,7 @@ public class CoinflipManager {
         ticket.cancel();
 
         EconomyAPI eco = EconomyAPI.getInstance();
-        if (eco != null) eco.addBalance(creatorUuid, ticket.getAmount(), TransactionType.PAY_SENT);
+        if (eco != null) eco.addBalance(creatorUuid, ticket.getAmount(), TransactionType.COINFLIP_REFUND);
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -243,14 +244,21 @@ public class CoinflipManager {
 
         long prize = ticket.getAmount() * 2;
         EconomyAPI eco = EconomyAPI.getInstance();
-        if (eco != null) eco.addBalance(winnerUuid, prize, TransactionType.PAY_SENT);
+        if (eco != null) eco.addBalance(winnerUuid, prize, TransactionType.COINFLIP_WIN);
 
-        // Persist result
+        // Persist result and log completed game
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 DatabaseManager.getInstance().execute(
                     "UPDATE coinflip_tickets SET state='RESOLVED', winner_uuid=?, resolved_at=NOW() WHERE id=?",
                     winnerUuid.toString(), ticket.getId()
+                );
+                DatabaseManager.getInstance().execute(
+                    "INSERT INTO coinflip_logs (creator_uuid, acceptor_uuid, winner_uuid, amount) VALUES (?,?,?,?)",
+                    ticket.getCreatorUuid().toString(),
+                    ticket.getAcceptorUuid().toString(),
+                    winnerUuid.toString(),
+                    ticket.getAmount()
                 );
             } catch (SQLException e) {
                 logger.warning("[Coinflip] Failed to persist resolve for ticket " + ticket.getId() + ": " + e.getMessage());

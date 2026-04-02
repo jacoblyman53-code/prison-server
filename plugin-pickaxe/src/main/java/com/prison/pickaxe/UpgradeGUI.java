@@ -62,14 +62,13 @@ public class UpgradeGUI {
     public void open(Player player, Tab tab, ItemStack item, int prestige) {
         Inventory inv = Bukkit.createInventory(null, 54, MM.deserialize(config.getUpgradeTitle()));
 
-        // Border
-        ItemStack border = borderPane();
-        for (int i = 0; i < 9; i++)  inv.setItem(i, border);       // top row
-        for (int i = 45; i < 54; i++) inv.setItem(i, border);      // bottom row
-        inv.setItem(9, border);  inv.setItem(17, border);
-        inv.setItem(18, border); inv.setItem(26, border);
-        inv.setItem(27, border); inv.setItem(35, border);
-        inv.setItem(36, border); inv.setItem(44, border);
+        // Slot 0: close button
+        ItemStack closeItem = new ItemStack(Material.BARRIER);
+        ItemMeta closeMeta = closeItem.getItemMeta();
+        closeMeta.displayName(MM.deserialize("<!italic><red>✗ Close"));
+        closeMeta.lore(List.of(MM.deserialize("<!italic><gray>Click to close this menu.")));
+        closeItem.setItemMeta(closeMeta);
+        inv.setItem(0, closeItem);
 
         // Pickaxe display in center top
         ItemStack display = item.clone();
@@ -106,24 +105,22 @@ public class UpgradeGUI {
     public void openConfirm(Player player, String enchantId, int fromLevel, long cost, long playerTokens) {
         Inventory inv = Bukkit.createInventory(null, 27, MM.deserialize(config.getConfirmTitle()));
 
-        ItemStack border = borderPane();
-        for (int i = 0; i < 27; i++) inv.setItem(i, border);
-
         EnchantDef def = config.getEnchant(enchantId);
         if (def == null) return;
 
         int toLevel = fromLevel + 1;
         boolean canAfford = playerTokens >= cost;
 
-        // Info item in center
+        // Info item in center (slot 13)
         ItemStack info = new ItemStack(def.icon());
         ItemMeta meta = info.getItemMeta();
-        meta.displayName(MM.deserialize("<gold>" + def.display() + " → " + toRoman(toLevel)));
+        meta.displayName(MM.deserialize("<!italic><aqua>" + def.display() + " " + toLevel));
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<gray>Cost: <gold>" + cost + " tokens"));
-        lore.add(MM.deserialize("<gray>Your tokens: " + (canAfford ? "<green>" : "<red>") + playerTokens));
-        lore.add(MM.deserialize(""));
-        lore.add(MM.deserialize("<gray>" + def.description(toLevel)));
+        lore.add(MM.deserialize("<!italic><gray>Upgrading from <white>" + fromLevel + "<gray> → <white>" + toLevel));
+        lore.add(MM.deserialize("<!italic><gray>" + def.description(toLevel)));
+        lore.add(MM.deserialize("<!italic>"));
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Upgrade Cost: <white>" + cost + " tokens"));
+        lore.add(MM.deserialize("<!italic><gold>$ <gold>Your Tokens: " + (canAfford ? "<green>" : "<red>") + playerTokens));
         meta.lore(lore);
         info.setItemMeta(meta);
         inv.setItem(13, info);
@@ -131,14 +128,21 @@ public class UpgradeGUI {
         // Confirm button (slot 11) — green wool if can afford, red if not
         ItemStack confirm = new ItemStack(canAfford ? Material.LIME_WOOL : Material.RED_WOOL);
         ItemMeta cm = confirm.getItemMeta();
-        cm.displayName(MM.deserialize(canAfford ? "<green><bold>CONFIRM" : "<red><bold>CANNOT AFFORD"));
+        if (canAfford) {
+            cm.displayName(MM.deserialize("<!italic><green>✓ Confirm"));
+            cm.lore(List.of(MM.deserialize("<!italic><gray>Click to confirm <green>this upgrade<gray>.")));
+        } else {
+            cm.displayName(MM.deserialize("<!italic><red>✗ Cannot Afford"));
+            cm.lore(List.of(MM.deserialize("<!italic><gray>You do not have enough <gold>tokens<gray>.")));
+        }
         confirm.setItemMeta(cm);
         inv.setItem(11, confirm);
 
         // Cancel button (slot 15)
         ItemStack cancel = new ItemStack(Material.RED_WOOL);
         ItemMeta xm = cancel.getItemMeta();
-        xm.displayName(MM.deserialize("<red><bold>CANCEL"));
+        xm.displayName(MM.deserialize("<!italic><red>✗ Cancel"));
+        xm.lore(List.of(MM.deserialize("<!italic><gray>Click to cancel and return.")));
         cancel.setItemMeta(xm);
         inv.setItem(15, cancel);
 
@@ -155,11 +159,12 @@ public class UpgradeGUI {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         String label = forTab == Tab.CUSTOM ? "Custom Enchants" : "Vanilla Enchants";
-        meta.displayName(MM.deserialize(active
-            ? "<gold><bold>" + label
-            : "<gray>" + label));
-        if (!active) {
-            meta.lore(List.of(MM.deserialize("<yellow>Click to switch tab")));
+        if (active) {
+            meta.displayName(MM.deserialize("<!italic><aqua>" + label));
+            meta.lore(List.of(MM.deserialize("<!italic><green>✓ <green>Active tab")));
+        } else {
+            meta.displayName(MM.deserialize("<!italic><gray>" + label));
+            meta.lore(List.of(MM.deserialize("<!italic><green>→ <green>Click to switch tab")));
         }
         item.setItemMeta(meta);
         return item;
@@ -170,42 +175,41 @@ public class UpgradeGUI {
         ItemMeta meta = item.getItemMeta();
 
         boolean maxed = currentLevel >= def.maxLevel();
-        String levelStr = currentLevel > 0 ? " " + toRoman(currentLevel) : "";
+
+        // Name: "Enchant Name 3" (number suffix, no "Level")
+        String nameLevel = currentLevel > 0 ? " " + currentLevel : "";
         meta.displayName(MM.deserialize(
-            maxed ? "<green><bold>" + def.display() + levelStr
-                  : "<aqua>" + def.display() + levelStr
+            maxed ? "<!italic><green>" + def.display() + nameLevel
+                  : "<!italic><aqua>" + def.display() + nameLevel
         ));
 
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<gray>Level: <white>" + currentLevel + "<gray>/" + def.maxLevel()));
 
+        // Section: upgrade stats
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Current Level: <white>" + currentLevel + "<gray>/" + def.maxLevel()));
         if (currentLevel > 0) {
-            lore.add(MM.deserialize("<gray>Current: <green>" + def.description(currentLevel)));
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>" + def.description(currentLevel)));
         }
 
         if (!maxed) {
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Next Level:"));
+            lore.add(MM.deserialize("<!italic><dark_aqua>  ◆ <gray>" + def.description(currentLevel + 1)));
+
             long cost = config.scaledCost(def, currentLevel, prestige);
-            lore.add(MM.deserialize("<gray>Next: <yellow>" + def.description(currentLevel + 1)));
-            lore.add(MM.deserialize("<gray>Upgrade cost: <gold>" + cost + " tokens"));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><gold>$ <gold>Upgrade Cost: <white>" + cost + " tokens"));
             if (prestige > 0) {
-                lore.add(MM.deserialize("<dark_gray>(Prestige " + prestige + " cost scaling applied)"));
+                lore.add(MM.deserialize("<!italic><gold>$ <gold>Prestige Scaling: <yellow>P" + prestige + " applied"));
             }
-            lore.add(MM.deserialize(""));
-            lore.add(MM.deserialize("<yellow>Click to upgrade"));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><green>→ <green>Click to <underlined>upgrade</underlined> this enchant!"));
         } else {
-            lore.add(MM.deserialize(""));
-            lore.add(MM.deserialize("<green><bold>MAXED OUT"));
+            lore.add(MM.deserialize("<!italic>"));
+            lore.add(MM.deserialize("<!italic><green>✓ <green>Maxed Out"));
         }
 
         meta.lore(lore);
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private ItemStack borderPane() {
-        ItemStack item = new ItemStack(BORDER);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.empty());
         item.setItemMeta(meta);
         return item;
     }

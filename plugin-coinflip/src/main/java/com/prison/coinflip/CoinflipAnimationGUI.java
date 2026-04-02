@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 public class CoinflipAnimationGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><gold>⚡ Coinflip ⚡");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>⚡ Coinflip ⚡");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final int SLOT_CENTER = 13;
@@ -35,7 +35,6 @@ public class CoinflipAnimationGUI {
     public static void start(JavaPlugin plugin, CoinflipTicket ticket, Player creator, Player acceptor) {
         // Both players open the animation inventory
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
         buildStaticElements(inv, ticket);
 
         if (creator != null && creator.isOnline()) creator.openInventory(inv);
@@ -58,7 +57,7 @@ public class CoinflipAnimationGUI {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 UUID showing = showCreator ? participants[0] : participants[1];
                 String showingName = showCreator ? names[0] : names[1];
-                ItemStack head = makeHead(showingName, "<white>" + showingName);
+                ItemStack head = makeHead(showingName, "<!italic><white>" + showingName);
                 updateInv(inv, head, creator, acceptor, TITLE);
                 // Play sound for both
                 Sounds.nav(creator);
@@ -73,9 +72,9 @@ public class CoinflipAnimationGUI {
                 ? ticket.getCreatorName() : ticket.getAcceptorName();
 
             ItemStack winHead = makeHead(winnerName,
-                "<green>⭐ " + winnerName,
-                "<green>WINNER!",
-                "<gray>Wins: <gold>$" + String.format("%,d", ticket.getAmount() * 2));
+                "<!italic><green>⭐ " + winnerName,
+                "<!italic><green>WINNER!",
+                "<!italic><aqua>✦ <gray>Wins: <gold>$" + String.format("%,d", ticket.getAmount() * 2));
             updateInv(inv, winHead, creator, acceptor, TITLE);
 
             Sounds.win(creator);
@@ -106,10 +105,10 @@ public class CoinflipAnimationGUI {
     }
 
     private static void buildStaticElements(Inventory inv, CoinflipTicket ticket) {
-        inv.setItem(4, Gui.make(Material.GOLD_INGOT, "<gold>Coinflip",
-            "<gray>Bet: <gold>$" + String.format("%,d", ticket.getAmount()) + "<gray> each",
-            "<gray>Prize: <green>$" + String.format("%,d", ticket.getAmount() * 2)));
-        for (int s : SIDE_SLOTS) inv.setItem(s, Gui.filler());
+        inv.setItem(4, Gui.make(Material.GOLD_INGOT,
+            "<!italic><aqua>Coinflip",
+            "<!italic><aqua>✦ <gray>Bet: <gold>$" + String.format("%,d", ticket.getAmount()) + "<gray> each",
+            "<!italic><aqua>✦ <gray>Prize: <green>$" + String.format("%,d", ticket.getAmount() * 2)));
     }
 
     private static void updateInv(Inventory inv, ItemStack head, Player creator, Player acceptor, Component title) {
@@ -124,11 +123,11 @@ public class CoinflipAnimationGUI {
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerName));
-        meta.displayName(MM.deserialize("<!italic>" + loreLines[0]));
+        meta.displayName(MM.deserialize(loreLines[0]));
         if (loreLines.length > 1) {
             List<Component> lore = new ArrayList<>();
             for (int i = 1; i < loreLines.length; i++)
-                lore.add(MM.deserialize("<!italic>" + loreLines[i]));
+                lore.add(MM.deserialize(loreLines[i]));
             meta.lore(lore);
         }
         skull.setItemMeta(meta);

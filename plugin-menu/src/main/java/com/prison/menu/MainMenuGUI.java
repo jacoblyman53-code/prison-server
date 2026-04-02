@@ -17,17 +17,17 @@ import java.util.UUID;
 
 public class MainMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <gold>Prison Menu <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Main Menu");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final String[] TIPS = {
-        "<gray>Use <white>/sellall <gray>or open <white>Sell Center <gray>to cash in your blocks.",
-        "<gray>Upgrade your pickaxe with <white>tokens <gray>to mine faster.",
+        "<gray>Use <white>/sellall<gray> or open <white>Sell Center<gray> to cash in your blocks.",
+        "<gray>Upgrade your pickaxe with <white>tokens<gray> to mine faster.",
         "<gray>Join a gang for passive sell and token bonuses.",
-        "<gray>Prestige at rank Z to earn permanent bonuses.",
-        "<gray>Check <white>Black Market <gray>daily for limited-time deals.",
+        "<gray>Prestige at rank <yellow>Z<gray> to earn permanent bonuses.",
+        "<gray>Check <white>Black Market<gray> daily for limited-time deals.",
         "<gray>Complete quests daily to earn extra $ and tokens.",
-        "<gray>Use <white>/coinflip <gray>to wager $ against other players.",
+        "<gray>Use <white>/coinflip<gray> to wager $ against other players.",
         "<gray>Crate keys drop from milestones and are available in the store.",
     };
 
@@ -105,40 +105,46 @@ public class MainMenuGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
 
-        // TopBand fills slots 0-7 with profile/balance/token/multiplier/streak/event/gang/tips info
+        // TopBand fills slots 0-7 with profile/balance/token/multiplier/streak/event/gang info
         TopBand.apply(inv, player);
 
-        // Slot 7: rotating tip (overwrites whatever TopBand placed there)
+        // Slot 0: close (overrides TopBand slot 0) — spec: slot 0 always close/back
+        inv.setItem(0, Gui.close());
+
+        // Slot 7: rotating tip
         String tip = TIPS[(int) (System.currentTimeMillis() / 30000) % TIPS.length];
-        inv.setItem(7, Gui.make(Material.BOOK, "<yellow>Server Tip", tip));
+        inv.setItem(7, Gui.make(Material.BOOK, "<aqua>Server Tip",
+            tip,
+            "",
+            "<green>→ Tip rotates every 30 seconds."));
 
         // Slot 8: close
-        inv.setItem(8, Gui.close());
+        inv.setItem(8, Gui.make(Material.BARRIER, "<red>✗ Close",
+            "<gray>Click to close this menu."));
 
         // ---- Row 1: core features (slots 10-14) ----
-        inv.setItem(10, Gui.make(Material.IRON_PICKAXE, "<green>Mines",
-            "<gray>Browse all 26 prison mines.",
-            "<gray>Teleport to your current mine.",
+        inv.setItem(10, Gui.make(Material.IRON_PICKAXE, "<aqua>Mines",
+            "<gray>✦ Browse all <aqua>26 prison mines<gray>.",
+            "<gray>✦ Teleport to your <aqua>current mine<gray>.",
             "",
-            "<green>Click to open Mine Browser."));
+            "<green>→ Click to open Mine Browser!"));
 
-        inv.setItem(11, Gui.make(Material.NETHERITE_PICKAXE, "<gold>Your Pickaxe",
-            "<gray>View stats and enchant details.",
+        inv.setItem(11, Gui.make(Material.NETHERITE_PICKAXE, "<aqua>Your Pickaxe",
+            "<gray>✦ View <aqua>stats<gray> and <aqua>enchant details<gray>.",
             "",
-            "<green>Click to open Pickaxe Home."));
+            "<green>→ Click to open Pickaxe Home!"));
 
         inv.setItem(12, Gui.make(Material.ENCHANTED_BOOK, "<aqua>Enchants",
-            "<gray>Upgrade your pickaxe enchants.",
+            "<gray>✦ <aqua>Upgrade<gray> your pickaxe enchants.",
             "",
-            "<green>Click to open Pickaxe Enchants."));
+            "<green>→ Click to open Pickaxe Enchants!"));
 
-        inv.setItem(13, Gui.make(Material.TOTEM_OF_UNDYING, "<yellow>Ranks",
-            "<gray>View the full rank ladder.",
-            "<gray>Purchase your next rank.",
+        inv.setItem(13, Gui.make(Material.TOTEM_OF_UNDYING, "<aqua>Ranks",
+            "<gray>✦ View the full <aqua>rank ladder<gray>.",
+            "<gray>✦ Purchase your <aqua>next rank<gray>.",
             "",
-            "<green>Click to open Rank Progression."));
+            "<green>→ Click to open Rank Progression!"));
 
         // Prestige — live rank + prestige data
         int prestige = 0;
@@ -151,43 +157,43 @@ public class MainMenuGUI {
             }
         } catch (Exception ignored) {}
         String prestigeSubtitle = prestige > 0
-            ? "<light_purple>Prestige Level: \u2746" + prestige
-            : "<gray>Prestige at rank Z for permanent bonuses.";
+            ? "<aqua>✦ <gray>Prestige Level: <white>" + prestige
+            : "<aqua>✦ <gray>Prestige at rank <yellow>Z<gray> for <green>permanent bonuses<gray>.";
         String prestigeCta = "Z".equalsIgnoreCase(rank)
-            ? "<green>You are eligible to prestige!"
-            : "<gray>Reach rank Z to prestige.";
+            ? "<green>✓ You are eligible to prestige!"
+            : "<red>✗ Reach rank <yellow>Z<red> to prestige.";
         inv.setItem(14, Gui.make(Material.NETHER_STAR, "<light_purple>Prestige",
             prestigeSubtitle,
             "",
             prestigeCta,
             "",
-            "<green>Click to open Prestige."));
+            "<green>→ Click to open Prestige!"));
 
         // ---- Row 2: economy & social (slots 19-26) ----
-        inv.setItem(19, Gui.make(Material.CHEST, "<yellow>Shop",
-            "<gray>Browse categories and buy items.",
+        inv.setItem(19, Gui.make(Material.CHEST, "<aqua>Shop",
+            "<gray>✦ Browse <aqua>categories<gray> and buy items.",
             "",
-            "<green>Click to open Shop."));
+            "<green>→ Click to open Shop!"));
 
-        inv.setItem(20, Gui.make(Material.EMERALD_BLOCK, "<green>Sell Center",
-            "<gray>Sell your blocks and track your streak.",
+        inv.setItem(20, Gui.make(Material.EMERALD_BLOCK, "<aqua>Sell Center",
+            "<gray>✦ <aqua>Sell<gray> your blocks and track your streak.",
             "",
-            "<green>Click to open Sell Center."));
+            "<green>→ Click to open Sell Center!"));
 
-        inv.setItem(21, Gui.make(Material.TRIPWIRE_HOOK, "<gold>Crates",
-            "<gray>Preview tiers and open your crate keys.",
+        inv.setItem(21, Gui.make(Material.TRIPWIRE_HOOK, "<aqua>Crates",
+            "<gray>✦ Preview tiers and open your <aqua>crate keys<gray>.",
             "",
-            "<green>Click to open Crates Hub."));
+            "<green>→ Click to open Crates Hub!"));
 
-        inv.setItem(22, Gui.make(Material.GOLD_INGOT, "<yellow>Coinflip",
-            "<gray>Wager $ against other players.",
+        inv.setItem(22, Gui.make(Material.GOLD_INGOT, "<aqua>Coinflip",
+            "<gray>✦ <green>Wager<gray> $ against other players.",
             "",
-            "<green>Click to open Coinflip."));
+            "<green>→ Click to open Coinflip!"));
 
         inv.setItem(23, Gui.make(Material.WRITABLE_BOOK, "<aqua>Quests",
-            "<gray>Daily, weekly, and milestone objectives.",
+            "<gray>✦ Daily, weekly, and milestone <aqua>objectives<gray>.",
             "",
-            "<green>Click to open Quests."));
+            "<green>→ Click to open Quests!"));
 
         // Gang — live gang name + level
         String gangName = null;
@@ -201,53 +207,55 @@ public class MainMenuGUI {
         } catch (Exception ignored) {}
         ItemStack gangItem;
         if (gangName != null) {
-            gangItem = Gui.make(Material.SHIELD, "<green>" + gangName + " <dark_gray>(Lv." + gangLevel + ")",
-                "<gray>Your gang.",
+            gangItem = Gui.make(Material.SHIELD, "<aqua>" + gangName,
+                "<gray>✦ Level: <yellow>" + gangLevel,
+                "<gray>✦ Your active gang.",
                 "",
-                "<green>Click to open Gang Home.");
+                "<green>→ Click to open Gang Home!");
         } else {
             gangItem = Gui.make(Material.SHIELD, "<gray>No Gang",
-                "<dark_gray>You are not in a gang.",
+                "<gray>✦ Status: <red>✗ None",
+                "<gray>✦ You are not in a gang.",
                 "",
-                "<yellow>Click to create or join one.");
+                "<green>→ Click to create or join a gang!");
         }
         inv.setItem(24, gangItem);
 
         inv.setItem(25, Gui.make(Material.ARMOR_STAND, "<light_purple>Cosmetics",
-            "<gray>Chat tags, effects, and visual upgrades.",
+            "<gray>✦ <aqua>Chat tags<gray>, effects, and visual upgrades.",
             "",
-            "<green>Click to open Cosmetics."));
+            "<green>→ Click to open Cosmetics!"));
 
-        inv.setItem(26, Gui.make(Material.COMPARATOR, "<gray>Settings",
-            "<gray>Sounds, notifications, and display preferences.",
+        inv.setItem(26, Gui.make(Material.COMPARATOR, "<aqua>Settings",
+            "<gray>✦ Sounds, notifications, and <aqua>display preferences<gray>.",
             "",
-            "<green>Click to open Settings."));
+            "<green>→ Click to open Settings!"));
 
         // ---- Row 3: extras (slots 28-33) ----
-        inv.setItem(28, Gui.make(Material.ENDER_CHEST, "<yellow>Auction House",
-            "<gray>Browse and list items on the player market.",
+        inv.setItem(28, Gui.make(Material.ENDER_CHEST, "<aqua>Auction House",
+            "<gray>✦ Browse and list items on the <aqua>player market<gray>.",
             "",
-            "<green>Click to open Auction House."));
+            "<green>→ Click to open Auction House!"));
 
-        inv.setItem(29, Gui.make(Material.COMPASS, "<white>Warps",
-            "<gray>Teleport to spawn, shop, crates, and more.",
+        inv.setItem(29, Gui.make(Material.COMPASS, "<aqua>Warps",
+            "<gray>✦ Teleport to <aqua>spawn<gray>, shop, crates, and more.",
             "",
-            "<green>Click to open Warps."));
+            "<green>→ Click to open Warps!"));
 
-        inv.setItem(30, Gui.make(Material.CHEST_MINECART, "<green>Kits",
-            "<gray>Claim available starter and rank kits.",
+        inv.setItem(30, Gui.make(Material.CHEST_MINECART, "<aqua>Kits",
+            "<gray>✦ Claim available <aqua>starter<gray> and rank kits.",
             "",
-            "<green>Click to open Kits."));
+            "<green>→ Click to open Kits!"));
 
         inv.setItem(31, Gui.make(Material.GLOW_ITEM_FRAME, "<aqua>Leaderboards",
-            "<gray>Top players by balance, prestige, blocks, and more.",
+            "<gray>✦ Top players by <aqua>balance<gray>, prestige, blocks, and more.",
             "",
-            "<green>Click to open Leaderboards."));
+            "<green>→ Click to open Leaderboards!"));
 
         inv.setItem(32, Gui.make(Material.AMETHYST_SHARD, "<light_purple>Black Market",
-            "<gray>Rotating premium offers — limited stock.",
+            "<gray>✦ Rotating <aqua>premium offers<gray> — limited stock.",
             "",
-            "<green>Click to open Black Market."));
+            "<green>→ Click to open Black Market!"));
 
         // Boosts — live total sell multiplier
         double totalSell = 1.0;
@@ -258,10 +266,10 @@ public class MainMenuGUI {
                     * eco.getStreakMultiplier(eco.getSellStreak(uuid));
             }
         } catch (Exception ignored) {}
-        inv.setItem(33, Gui.make(Material.FIREWORK_STAR, "<green>Active Boosts",
-            "<gray>Total sell multiplier: <green>" + Fmt.multiplier(totalSell),
+        inv.setItem(33, Gui.make(Material.FIREWORK_STAR, "<aqua>Active Boosts",
+            "<gray>✦ Total sell multiplier: <green>" + Fmt.multiplier(totalSell),
             "",
-            "<green>Click to see full boost breakdown."));
+            "<green>→ Click to see full boost breakdown!"));
 
         return inv;
     }

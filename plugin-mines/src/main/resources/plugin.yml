@@ -11,6 +11,7 @@ depend:
 
 softdepend:
   - PrisonEconomy
+  - PrisonDonor
 
 commands:
   mine:

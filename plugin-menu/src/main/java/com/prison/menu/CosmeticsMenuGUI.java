@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CosmeticsMenuGUI {
 
-    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <light_purple>Cosmetics <dark_gray>]");
+    public static final Component TITLE = MiniMessage.miniMessage().deserialize("<!italic>Your Tags");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     // Content slots — four rows of 7
@@ -128,23 +128,25 @@ public class CosmeticsMenuGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
-        Gui.fillAll(inv);
         TopBand.apply(inv, player);
         inv.setItem(8, Gui.back());
+
+        // Slot 0: back
+        inv.setItem(0, Gui.back());
 
         CosmeticsAPI api = CosmeticsAPI.getInstance();
 
         if (api == null) {
-            inv.setItem(22, Gui.make(Material.BARRIER, "<red>Cosmetics Unavailable",
-                "<gray>The Cosmetics plugin is not loaded."));
+            inv.setItem(22, Gui.make(Material.BARRIER, "<red>✗ Cosmetics Unavailable",
+                "<gray>✦ The Cosmetics plugin is not loaded."));
             inv.setItem(SLOT_BACK, Gui.back());
             return inv;
         }
 
         Collection<ChatTag> allTags = safeGetTags(api);
         if (allTags.isEmpty()) {
-            inv.setItem(22, Gui.make(Material.GRAY_STAINED_GLASS_PANE, "<gray>No Tags Available",
-                "<dark_gray>There are no chat tags to display."));
+            inv.setItem(22, Gui.make(Material.PAPER, "<gray>No Tags Available",
+                "<gray>✦ There are no chat tags to display."));
             inv.setItem(SLOT_BACK, Gui.back());
             return inv;
         }
@@ -177,8 +179,9 @@ public class CosmeticsMenuGUI {
             inv.setItem(SLOT_PREV, Gui.prevPage(page + 1, totalPages));
         }
 
-        inv.setItem(SLOT_INFO, Gui.make(Material.PAPER, "<gray>Page " + (page + 1) + " / " + totalPages,
-            "<dark_gray>" + tagList.size() + " total tags"));
+        inv.setItem(SLOT_INFO, Gui.make(Material.PAPER, "<aqua>✦ Your Tags (" + tagList.size() + ")",
+            "<gray>✦ Page: <white>" + (page + 1) + "<gray> / <white>" + totalPages,
+            "<gray>✦ Total tags: <white>" + tagList.size()));
 
         if (page < totalPages - 1) {
             inv.setItem(SLOT_NEXT, Gui.nextPage(page + 1, totalPages));
@@ -199,32 +202,40 @@ public class CosmeticsMenuGUI {
         try {
             String desc = tag.description();
             if (desc != null && !desc.isBlank()) {
-                lore.add(MM.deserialize("<!italic><gray>" + desc));
+                lore.add(MM.deserialize("<!italic><gray>✦ " + desc));
                 lore.add(Component.empty());
             }
         } catch (Exception ignored) {}
 
         // Show rarity if not owned
         if (!owns) {
-            lore.add(MM.deserialize("<!italic><dark_gray>Rarity: <gray>" + tag.rarity().name()));
+            lore.add(MM.deserialize("<!italic><gray>✦ Rarity: <yellow>" + tag.rarity().name()));
             lore.add(Component.empty());
         }
 
+        // Chat preview section
+        lore.add(MM.deserialize("<!italic><aqua>✦ Chat Preview:"));
+        lore.add(MM.deserialize("<!italic><gray>" + tagDisplay + " <white>Username<gray>: Hey!"));
+        lore.add(Component.empty());
+
         if (isEquipped) {
-            lore.add(MM.deserialize("<!italic><green>Currently equipped."));
+            lore.add(MM.deserialize("<!italic><green>✓ Currently equipped."));
             lore.add(Component.empty());
-            lore.add(MM.deserialize("<!italic><gray>Click to unequip."));
+            lore.add(MM.deserialize("<!italic><green>→ Click to unequip this tag!"));
             return Gui.make(Material.LIME_CONCRETE,
-                "<green>\u2714 [EQUIPPED] " + tagDisplay, lore);
+                "<green>\u2714 " + tagDisplay + " <green>[EQUIPPED]", lore);
         } else if (owns) {
-            lore.add(MM.deserialize("<!italic><gray>Owned."));
-            lore.add(MM.deserialize("<!italic><green>Click to equip!"));
+            lore.add(MM.deserialize("<!italic><green>✓ Owned."));
+            lore.add(Component.empty());
+            lore.add(MM.deserialize("<!italic><green>→ Click to equip this tag!"));
             return Gui.make(Material.NAME_TAG,
-                "<yellow>" + tagDisplay, lore);
+                "<aqua>" + tagDisplay, lore);
         } else {
-            lore.add(MM.deserialize("<!italic><dark_gray>Not owned yet."));
-            return Gui.make(Material.GRAY_STAINED_GLASS_PANE,
-                "<dark_gray>\uD83D\uDD12 " + tagDisplay, lore);
+            lore.add(MM.deserialize("<!italic><red>✗ Not Owned."));
+            lore.add(Component.empty());
+            lore.add(MM.deserialize("<!italic><gray>→ Obtain this tag to equip it."));
+            return Gui.make(Material.PAPER,
+                "<gray>" + tagDisplay, lore);
         }
     }
 

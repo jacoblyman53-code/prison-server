@@ -28,7 +28,7 @@ public class CancelConfirmGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    static final Component TITLE = MM.deserialize("<red><bold>Cancel Listing?");
+    static final Component TITLE = MM.deserialize("Cancel Listing?");
 
     private static final Map<UUID, AuctionListing> pendingCancel = new ConcurrentHashMap<>();
 
@@ -41,18 +41,6 @@ public class CancelConfirmGUI {
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
 
-        // Fill borders with red glass panes
-        ItemStack redPane = makeFiller(Material.RED_STAINED_GLASS_PANE);
-        for (int i = 0; i < 27; i++) {
-            inv.setItem(i, redPane.clone());
-        }
-
-        // Override centre row slots with orange for contrast
-        ItemStack orangePane = makeFiller(Material.ORANGE_STAINED_GLASS_PANE);
-        for (int i = 9; i < 18; i++) {
-            inv.setItem(i, orangePane.clone());
-        }
-
         // Slot 13: Item preview
         ItemStack preview = listing.item().clone();
         ItemMeta pm = preview.getItemMeta();
@@ -63,12 +51,11 @@ public class CancelConfirmGUI {
                 AuctionManager.formatMaterialName(listing.item().getType().name())));
         }
         List<Component> previewLore = pm.lore() != null ? new ArrayList<>(pm.lore()) : new ArrayList<>();
-        previewLore.add(Component.empty());
-        previewLore.add(MM.deserialize("<yellow>Price: <gold>$" +
-            String.format("%,d", listing.priceIgc())));
-        previewLore.add(MM.deserialize("<gray>This will be cancelled."));
-        previewLore.add(MM.deserialize("<red>Listing fee is non-refundable."));
-        previewLore.add(MM.deserialize("<green>Item will be returned."));
+        previewLore.add(MM.deserialize("<dark_gray><st>--------------------"));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Price: <gold>" +
+            String.format("%,d", listing.priceIgc()) + " tokens"));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Item will be <green>returned</green> to you."));
+        previewLore.add(MM.deserialize("<aqua>\u2756 <gray>Listing fee is <red>non-refundable</red>."));
         pm.lore(previewLore);
         preview.setItemMeta(pm);
         inv.setItem(13, preview);
@@ -76,19 +63,21 @@ public class CancelConfirmGUI {
         // Slot 11: Confirm cancel
         ItemStack confirm = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
         ItemMeta cm = confirm.getItemMeta();
-        cm.displayName(MM.deserialize("<green>Yes, Cancel Listing"));
+        cm.displayName(MM.deserialize("<green>\u2713 Confirm"));
         List<Component> confirmLore = new ArrayList<>();
-        confirmLore.add(MM.deserialize("<gray>Remove this listing and get item back."));
+        confirmLore.add(MM.deserialize("<gray>Click to confirm <green>cancellation</green>."));
+        confirmLore.add(Component.empty());
+        confirmLore.add(MM.deserialize("<green>\u2192 Click to cancel this listing!"));
         cm.lore(confirmLore);
         confirm.setItemMeta(cm);
         inv.setItem(11, confirm);
 
         // Slot 15: Keep listing
-        ItemStack keep = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemStack keep = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta km = keep.getItemMeta();
-        km.displayName(MM.deserialize("<gray>Keep Listing"));
+        km.displayName(MM.deserialize("<red>\u2717 Cancel"));
         List<Component> keepLore = new ArrayList<>();
-        keepLore.add(MM.deserialize("<gray>Go back without cancelling."));
+        keepLore.add(MM.deserialize("<gray>Click to cancel and return."));
         km.lore(keepLore);
         keep.setItemMeta(km);
         inv.setItem(15, keep);

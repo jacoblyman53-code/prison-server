@@ -504,6 +504,21 @@ public class DatabaseManager {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """,
 
+            // Coinflip history log
+            """
+            CREATE TABLE IF NOT EXISTS coinflip_logs (
+                id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+                creator_uuid  VARCHAR(36)  NOT NULL,
+                acceptor_uuid VARCHAR(36)  NOT NULL,
+                winner_uuid   VARCHAR(36)  NOT NULL,
+                amount        BIGINT       NOT NULL,
+                resolved_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_cf_creator  (creator_uuid),
+                INDEX idx_cf_acceptor (acceptor_uuid),
+                INDEX idx_cf_winner   (winner_uuid)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """,
+
             // Anti-cheat violation flags
             """
             CREATE TABLE IF NOT EXISTS anticheat_flags (

@@ -38,5 +38,5 @@ commands:
     usage: /sellmenu
   mines:
     description: Open the mine browser.
-    aliases: [mine, warp]
+    aliases: [mine]
     usage: /mines

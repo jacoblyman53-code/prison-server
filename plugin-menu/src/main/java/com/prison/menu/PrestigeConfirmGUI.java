@@ -23,7 +23,7 @@ import java.util.*;
 public class PrestigeConfirmGUI {
 
     public static final Component TITLE =
-        MiniMessage.miniMessage().deserialize("<!italic><dark_gray>[ <light_purple>Prestige <dark_gray>]");
+        MiniMessage.miniMessage().deserialize("<!italic>Confirm Prestige");
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
@@ -66,7 +66,6 @@ public class PrestigeConfirmGUI {
     private static Inventory build(Player player) {
         UUID uuid = player.getUniqueId();
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        Gui.fillAll(inv);
 
         PrestigeManager pm  = PrestigeManager.getInstance();
         PermissionEngine pe = PermissionEngine.getInstance();
@@ -78,34 +77,34 @@ public class PrestigeConfirmGUI {
         // --- Slot 11: Confirm or Blocked ---
         if (canPrestige) {
             inv.setItem(SLOT_CONFIRM, Gui.make(Material.NETHER_STAR,
-                "<light_purple>\u2714 Confirm Prestige",
-                "<gray>Current rank will reset to A",
-                "<gray>balance wiped",
-                "<gray>Prestige level: <white>" + prestige + " \u2192 " + (prestige + 1),
+                "<green>✓ Confirm Prestige",
+                "<gray>✦ Your rank will reset to <yellow>A<gray>.",
+                "<gray>✦ Your balance will be wiped.",
+                "<gray>✦ Prestige level: <white>" + prestige + " → " + (prestige + 1),
                 "",
-                "<light_purple><bold>Click to prestige!"));
+                "<green>→ Click to confirm prestige!"));
         } else {
             inv.setItem(SLOT_CONFIRM, Gui.make(Material.RED_STAINED_GLASS_PANE,
-                "<red>Cannot Prestige Yet",
-                "<gray>You must reach rank <white>Z<gray> first.",
-                "<gray>Current rank: <white>" + rank));
+                "<red>✗ Cannot Prestige Yet",
+                "<gray>✦ You must reach rank <yellow>Z<gray> first.",
+                "<gray>✦ Current rank: <yellow>" + rank));
         }
 
         // --- Slot 13: Info ---
         int sellBonus = prestige > 0 ? prestige * 5 : 0;
         inv.setItem(SLOT_INFO, Gui.make(Material.BOOK,
-            "<yellow>Prestige Info",
-            "<gray>Current prestige: <white>" + prestige,
-            "<gray>Current mine rank: <white>" + rank,
-            "<gray>Sell bonus: <white>+" + sellBonus + "%<gray> (5% per prestige)",
+            "<aqua>✦ Prestige Info",
+            "<gray>✦ Current prestige: <light_purple>✦" + prestige,
+            "<gray>✦ Current mine rank: <yellow>" + rank,
+            "<gray>✦ Sell bonus after: <green>+" + (sellBonus + 5) + "% <gray>(+5% per prestige)",
             "",
-            "<dark_gray>Prestige resets your rank to A",
-            "<dark_gray>but grants permanent bonuses."));
+            "<gray>✦ Prestige <aqua>resets<gray> your rank to <yellow>A<gray>",
+            "<gray>  but grants <aqua>permanent bonuses<gray>."));
 
         // --- Slot 15: Cancel ---
         inv.setItem(SLOT_CANCEL, Gui.make(Material.BARRIER,
-            "<red>\u2716 Cancel",
-            "<dark_gray>Return to menu"));
+            "<red>✗ Cancel",
+            "<gray>✦ Click to cancel and return to menu."));
 
         // --- Slot 18: Back ---
         inv.setItem(SLOT_BACK, Gui.back());

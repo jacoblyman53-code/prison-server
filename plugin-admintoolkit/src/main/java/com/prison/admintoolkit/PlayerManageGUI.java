@@ -29,7 +29,7 @@ public class PlayerManageGUI {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    private static final Component TITLE = MM.deserialize("<dark_purple><bold>Player Manager");
+    private static final Component TITLE = MM.deserialize("PLAYER MANAGEMENT");
 
     // Admin UUID → target player name
     private static final Map<UUID, String> managedPlayerNames = new ConcurrentHashMap<>();
@@ -165,30 +165,23 @@ public class PlayerManageGUI {
     private static void renderPlayerManageGUI(Player admin, PlayerData data) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
 
-        // Fill border
-        ItemStack filler = AdminPanel.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 9; i++)   inv.setItem(i, filler);
-        for (int i = 45; i < 54; i++) inv.setItem(i, filler);
-        for (int i = 9; i < 45; i += 9) {
-            inv.setItem(i, filler);
-            inv.setItem(i + 8, filler);
-        }
-
         // Player head (slot 4)
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-        skullMeta.displayName(MM.deserialize("<!italic><gold>" + data.username()));
+        skullMeta.displayName(MM.deserialize("<!italic><yellow>" + data.username()));
         List<Component> headLore = new ArrayList<>();
-        headLore.add(MM.deserialize("<!italic><gray>Mine Rank: <white>" + nvl(data.mineRank(), "None")));
-        headLore.add(MM.deserialize("<!italic><gray>Prestige: <white>" + data.prestige()));
-        headLore.add(MM.deserialize("<!italic><gray>Donor: <white>" + nvl(data.donorRank(), "None")));
-        headLore.add(MM.deserialize("<!italic><gray>Staff: <white>" + nvl(data.staffRank(), "None")));
-        headLore.add(MM.deserialize("<!italic><gray>IGC: <white>" + data.igcBalance()));
-        headLore.add(MM.deserialize("<!italic><gray>Tokens: <white>" + data.tokenBalance()));
-        headLore.add(MM.deserialize("<!italic><gray>Blocks Mined: <white>" + data.blocksMined()));
-        headLore.add(MM.deserialize("<!italic><gray>Playtime: <white>" + formatPlaytime(data.playtime())));
-        headLore.add(MM.deserialize("<!italic><gray>First Join: <white>" + data.firstJoin()));
-        headLore.add(MM.deserialize("<!italic><gray>Last Seen: <white>" + data.lastSeen()));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Mine Rank: <yellow>" + nvl(data.mineRank(), "<red>None")));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Prestige: <white>" + data.prestige()));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Donor: <yellow>" + nvl(data.donorRank(), "<red>None")));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Staff: <yellow>" + nvl(data.staffRank(), "<red>None")));
+        headLore.add(MM.deserialize("<!italic>"));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>IGC Balance: <white>" + data.igcBalance()));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Tokens: <white>" + data.tokenBalance()));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Blocks Mined: <white>" + data.blocksMined()));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Playtime: <white>" + formatPlaytime(data.playtime())));
+        headLore.add(MM.deserialize("<!italic>"));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>First Join: <white>" + data.firstJoin()));
+        headLore.add(MM.deserialize("<!italic><aqua>✦ <gray>Last Seen: <white>" + data.lastSeen()));
         skullMeta.lore(headLore);
         skullMeta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES);
         @SuppressWarnings("deprecation")
@@ -200,64 +193,95 @@ public class PlayerManageGUI {
         // Action buttons row 1 (18-26)
         inv.setItem(18, AdminPanel.makeItem(Material.RED_BANNER,
             "<red>Ban",
-            "<gray>Permanently ban this player.",
+            "<gray>Permanently <red>ban<gray> this player.",
             "",
-            "<dark_gray>⚠ Requires confirmation."));
+            "<red>✗ Requires confirmation.",
+            "",
+            "<green>→ <green>Click to <green><underlined>ban</underlined> this player!"));
         inv.setItem(19, AdminPanel.makeItem(Material.ORANGE_BANNER,
             "<gold>Temp Ban",
-            "<gray>Temporarily ban this player.",
-            "<gray>You will enter duration + reason.",
+            "<gray>Temporarily <red>ban<gray> this player.",
+            "<gray>You will enter <green>duration<gray> + <green>reason<gray>.",
             "",
-            "<dark_gray>⚠ Requires confirmation."));
+            "<red>✗ Requires confirmation.",
+            "",
+            "<green>→ <green>Click to <green><underlined>temp ban</underlined> this player!"));
         inv.setItem(20, AdminPanel.makeItem(Material.YELLOW_BANNER,
             "<yellow>Mute",
-            "<gray>Permanently mute this player.",
+            "<gray>Permanently <red>mute<gray> this player.",
             "",
-            "<dark_gray>⚠ Requires confirmation."));
+            "<red>✗ Requires confirmation.",
+            "",
+            "<green>→ <green>Click to <green><underlined>mute</underlined> this player!"));
         inv.setItem(21, AdminPanel.makeItem(Material.YELLOW_STAINED_GLASS_PANE,
             "<yellow>Kick",
-            "<gray>Kick this player from the server.",
+            "<gray><green>Kick<gray> this player from the server.",
             "",
-            "<dark_gray>⚠ Requires confirmation."));
+            "<red>✗ Requires confirmation.",
+            "",
+            "<green>→ <green>Click to <green><underlined>kick</underlined> this player!"));
         inv.setItem(22, AdminPanel.makeItem(Material.ICE,
             "<aqua>Freeze / Unfreeze",
-            "<gray>Freeze or unfreeze the player.",
-            "<dark_gray>Click to toggle."));
+            "<gray>Freeze or <green>unfreeze<gray> the player.",
+            "",
+            "<green>→ <green>Click to <green><underlined>toggle</underlined> freeze!"));
         inv.setItem(23, AdminPanel.makeItem(Material.ENDER_PEARL,
             "<aqua>Teleport To",
-            "<gray>Teleport to the player's location.",
-            "<dark_gray>Player must be online."));
+            "<gray>Teleport to the player's <green>location<gray>.",
+            "<gray>Player must be <green>online<gray>.",
+            "",
+            "<green>→ <green>Click to <green><underlined>teleport</underlined> to this player!"));
         inv.setItem(24, AdminPanel.makeItem(Material.ENDER_EYE,
             "<aqua>Bring Here",
-            "<gray>Teleport player to your location.",
-            "<dark_gray>Player must be online."));
+            "<gray>Teleport player to your <green>location<gray>.",
+            "<gray>Player must be <green>online<gray>.",
+            "",
+            "<green>→ <green>Click to <green><underlined>bring</underlined> this player here!"));
         inv.setItem(25, AdminPanel.makeItem(Material.CHEST,
-            "<white>View Inventory",
-            "<gray>Open the player's inventory.",
-            "<dark_gray>Player must be online."));
+            "<aqua>View Inventory",
+            "<gray>Open the player's <green>inventory<gray>.",
+            "<gray>Player must be <green>online<gray>.",
+            "",
+            "<green>→ <green>Click to <green><underlined>view</underlined> inventory!"));
         inv.setItem(26, AdminPanel.makeItem(Material.BOOK,
-            "<white>History",
-            "<gray>Show punishments and usernames in chat."));
+            "<aqua>History",
+            "<gray>Show <green>punishments<gray> and <green>usernames<gray> in chat.",
+            "",
+            "<green>→ <green>Click to <green><underlined>view</underlined> history!"));
 
         // Action buttons row 2 (27-35)
         inv.setItem(27, AdminPanel.makeItem(Material.GOLD_INGOT,
             "<gold>Give IGC",
-            "<gray>Add IGC to player's balance."));
+            "<gray>Add <green>IGC<gray> to player's balance.",
+            "",
+            "<green>→ <green>Click to <green><underlined>give</underlined> IGC!"));
         inv.setItem(28, AdminPanel.makeItem(Material.NETHER_STAR,
             "<aqua>Give Tokens",
-            "<gray>Add tokens to player's balance."));
+            "<gray>Add <green>tokens<gray> to player's balance.",
+            "",
+            "<green>→ <green>Click to <green><underlined>give</underlined> tokens!"));
         inv.setItem(29, AdminPanel.makeItem(Material.COMPASS,
-            "<white>Set Mine Rank",
-            "<gray>Force-set player's mine rank (A-Z)."));
+            "<aqua>Set Mine Rank",
+            "<gray>Force-set player's <green>mine rank<gray> (A-Z).",
+            "",
+            "<green>→ <green>Click to <green><underlined>set</underlined> mine rank!"));
         inv.setItem(30, AdminPanel.makeItem(Material.EMERALD,
-            "<green>Set Donor Rank",
-            "<gray>Set donor rank (donor/donorplus/elite/eliteplus)."));
+            "<aqua>Set Donor Rank",
+            "<gray>Set <green>donor rank<gray> (donor/donorplus/elite/eliteplus).",
+            "",
+            "<green>→ <green>Click to <green><underlined>set</underlined> donor rank!"));
         inv.setItem(31, AdminPanel.makeItem(Material.IRON_SWORD,
-            "<red>Set Staff Rank",
-            "<gray>Set staff rank or 'none' to remove."));
+            "<aqua>Set Staff Rank",
+            "<gray>Set <green>staff rank<gray> or <red>'none'<gray> to remove.",
+            "",
+            "<green>→ <green>Click to <green><underlined>set</underlined> staff rank!"));
 
         // Back
-        inv.setItem(45, AdminPanel.makeItem(Material.ARROW, "<gray>← Back", "<gray>Close player manager."));
+        inv.setItem(45, AdminPanel.makeItem(Material.ARROW,
+            "<red>← Back",
+            "<gray>Click to close this menu.",
+            "",
+            "<green>→ <green>Click to <green><underlined>close</underlined> player manager."));
 
         admin.openInventory(inv);
     }

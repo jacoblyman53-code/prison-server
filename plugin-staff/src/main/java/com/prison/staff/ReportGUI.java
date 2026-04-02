@@ -24,8 +24,8 @@ public class ReportGUI {
     private static final MiniMessage MM = MiniMessage.miniMessage();
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("MM/dd HH:mm");
 
-    static final String CONFIRM_TITLE = "Report Confirmation";
-    static final String QUEUE_TITLE   = "Report Queue";
+    static final String CONFIRM_TITLE = "CONFIRM REPORT";
+    static final String QUEUE_TITLE   = "REPORTS";
 
     // Confirm GUI slots
     static final int CONFIRM_SLOT = 11;
@@ -37,32 +37,36 @@ public class ReportGUI {
     public static void openConfirm(Player player, String targetName, String reason) {
         Inventory inv = Bukkit.createInventory(null, 27, Component.text(CONFIRM_TITLE));
 
-        ItemStack border = border();
-        for (int i = 0; i < 27; i++) inv.setItem(i, border);
-
-        // Info item
+        // Info item (slot 13)
         ItemStack info = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta m = info.getItemMeta();
-        m.displayName(MM.deserialize("<yellow>Reporting: <white>" + targetName));
+        m.displayName(MM.deserialize("<!italic><aqua>Report Details"));
         m.lore(List.of(
-            MM.deserialize("<gray>Reason: <white>" + reason),
-            MM.deserialize(""),
-            MM.deserialize("<gray>Are you sure you want to submit this report?")
+            MM.deserialize("<!italic><aqua>✦ <gray>Reported: <yellow>" + targetName),
+            MM.deserialize("<!italic><aqua>✦ <gray>Reason: <gray>" + reason),
+            MM.deserialize("<!italic>"),
+            MM.deserialize("<!italic><gray>Are you <green>sure<gray> you want to submit this report?")
         ));
         info.setItemMeta(m);
         inv.setItem(13, info);
 
-        // Confirm
+        // Confirm (slot 11)
         ItemStack confirm = new ItemStack(Material.LIME_WOOL);
         ItemMeta cm = confirm.getItemMeta();
-        cm.displayName(MM.deserialize("<green><bold>CONFIRM — Submit Report"));
+        cm.displayName(MM.deserialize("<!italic><green>✓ Confirm"));
+        cm.lore(List.of(
+            MM.deserialize("<!italic><gray>Click to confirm <green>submitting<gray> this report.")
+        ));
         confirm.setItemMeta(cm);
         inv.setItem(CONFIRM_SLOT, confirm);
 
-        // Cancel
-        ItemStack cancel = new ItemStack(Material.RED_WOOL);
+        // Cancel (slot 15)
+        ItemStack cancel = new ItemStack(Material.BARRIER);
         ItemMeta xm = cancel.getItemMeta();
-        xm.displayName(MM.deserialize("<red><bold>CANCEL"));
+        xm.displayName(MM.deserialize("<!italic><red>✗ Cancel"));
+        xm.lore(List.of(
+            MM.deserialize("<!italic><gray>Click to cancel and return.")
+        ));
         cancel.setItemMeta(xm);
         inv.setItem(CANCEL_SLOT, cancel);
 
@@ -75,36 +79,39 @@ public class ReportGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, Component.text(QUEUE_TITLE));
 
-        // Border
-        ItemStack border = border();
-        for (int i = 0; i < 9; i++)  inv.setItem(i, border);
-        for (int i = 45; i < 54; i++) inv.setItem(i, border);
-        for (int r = 1; r <= 4; r++) {
-            inv.setItem(r * 9, border);
-            inv.setItem(r * 9 + 8, border);
-        }
-
-        // Page info
+        // Page info (slot 4)
         ItemStack pageInfo = new ItemStack(Material.PAPER);
         ItemMeta pm = pageInfo.getItemMeta();
         pm.displayName(MM.deserialize(
-            "<gray>Page <white>" + (page + 1) + "<gray>/" + totalPages +
-            "  <dark_gray>(" + reports.size() + " pending)"));
+            "<!italic><aqua>✦ <gray>Page <white>" + (page + 1) + "<gray>/" + totalPages +
+            "  <gray>(" + reports.size() + " pending)"));
         pageInfo.setItemMeta(pm);
         inv.setItem(4, pageInfo);
 
+        // Close / Back button (slot 0)
+        ItemStack close = new ItemStack(Material.BARRIER);
+        ItemMeta closeMeta = close.getItemMeta();
+        closeMeta.displayName(MM.deserialize("<!italic><red>✗ Close"));
+        closeMeta.lore(List.of(MM.deserialize("<!italic><gray>Click to close this menu.")));
+        close.setItemMeta(closeMeta);
+        inv.setItem(0, close);
+
         // Prev / Next
         if (page > 0) {
-            ItemStack prev = new ItemStack(Material.ARROW);
+            ItemStack prev = new ItemStack(Material.GRAY_DYE);
             ItemMeta prevM = prev.getItemMeta();
-            prevM.displayName(MM.deserialize("<yellow>← Previous Page"));
+            prevM.displayName(MM.deserialize("<!italic><gray>← Previous Page"));
+            prevM.lore(List.of(MM.deserialize(
+                "<!italic><gray>Page <white>" + (page + 1) + " <gray>← <white>" + page)));
             prev.setItemMeta(prevM);
             inv.setItem(45, prev);
         }
         if (page < totalPages - 1) {
-            ItemStack next = new ItemStack(Material.ARROW);
+            ItemStack next = new ItemStack(Material.LIME_DYE);
             ItemMeta nextM = next.getItemMeta();
-            nextM.displayName(MM.deserialize("<yellow>Next Page →"));
+            nextM.displayName(MM.deserialize("<!italic><green>→ Next Page"));
+            nextM.lore(List.of(MM.deserialize(
+                "<!italic><gray>Page <white>" + (page + 1) + " <gray>→ <white>" + (page + 2))));
             next.setItemMeta(nextM);
             inv.setItem(53, next);
         }
@@ -131,25 +138,17 @@ public class ReportGUI {
         ItemStack item = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(MM.deserialize(
-            "<red>" + report.reportedName() + " <dark_gray>#" + report.id()));
+            "<!italic><aqua>" + report.reportedName() + " <gray>#" + report.id()));
 
         List<Component> lore = new ArrayList<>();
-        lore.add(MM.deserialize("<gray>Reporter: <white>" + report.reporterName()));
-        lore.add(MM.deserialize("<gray>Reason: <yellow>" + report.reason()));
-        lore.add(MM.deserialize("<gray>Time: <white>" + report.createdAt().format(FMT)));
-        lore.add(MM.deserialize(""));
-        lore.add(MM.deserialize("<aqua>Left-click <gray>— TP to reported player"));
-        lore.add(MM.deserialize("<red>Right-click <gray>— Close report"));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Reported: <yellow>" + report.reportedName()));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Reporter: <yellow>" + report.reporterName()));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Reason: <gray>" + report.reason()));
+        lore.add(MM.deserialize("<!italic><aqua>✦ <gray>Time: <gray>" + report.createdAt().format(FMT)));
+        lore.add(MM.deserialize("<!italic>"));
+        lore.add(MM.deserialize("<!italic><green>→ Click to handle this report!"));
         meta.lore(lore);
         item.setItemMeta(meta);
-        return item;
-    }
-
-    private static ItemStack border() {
-        ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta m = item.getItemMeta();
-        m.displayName(Component.empty());
-        item.setItemMeta(m);
         return item;
     }
 }

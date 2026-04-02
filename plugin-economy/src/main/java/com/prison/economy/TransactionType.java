@@ -23,5 +23,8 @@ public enum TransactionType {
     ADMIN_REMOVE,
     GANG_DEPOSIT,
     GANG_WITHDRAW,
-    DAILY_REWARD
+    DAILY_REWARD,
+    COINFLIP_BET,     // IGC deducted when placing or accepting a coinflip
+    COINFLIP_WIN,     // IGC awarded to the winner (full 2x pool)
+    COINFLIP_REFUND   // IGC refunded to creator on cancel
 }
