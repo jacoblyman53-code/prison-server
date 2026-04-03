@@ -289,10 +289,10 @@ public class ChatPlugin extends JavaPlugin implements Listener {
         }
 
         String prefix = switch (rank.toLowerCase()) {
-            case "donor"     -> "<gold>[<yellow>Donor</yellow>]</gold>";
-            case "donorplus" -> "<gold>[<yellow>Donor<gold>+</gold>]</gold>";
-            case "elite"     -> "<aqua>[<white>Elite</white>]</aqua>";
-            case "eliteplus" -> "<light_purple>[<white>Elite<light_purple>+</light_purple>]</light_purple>";
+            case "donor"     -> "<aqua>[Devotee]</aqua>";
+            case "donorplus" -> "<blue>[Acolyte]</blue>";
+            case "elite"     -> "<light_purple>[High Priest]</light_purple>";
+            case "eliteplus" -> "<gold><bold>[Chosen]</bold></gold>";
             default          -> "<yellow>[" + formatDonorDisplay(rank) + "]</yellow>";
         };
         return prefix + chatConfig.prefixSeparator();

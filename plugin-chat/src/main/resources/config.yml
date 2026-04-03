@@ -29,9 +29,9 @@ prefix-separator: " "
 # ----------------------------------------------------------------
 # {online} = current player count, {max} = server max players
 # Use \n for line breaks within the value string.
-tablist-header: "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>\n<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n<green>✔ <white>{online}<dark_gray>/<white>{max} <gray>players online  <dark_gray>|  <gold>play.server.com"
+tablist-header: "<gradient:#E8C87A:#C8963A><bold>⚱ THE PHARAOH'S PRISON ⚱</bold></gradient>\n<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n<green>✔ <white>{online}<dark_gray>/<white>{max} <gray>players online  <dark_gray>|  <gold>play.server.com"
 
-tablist-footer: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n<gold><bold>STORE</bold> <dark_gray>store.server.com  <dark_gray>|  <aqua><bold>DISCORD</bold> <dark_gray>discord.gg/server\n<gradient:#FFD700:#FFA500>Thank you for playing!</gradient>"
+tablist-footer: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n<gold><bold>STORE</bold> <dark_gray>store.server.com  <dark_gray>|  <aqua><bold>DISCORD</bold> <dark_gray>discord.gg/server\n<gradient:#E8C87A:#C8963A>The Pharaoh watches over all.</gradient>"
 
 # ----------------------------------------------------------------
 # PER-RANK PREFIX OVERRIDES
@@ -64,19 +64,19 @@ staff-prefix-overrides:
 join-sequence:
 
   # Large title text shown on screen when the player joins
-  title-main: "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>"
+  title-main: "<gradient:#E8C87A:#C8963A><bold>THE PHARAOH'S PRISON</bold></gradient>"
 
   # Smaller subtitle shown below the title (returning players)
-  title-sub: "<gray>Welcome back, <white>{name}</white>!</gray>"
+  title-sub: "<gray>Welcome back, <color:#E8C87A>{name}</color>. The tombs await.</gray>"
 
   # Subtitle for first-time players (replaces title-sub on first join)
-  first-join-title-sub: "<gray>Welcome to <white>Prison</white>, <white>{name}</white>!</gray>"
+  first-join-title-sub: "<gray>Your sentence begins, <color:#E8C87A>{name}</color>.</gray>"
 
   # Decorative divider line for the welcome box in chat
-  welcome-header: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+  welcome-header: "<color:#E8C87A>⚱ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</color>"
 
   # Main welcome body text (displayed between two header lines)
-  welcome-body: " <gold>Welcome to <white>Prison<gold>!  <gray>Mine, rank up, and dominate."
+  welcome-body: " <gold>Welcome to <color:#E8C87A>The Pharaoh's Prison<gold>!  <gray>Mine, rank up, and ascend."
 
   # Broadcast to all OTHER players when someone joins
   # {rank} is empty string if the player has no mine rank yet
@@ -102,7 +102,7 @@ sidebar:
   enabled: true
 
   # Objective display name — shown at the very top in bold
-  title: "<gradient:#FFD700:#FFA500><bold>⛏ PRISON ⛏</bold></gradient>"
+  title: "<gradient:#E8C87A:#C8963A><bold>THE PHARAOH'S PRISON</bold></gradient>"
 
   # Horizontal rule used as separator lines within the sidebar
   divider: "<dark_gray>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"

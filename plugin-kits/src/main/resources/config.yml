@@ -212,7 +212,7 @@ kits:
   # ------------------------------------------------------------------
 
   donor:
-    display: "<blue>Donor Kit"
+    display: "<aqua>Devotee's Rations"
     type: DONOR
     required-donor-rank: donor
     min-cooldown-hours: 24
@@ -250,7 +250,7 @@ kits:
         amount: 16
 
   donorplus:
-    display: "<blue>Donor<aqua>+ Kit"
+    display: "<blue>Acolyte's Rations"
     type: DONOR
     required-donor-rank: donorplus
     min-cooldown-hours: 18
@@ -288,7 +288,7 @@ kits:
         amount: 32
 
   elite:
-    display: "<gold>Elite Kit"
+    display: "<light_purple>High Priest's Blessing"
     type: DONOR
     required-donor-rank: elite
     min-cooldown-hours: 12
@@ -330,7 +330,7 @@ kits:
         amount: 32
 
   eliteplus:
-    display: "<gradient:#f7971e:#ffd200>Elite+ Kit</gradient>"
+    display: "<gradient:#f7971e:#ffd200>Chosen's Blessing</gradient>"
     type: DONOR
     required-donor-rank: eliteplus
     min-cooldown-hours: 8
