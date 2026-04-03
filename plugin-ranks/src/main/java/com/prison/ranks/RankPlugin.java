@@ -325,9 +325,9 @@ public class RankPlugin extends JavaPlugin implements Listener {
 
     private void sendMilestoneMessage(Player player, String rank) {
         String msg = switch (rank.toUpperCase()) {
-            case "E" -> "<gold>✦ You are now a Merchant. The Pharaoh's bazaars are open to you.";
-            case "J" -> "<gold>✦ You are now an Architect. The Khopesh's higher secrets are within reach.";
-            case "N" -> "<gold>✦ You are now a High Priest. You may speak with the gods... for a price.";
+            case "E" -> "<gold>✦ Rank E reached. The Pharaoh's bazaars are open to you.";
+            case "J" -> "<gold>✦ Rank J reached. The Khopesh's higher secrets are within reach.";
+            case "N" -> "<gold>✦ Rank N reached. You may now speak with the gods... for a price.";
             case "Z" -> "<gold>⚡ YOU HAVE REACHED PHARAOH RANK. The highest mortal honor.";
             default  -> null;
         };

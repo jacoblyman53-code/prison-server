@@ -38,123 +38,123 @@ ranks:
 
   B:
     cost: 5000
-    display: "Serf"
-    prefix: "<dark_gray>[<gray>Serf</gray>]</dark_gray>"
+    display: "B"
+    prefix: "<dark_gray>[<gray>B</gray>]</dark_gray>"
 
   C:
     cost: 15000
-    display: "Laborer"
-    prefix: "<dark_gray>[<gray>Laborer</gray>]</dark_gray>"
+    display: "C"
+    prefix: "<dark_gray>[<gray>C</gray>]</dark_gray>"
 
   D:
     cost: 35000
-    display: "Craftsman"
-    prefix: "<dark_gray>[<white>Craftsman</white>]</dark_gray>"
+    display: "D"
+    prefix: "<dark_gray>[<gray>D</gray>]</dark_gray>"
 
   E:
     cost: 75000
-    display: "Merchant"
-    prefix: "<dark_gray>[<white>Merchant</white>]</dark_gray>"
+    display: "E"
+    prefix: "<dark_gray>[<gray>E</gray>]</dark_gray>"
 
   F:
     cost: 150000
-    display: "Scribe"
-    prefix: "<dark_gray>[<white>Scribe</white>]</dark_gray>"
+    display: "F"
+    prefix: "<dark_gray>[<gray>F</gray>]</dark_gray>"
 
   G:
     cost: 275000
-    display: "Soldier"
-    prefix: "<dark_gray>[<yellow>Soldier</yellow>]</dark_gray>"
+    display: "G"
+    prefix: "<dark_gray>[<yellow>G</yellow>]</dark_gray>"
 
   H:
     cost: 450000
-    display: "Officer"
-    prefix: "<dark_gray>[<yellow>Officer</yellow>]</dark_gray>"
+    display: "H"
+    prefix: "<dark_gray>[<yellow>H</yellow>]</dark_gray>"
 
   I:
     cost: 700000
-    display: "Embalmer"
-    prefix: "<dark_gray>[<yellow>Embalmer</yellow>]</dark_gray>"
+    display: "I"
+    prefix: "<dark_gray>[<yellow>I</yellow>]</dark_gray>"
 
   J:
     cost: 1000000
-    display: "Architect"
-    prefix: "<dark_gray>[<gold>Architect</gold>]</dark_gray>"
+    display: "J"
+    prefix: "<dark_gray>[<gold>J</gold>]</dark_gray>"
 
   K:
     cost: 1500000
-    display: "Physician"
-    prefix: "<dark_gray>[<gold>Physician</gold>]</dark_gray>"
+    display: "K"
+    prefix: "<dark_gray>[<gold>K</gold>]</dark_gray>"
 
   L:
     cost: 2250000
-    display: "Vizier"
-    prefix: "<dark_gray>[<gold>Vizier</gold>]</dark_gray>"
+    display: "L"
+    prefix: "<dark_gray>[<gold>L</gold>]</dark_gray>"
 
   M:
     cost: 3500000
-    display: "Nomarch"
-    prefix: "<dark_gray>[<green>Nomarch</green>]</dark_gray>"
+    display: "M"
+    prefix: "<dark_gray>[<gold>M</gold>]</dark_gray>"
 
   N:
     cost: 5000000
-    display: "High Priest"
-    prefix: "<dark_gray>[<green>High Priest</green>]</dark_gray>"
+    display: "N"
+    prefix: "<dark_gray>[<gold>N</gold>]</dark_gray>"
 
   O:
     cost: 7500000
-    display: "Sage"
-    prefix: "<dark_gray>[<green>Sage</green>]</dark_gray>"
+    display: "O"
+    prefix: "<dark_gray>[<gold>O</gold>]</dark_gray>"
 
   P:
     cost: 11000000
-    display: "Sorcerer"
-    prefix: "<dark_gray>[<aqua>Sorcerer</aqua>]</dark_gray>"
+    display: "P"
+    prefix: "<dark_gray>[<aqua>P</aqua>]</dark_gray>"
 
   Q:
     cost: 16000000
-    display: "Oracle"
-    prefix: "<dark_gray>[<aqua>Oracle</aqua>]</dark_gray>"
+    display: "Q"
+    prefix: "<dark_gray>[<aqua>Q</aqua>]</dark_gray>"
 
   R:
     cost: 23000000
-    display: "Djed"
-    prefix: "<dark_gray>[<aqua>Djed</aqua>]</dark_gray>"
+    display: "R"
+    prefix: "<dark_gray>[<aqua>R</aqua>]</dark_gray>"
 
   S:
     cost: 33000000
-    display: "Anubite"
-    prefix: "<dark_gray>[<light_purple>Anubite</light_purple>]</dark_gray>"
+    display: "S"
+    prefix: "<dark_gray>[<red>S</red>]</dark_gray>"
 
   T:
     cost: 48000000
-    display: "Horus-Born"
-    prefix: "<dark_gray>[<light_purple>Horus-Born</light_purple>]</dark_gray>"
+    display: "T"
+    prefix: "<dark_gray>[<red>T</red>]</dark_gray>"
 
   U:
     cost: 70000000
-    display: "Champion"
-    prefix: "<dark_gray>[<light_purple>Champion</light_purple>]</dark_gray>"
+    display: "U"
+    prefix: "<dark_gray>[<red>U</red>]</dark_gray>"
 
   V:
     cost: 100000000
-    display: "Demigod"
-    prefix: "<dark_gray>[<red>Demigod</red>]</dark_gray>"
+    display: "V"
+    prefix: "<dark_gray>[<red>V</red>]</dark_gray>"
 
   W:
     cost: 150000000
-    display: "Immortal"
-    prefix: "<dark_gray>[<red>Immortal</red>]</dark_gray>"
+    display: "W"
+    prefix: "<dark_gray>[<dark_red>W</dark_red>]</dark_gray>"
 
   X:
     cost: 225000000
-    display: "Reborn"
-    prefix: "<dark_gray>[<red>Reborn</red>]</dark_gray>"
+    display: "X"
+    prefix: "<dark_gray>[<dark_red>X</dark_red>]</dark_gray>"
 
   Y:
     cost: 350000000
-    display: "Ascendant"
-    prefix: "<dark_gray>[<dark_red>Ascendant</dark_red>]</dark_gray>"
+    display: "Y"
+    prefix: "<dark_gray>[<dark_red>Y</dark_red>]</dark_gray>"
 
   Z:
     cost: 500000000
