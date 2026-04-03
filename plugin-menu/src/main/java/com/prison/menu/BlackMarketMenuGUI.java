@@ -29,7 +29,7 @@ public class BlackMarketMenuGUI {
     }
 
     public static void handleClick(Player player, int slot, MenuPlugin plugin) {
-        if (slot == SLOT_BACK) {
+        if (slot == 0 || slot == SLOT_BACK) {
             Sounds.nav(player);
             MainMenuGUI.open(player);
             return;
@@ -71,8 +71,12 @@ public class BlackMarketMenuGUI {
             List<BlackMarketItem> items = bmm.getCurrentItems();
 
             if (items.isEmpty()) {
-                inv.setItem(SLOT_TIMER, Gui.make(Material.CLOCK, "<gray>No Items Available",
-                    "<gray>✦ Check back later for new deals."));
+                inv.setItem(SLOT_TIMER, Gui.make(Material.SOUL_LANTERN,
+                    "<!italic><color:#E8C87A>⚱ The Merchants are Restocking",
+                    "<!italic><gray>The Pharaoh's shadow merchants have",
+                    "<!italic><gray>retreated to gather new wares.",
+                    "<!italic><gray>",
+                    "<!italic><gold>✦ Return when the hourglass turns."));
             } else {
                 long timeUntil = bmm.getTimeUntilRefresh();
                 inv.setItem(SLOT_TIMER, Gui.make(Material.CLOCK,
@@ -115,9 +119,13 @@ public class BlackMarketMenuGUI {
                 }
             }
         } else {
-            // Manager unavailable
-            inv.setItem(SLOT_TIMER, Gui.make(Material.BARRIER, "<red>✗ Unavailable",
-                "<gray>✦ Black Market is not available right now."));
+            // Manager unavailable — show sealed-market state
+            inv.setItem(SLOT_TIMER, Gui.make(Material.CHISELED_SANDSTONE,
+                "<!italic><color:#E8C87A>⚱ The Shadow Bazaar is Sealed",
+                "<!italic><gray>The Pharaoh's black merchants do not",
+                "<!italic><gray>walk these halls at this hour.",
+                "<!italic><gray>",
+                "<!italic><gold>✦ Return during the next dark cycle."));
         }
 
         inv.setItem(SLOT_BACK, Gui.back());
